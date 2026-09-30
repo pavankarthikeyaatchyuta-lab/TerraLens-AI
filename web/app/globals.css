@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #090d16;
+  --foreground: #e2e8f0;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Tactical Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0d1322;
+}
+::-webkit-scrollbar-thumb {
+  background: #1c2742;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #27375c;
+}
+
+/* Tactical Grid Background */
+.tactical-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(30, 41, 59, 0.25) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(30, 41, 59, 0.25) 1px, transparent 1px);
+}
+
+/* Leaflet styles */
+@import "leaflet/dist/leaflet.css";
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background-color: #0d1322 !important;
+}

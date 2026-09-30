@@ -1,0 +1,9 @@
+{
+  "location_id": "LOC_004_CHENNAI_COASTAL",
+  "before_date": "2023-02-18",
+  "after_date": "2025-02-14",
+  "mask_file": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_004_CHENNAI_COASTAL_2023_2025_change_mask.png",
+  "diff_file": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_004_CHENNAI_COASTAL_2023_2025_diff_heatmap.png",
+  "overlay_file": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_004_CHENNAI_COASTAL_2023_2025_overlay.png",
+  "total_regions": 2
+}

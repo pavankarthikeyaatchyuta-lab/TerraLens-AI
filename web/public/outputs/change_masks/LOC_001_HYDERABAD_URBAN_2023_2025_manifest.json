@@ -1,0 +1,9 @@
+{
+  "location_id": "LOC_001_HYDERABAD_URBAN",
+  "before_date": "2023-03-15",
+  "after_date": "2025-02-20",
+  "mask_file": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_001_HYDERABAD_URBAN_2023_2025_change_mask.png",
+  "diff_file": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_001_HYDERABAD_URBAN_2023_2025_diff_heatmap.png",
+  "overlay_file": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_001_HYDERABAD_URBAN_2023_2025_overlay.png",
+  "total_regions": 12
+}

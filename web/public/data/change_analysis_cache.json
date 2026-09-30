@@ -1,0 +1,521 @@
+{
+  "LOC_001_HYDERABAD_URBAN": {
+    "status": "CHANGE_DETECTED",
+    "change_type": "Detected Change",
+    "detector_name": "DeterministicBiTemporalChangeDetector",
+    "detector_label": "Deterministic Bi-Temporal Baseline",
+    "changed_pixels": 33544,
+    "total_pixels": 262144,
+    "change_ratio": 0.12796,
+    "change_regions": [
+      {
+        "region_id": 1,
+        "x": 193,
+        "y": 37,
+        "width": 319,
+        "height": 316,
+        "area_pixels": 7768,
+        "relative_area": 0.02963,
+        "centroid": [
+          312.56,
+          228.87
+        ],
+        "bbox_geo": null
+      },
+      {
+        "region_id": 10,
+        "x": 319,
+        "y": 409,
+        "width": 80,
+        "height": 63,
+        "area_pixels": 4431,
+        "relative_area": 0.0169,
+        "centroid": [
+          359.47,
+          440.0
+        ],
+        "bbox_geo": null
+      },
+      {
+        "region_id": 8,
+        "x": 392,
+        "y": 297,
+        "width": 67,
+        "height": 57,
+        "area_pixels": 3803,
+        "relative_area": 0.01451,
+        "centroid": [
+          425.12,
+          324.91
+        ],
+        "bbox_geo": null
+      },
+      {
+        "region_id": 11,
+        "x": 422,
+        "y": 417,
+        "width": 57,
+        "height": 62,
+        "area_pixels": 3471,
+        "relative_area": 0.01324,
+        "centroid": [
+          449.76,
+          447.64
+        ],
+        "bbox_geo": null
+      },
+      {
+        "region_id": 7,
+        "x": 312,
+        "y": 292,
+        "width": 57,
+        "height": 57,
+        "area_pixels": 3219,
+        "relative_area": 0.01228,
+        "centroid": [
+          339.82,
+          320.02
+        ],
+        "bbox_geo": null
+      },
+      {
+        "region_id": 9,
+        "x": 266,
+        "y": 370,
+        "width": 235,
+        "height": 114,
+        "area_pixels": 2415,
+        "relative_area": 0.00921,
+        "centroid": [
+          326.41,
+          409.08
+        ],
+        "bbox_geo": null
+      },
+      {
+        "region_id": 4,
+        "x": 380,
+        "y": 145,
+        "width": 71,
+        "height": 69,
+        "area_pixels": 2355,
+        "relative_area": 0.00898,
+        "centroid": [
+          414.95,
+          185.96
+        ],
+        "bbox_geo": null
+      },
+      {
+        "region_id": 6,
+        "x": 0,
+        "y": 245,
+        "width": 179,
+        "height": 19,
+        "area_pixels": 2293,
+        "relative_area": 0.00875,
+        "centroid": [
+          87.48,
+          253.97
+        ],
+        "bbox_geo": null
+      },
+      {
+        "region_id": 5,
+        "x": 310,
+        "y": 150,
+        "width": 51,
+        "height": 59,
+        "area_pixels": 1511,
+        "relative_area": 0.00576,
+        "centroid": [
+          334.92,
+          182.8
+        ],
+        "bbox_geo": null
+      },
+      {
+        "region_id": 3,
+        "x": 370,
+        "y": 55,
+        "width": 61,
+        "height": 51,
+        "area_pixels": 1198,
+        "relative_area": 0.00457,
+        "centroid": [
+          399.95,
+          80.04
+        ],
+        "bbox_geo": null
+      },
+      {
+        "region_id": 2,
+        "x": 300,
+        "y": 50,
+        "width": 51,
+        "height": 51,
+        "area_pixels": 1080,
+        "relative_area": 0.00412,
+        "centroid": [
+          325.0,
+          75.0
+        ],
+        "bbox_geo": null
+      }
+    ],
+    "confidence_score": 0.677,
+    "confidence_breakdown": {
+      "signal_strength": 0.372,
+      "spatial_coherence": 1.0,
+      "quality_score": 0.797,
+      "penalty": 0.0,
+      "sensor_mismatch_penalty": 0.0
+    },
+    "quality_score": 0.797,
+    "change_mask_path": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_001_HYDERABAD_URBAN_2023_2025_change_mask.png",
+    "difference_image_path": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_001_HYDERABAD_URBAN_2023_2025_diff_heatmap.png",
+    "overlay_image_path": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_001_HYDERABAD_URBAN_2023_2025_overlay.png",
+    "preprocessing_steps": [
+      "Image validation: 3-channel RGB uint8 arrays confirmed",
+      "Image quality assessment: Quality score 0.797",
+      "Spatial alignment: Identity alignment: Native coordinates aligned",
+      "Gaussian filtering: Kernel size (3x3) applied for high-frequency noise rejection",
+      "Radiometric normalization: Contrast & mean illumination matched (mu=136.4, sigma=38.3)",
+      "Difference calculation: Absolute intensity delta with threshold=28.0",
+      "Morphological filtering: Opening + Closing with (3x3) kernel",
+      "Connected component extraction: 11 contiguous regions retained (min_area=120px)"
+    ],
+    "warnings": [],
+    "diagnostics": {
+      "threshold": 28.0,
+      "min_area": 120,
+      "raw_changed_pixels": 32499,
+      "morph_kernel_size": 3,
+      "illumination_matched": true,
+      "shape": [
+        512,
+        512
+      ]
+    }
+  },
+  "LOC_002_GODAVARI_RESERVOIR": {
+    "status": "CHANGE_DETECTED",
+    "change_type": "Detected Change",
+    "detector_name": "DeterministicBiTemporalChangeDetector",
+    "detector_label": "Deterministic Bi-Temporal Baseline",
+    "changed_pixels": 84142,
+    "total_pixels": 262144,
+    "change_ratio": 0.32098,
+    "change_regions": [
+      {
+        "region_id": 2,
+        "x": 0,
+        "y": 37,
+        "width": 407,
+        "height": 447,
+        "area_pixels": 74079,
+        "relative_area": 0.28259,
+        "centroid": [
+          281.13,
+          256.43
+        ],
+        "bbox_geo": null
+      },
+      {
+        "region_id": 3,
+        "x": 326,
+        "y": 484,
+        "width": 186,
+        "height": 28,
+        "area_pixels": 5011,
+        "relative_area": 0.01912,
+        "centroid": [
+          421.96,
+          497.7
+        ],
+        "bbox_geo": null
+      },
+      {
+        "region_id": 1,
+        "x": 372,
+        "y": 0,
+        "width": 140,
+        "height": 37,
+        "area_pixels": 4709,
+        "relative_area": 0.01796,
+        "centroid": [
+          447.26,
+          18.27
+        ],
+        "bbox_geo": null
+      },
+      {
+        "region_id": 5,
+        "x": 74,
+        "y": 493,
+        "width": 32,
+        "height": 10,
+        "area_pixels": 179,
+        "relative_area": 0.00068,
+        "centroid": [
+          88.65,
+          497.4
+        ],
+        "bbox_geo": null
+      },
+      {
+        "region_id": 4,
+        "x": 18,
+        "y": 493,
+        "width": 29,
+        "height": 10,
+        "area_pixels": 164,
+        "relative_area": 0.00063,
+        "centroid": [
+          31.88,
+          496.28
+        ],
+        "bbox_geo": null
+      }
+    ],
+    "confidence_score": 0.736,
+    "confidence_breakdown": {
+      "signal_strength": 0.431,
+      "spatial_coherence": 0.988,
+      "quality_score": 0.982,
+      "penalty": 0.0,
+      "sensor_mismatch_penalty": 0.0
+    },
+    "quality_score": 0.982,
+    "change_mask_path": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_002_GODAVARI_RESERVOIR_2023_2025_change_mask.png",
+    "difference_image_path": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_002_GODAVARI_RESERVOIR_2023_2025_diff_heatmap.png",
+    "overlay_image_path": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_002_GODAVARI_RESERVOIR_2023_2025_overlay.png",
+    "preprocessing_steps": [
+      "Image validation: 3-channel RGB uint8 arrays confirmed",
+      "Image quality assessment: Quality score 0.982",
+      "Spatial alignment: Identity alignment: Native coordinates aligned",
+      "Gaussian filtering: Kernel size (3x3) applied for high-frequency noise rejection",
+      "Radiometric normalization: Contrast & mean illumination matched (mu=81.4, sigma=49.4)",
+      "Difference calculation: Absolute intensity delta with threshold=28.0",
+      "Morphological filtering: Opening + Closing with (3x3) kernel",
+      "Connected component extraction: 5 contiguous regions retained (min_area=120px)"
+    ],
+    "warnings": [],
+    "diagnostics": {
+      "threshold": 28.0,
+      "min_area": 120,
+      "raw_changed_pixels": 85166,
+      "morph_kernel_size": 3,
+      "illumination_matched": true,
+      "shape": [
+        512,
+        512
+      ]
+    }
+  },
+  "LOC_003_WESTERN_GHATS_FOREST": {
+    "status": "CHANGE_DETECTED",
+    "change_type": "Detected Change",
+    "detector_name": "DeterministicBiTemporalChangeDetector",
+    "detector_label": "Deterministic Bi-Temporal Baseline",
+    "changed_pixels": 3499,
+    "total_pixels": 262144,
+    "change_ratio": 0.01335,
+    "change_regions": [
+      {
+        "region_id": 1,
+        "x": 199,
+        "y": 239,
+        "width": 63,
+        "height": 62,
+        "area_pixels": 3499,
+        "relative_area": 0.01335,
+        "centroid": [
+          229.2,
+          270.34
+        ],
+        "bbox_geo": null
+      }
+    ],
+    "confidence_score": 0.443,
+    "confidence_breakdown": {
+      "signal_strength": 0.292,
+      "spatial_coherence": 0.647,
+      "quality_score": 0.425,
+      "penalty": 0.0,
+      "sensor_mismatch_penalty": 0.0
+    },
+    "quality_score": 0.425,
+    "change_mask_path": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_003_WESTERN_GHATS_FOREST_2023_2025_change_mask.png",
+    "difference_image_path": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_003_WESTERN_GHATS_FOREST_2023_2025_diff_heatmap.png",
+    "overlay_image_path": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_003_WESTERN_GHATS_FOREST_2023_2025_overlay.png",
+    "preprocessing_steps": [
+      "Image validation: 3-channel RGB uint8 arrays confirmed",
+      "Image quality assessment: Quality score 0.425",
+      "Spatial alignment: Identity alignment: Native coordinates aligned",
+      "Gaussian filtering: Kernel size (3x3) applied for high-frequency noise rejection",
+      "Radiometric normalization: Contrast & mean illumination matched (mu=84.5, sigma=18.2)",
+      "Difference calculation: Absolute intensity delta with threshold=28.0",
+      "Morphological filtering: Opening + Closing with (3x3) kernel",
+      "Connected component extraction: 1 contiguous regions retained (min_area=120px)"
+    ],
+    "warnings": [],
+    "diagnostics": {
+      "threshold": 28.0,
+      "min_area": 120,
+      "raw_changed_pixels": 5408,
+      "morph_kernel_size": 3,
+      "illumination_matched": true,
+      "shape": [
+        512,
+        512
+      ]
+    }
+  },
+  "LOC_004_CHENNAI_COASTAL": {
+    "status": "CHANGE_DETECTED",
+    "change_type": "Detected Change",
+    "detector_name": "DeterministicBiTemporalChangeDetector",
+    "detector_label": "Deterministic Bi-Temporal Baseline",
+    "changed_pixels": 35667,
+    "total_pixels": 262144,
+    "change_ratio": 0.13606,
+    "change_regions": [
+      {
+        "region_id": 2,
+        "x": 160,
+        "y": 260,
+        "width": 161,
+        "height": 201,
+        "area_pixels": 22311,
+        "relative_area": 0.08511,
+        "centroid": [
+          262.19,
+          357.02
+        ],
+        "bbox_geo": null
+      },
+      {
+        "region_id": 1,
+        "x": 200,
+        "y": 181,
+        "width": 238,
+        "height": 69,
+        "area_pixels": 13356,
+        "relative_area": 0.05095,
+        "centroid": [
+          307.53,
+          215.47
+        ],
+        "bbox_geo": null
+      }
+    ],
+    "confidence_score": 0.855,
+    "confidence_breakdown": {
+      "signal_strength": 0.681,
+      "spatial_coherence": 0.996,
+      "quality_score": 1.0,
+      "penalty": 0.0,
+      "sensor_mismatch_penalty": 0.0
+    },
+    "quality_score": 1.0,
+    "change_mask_path": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_004_CHENNAI_COASTAL_2023_2025_change_mask.png",
+    "difference_image_path": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_004_CHENNAI_COASTAL_2023_2025_diff_heatmap.png",
+    "overlay_image_path": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_004_CHENNAI_COASTAL_2023_2025_overlay.png",
+    "preprocessing_steps": [
+      "Image validation: 3-channel RGB uint8 arrays confirmed",
+      "Image quality assessment: Quality score 1.000",
+      "Spatial alignment: Identity alignment: Native coordinates aligned",
+      "Gaussian filtering: Kernel size (3x3) applied for high-frequency noise rejection",
+      "Radiometric normalization: Contrast & mean illumination matched (mu=108.1, sigma=49.7)",
+      "Difference calculation: Absolute intensity delta with threshold=28.0",
+      "Morphological filtering: Opening + Closing with (3x3) kernel",
+      "Connected component extraction: 2 contiguous regions retained (min_area=120px)"
+    ],
+    "warnings": [],
+    "diagnostics": {
+      "threshold": 28.0,
+      "min_area": 120,
+      "raw_changed_pixels": 35812,
+      "morph_kernel_size": 3,
+      "illumination_matched": true,
+      "shape": [
+        512,
+        512
+      ]
+    }
+  },
+  "LOC_005_THAR_SOLAR_PARK": {
+    "status": "CHANGE_DETECTED",
+    "change_type": "Detected Change",
+    "detector_name": "DeterministicBiTemporalChangeDetector",
+    "detector_label": "Deterministic Bi-Temporal Baseline",
+    "changed_pixels": 256646,
+    "total_pixels": 262144,
+    "change_ratio": 0.97903,
+    "change_regions": [
+      {
+        "region_id": 2,
+        "x": 0,
+        "y": 248,
+        "width": 512,
+        "height": 264,
+        "area_pixels": 133565,
+        "relative_area": 0.50951,
+        "centroid": [
+          255.69,
+          379.82
+        ],
+        "bbox_geo": null
+      },
+      {
+        "region_id": 1,
+        "x": 0,
+        "y": 0,
+        "width": 512,
+        "height": 243,
+        "area_pixels": 123081,
+        "relative_area": 0.46952,
+        "centroid": [
+          255.68,
+          120.68
+        ],
+        "bbox_geo": null
+      }
+    ],
+    "confidence_score": 0.699,
+    "confidence_breakdown": {
+      "signal_strength": 0.354,
+      "spatial_coherence": 1.0,
+      "quality_score": 0.946,
+      "penalty": 0.0,
+      "sensor_mismatch_penalty": 0.0
+    },
+    "quality_score": 0.946,
+    "change_mask_path": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_005_THAR_SOLAR_PARK_2023_2025_change_mask.png",
+    "difference_image_path": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_005_THAR_SOLAR_PARK_2023_2025_diff_heatmap.png",
+    "overlay_image_path": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_005_THAR_SOLAR_PARK_2023_2025_overlay.png",
+    "preprocessing_steps": [
+      "Image validation: 3-channel RGB uint8 arrays confirmed",
+      "Image quality assessment: Quality score 0.946",
+      "Spatial alignment: Identity alignment: Native coordinates aligned",
+      "Gaussian filtering: Kernel size (3x3) applied for high-frequency noise rejection",
+      "Radiometric normalization: Contrast & mean illumination matched (mu=174.1, sigma=46.2)",
+      "Difference calculation: Absolute intensity delta with threshold=28.0",
+      "Morphological filtering: Opening + Closing with (3x3) kernel",
+      "Connected component extraction: 2 contiguous regions retained (min_area=120px)"
+    ],
+    "warnings": [],
+    "diagnostics": {
+      "threshold": 28.0,
+      "min_area": 120,
+      "raw_changed_pixels": 237274,
+      "morph_kernel_size": 3,
+      "illumination_matched": true,
+      "shape": [
+        512,
+        512
+      ]
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "location_id": "ROB_CROSS_SENSOR",
+  "before_date": "T1",
+  "after_date": "T2",
+  "mask_file": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\ROB_CROSS_SENSOR_T1_T2_change_mask.png",
+  "diff_file": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\ROB_CROSS_SENSOR_T1_T2_diff_heatmap.png",
+  "overlay_file": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\ROB_CROSS_SENSOR_T1_T2_overlay.png",
+  "total_regions": 0
+}

@@ -1,0 +1,9 @@
+{
+  "location_id": "LOC_005_THAR_SOLAR_PARK",
+  "before_date": "2023-05-12",
+  "after_date": "2025-04-18",
+  "mask_file": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_005_THAR_SOLAR_PARK_2023_2025_change_mask.png",
+  "diff_file": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_005_THAR_SOLAR_PARK_2023_2025_diff_heatmap.png",
+  "overlay_file": "C:\\Users\\pavan\\OneDrive\\Pictures\\Desktop\\TerraLens AI\\data\\outputs\\change_masks\\LOC_005_THAR_SOLAR_PARK_2023_2025_overlay.png",
+  "total_regions": 2
+}

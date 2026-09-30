@@ -53,3 +53,11 @@ data/outputs/**/*.json
 .vscode/
 .idea/
 *.swp
+
+# Node & Next.js
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+*.tsbuildinfo
+next-env.d.ts

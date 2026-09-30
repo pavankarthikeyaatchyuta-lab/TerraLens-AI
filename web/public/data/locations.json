@@ -1,0 +1,429 @@
+{
+  "dataset_name": "TerraLens AI Prototype Dataset (SIH-2026 Sandbox)",
+  "version": "1.0.0",
+  "description": "Multi-temporal satellite imagery sandbox demonstrating peri-urban, reservoir, forest corridor, coastal, and solar infrastructure change.",
+  "locations": [
+    {
+      "location_id": "LOC_001_HYDERABAD_URBAN",
+      "name": "Hyderabad Peri-Urban Growth Zone",
+      "description": "Rapid peri-urban infrastructure development and construction near seasonal water channel.",
+      "latitude": 17.4483,
+      "longitude": 78.3742,
+      "bounding_box": {
+        "min_lat": 17.3983,
+        "min_lon": 78.3242,
+        "max_lat": 17.4983,
+        "max_lon": 78.4242
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "before_scene_id": "SCENE_LOC_001_HYDERABAD_URBAN_2023",
+      "after_scene_id": "SCENE_LOC_001_HYDERABAD_URBAN_2025",
+      "available_dates": [
+        "2023-03-15",
+        "2025-02-20"
+      ],
+      "tags": [
+        "urban",
+        "construction",
+        "buildings",
+        "infrastructure",
+        "river"
+      ],
+      "source": "prototype_dataset",
+      "extra_metadata": {
+        "region": "India",
+        "sih_category": "Smart India Hackathon 2026"
+      }
+    },
+    {
+      "location_id": "LOC_002_GODAVARI_RESERVOIR",
+      "name": "Sriram Sagar Reservoir Catchment",
+      "description": "Surface water reservoir fluctuation and drying shoreline in Godavari basin.",
+      "latitude": 18.9647,
+      "longitude": 78.3283,
+      "bounding_box": {
+        "min_lat": 18.9147,
+        "min_lon": 78.2783,
+        "max_lat": 19.0147,
+        "max_lon": 78.3783
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "before_scene_id": "SCENE_LOC_002_GODAVARI_RESERVOIR_2023",
+      "after_scene_id": "SCENE_LOC_002_GODAVARI_RESERVOIR_2025",
+      "available_dates": [
+        "2023-01-10",
+        "2025-01-25"
+      ],
+      "tags": [
+        "water",
+        "reservoir",
+        "lake",
+        "drought",
+        "wetland"
+      ],
+      "source": "prototype_dataset",
+      "extra_metadata": {
+        "region": "India",
+        "sih_category": "Smart India Hackathon 2026"
+      }
+    },
+    {
+      "location_id": "LOC_003_WESTERN_GHATS_FOREST",
+      "name": "Western Ghats Clearance Corridor",
+      "description": "Linear infrastructure clearance and road construction corridor cut through dense forest canopy.",
+      "latitude": 14.8512,
+      "longitude": 74.5238,
+      "bounding_box": {
+        "min_lat": 14.8012,
+        "min_lon": 74.4738,
+        "max_lat": 14.901200000000001,
+        "max_lon": 74.57379999999999
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "before_scene_id": "SCENE_LOC_003_WESTERN_GHATS_FOREST_2023",
+      "after_scene_id": "SCENE_LOC_003_WESTERN_GHATS_FOREST_2025",
+      "available_dates": [
+        "2023-04-05",
+        "2025-03-12"
+      ],
+      "tags": [
+        "forest",
+        "deforestation",
+        "trees",
+        "corridor",
+        "road"
+      ],
+      "source": "prototype_dataset",
+      "extra_metadata": {
+        "region": "India",
+        "sih_category": "Smart India Hackathon 2026"
+      }
+    },
+    {
+      "location_id": "LOC_004_CHENNAI_COASTAL",
+      "name": "Ennore Coastal & Port Reclamation",
+      "description": "Coastal land reclamation and industrial pier expansion over coastal mudflats.",
+      "latitude": 13.2541,
+      "longitude": 80.3312,
+      "bounding_box": {
+        "min_lat": 13.204099999999999,
+        "min_lon": 80.2812,
+        "max_lat": 13.3041,
+        "max_lon": 80.38119999999999
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "before_scene_id": "SCENE_LOC_004_CHENNAI_COASTAL_2023",
+      "after_scene_id": "SCENE_LOC_004_CHENNAI_COASTAL_2025",
+      "available_dates": [
+        "2023-02-18",
+        "2025-02-14"
+      ],
+      "tags": [
+        "coastal",
+        "port",
+        "reclamation",
+        "ocean",
+        "industrial"
+      ],
+      "source": "prototype_dataset",
+      "extra_metadata": {
+        "region": "India",
+        "sih_category": "Smart India Hackathon 2026"
+      }
+    },
+    {
+      "location_id": "LOC_005_THAR_SOLAR_PARK",
+      "name": "Bhadla Solar Intelligence Sector",
+      "description": "Arid desert terrain converted into high-density photovoltaic solar array installation.",
+      "latitude": 27.538,
+      "longitude": 71.917,
+      "bounding_box": {
+        "min_lat": 27.488,
+        "min_lon": 71.867,
+        "max_lat": 27.588,
+        "max_lon": 71.967
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "before_scene_id": "SCENE_LOC_005_THAR_SOLAR_PARK_2023",
+      "after_scene_id": "SCENE_LOC_005_THAR_SOLAR_PARK_2025",
+      "available_dates": [
+        "2023-05-12",
+        "2025-04-18"
+      ],
+      "tags": [
+        "solar",
+        "energy",
+        "desert",
+        "panels",
+        "infrastructure"
+      ],
+      "source": "prototype_dataset",
+      "extra_metadata": {
+        "region": "India",
+        "sih_category": "Smart India Hackathon 2026"
+      }
+    }
+  ],
+  "scenes": [
+    {
+      "scene_id": "SCENE_LOC_001_HYDERABAD_URBAN_2023",
+      "location_id": "LOC_001_HYDERABAD_URBAN",
+      "latitude": 17.4483,
+      "longitude": 78.3742,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2A",
+      "acquisition_date": "2023-03-15",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_001_HYDERABAD_URBAN/before_2023.jpg",
+      "thumbnail_path": "data/samples/LOC_001_HYDERABAD_URBAN/before_2023.jpg",
+      "cloud_percentage": 1.2,
+      "source": "prototype_dataset",
+      "tags": [
+        "urban",
+        "construction",
+        "buildings",
+        "infrastructure",
+        "river"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_001_HYDERABAD_URBAN_2025",
+      "location_id": "LOC_001_HYDERABAD_URBAN",
+      "latitude": 17.4483,
+      "longitude": 78.3742,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2B",
+      "acquisition_date": "2025-02-20",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_001_HYDERABAD_URBAN/after_2025.jpg",
+      "thumbnail_path": "data/samples/LOC_001_HYDERABAD_URBAN/after_2025.jpg",
+      "cloud_percentage": 2.5,
+      "source": "prototype_dataset",
+      "tags": [
+        "urban",
+        "construction",
+        "buildings",
+        "infrastructure",
+        "river"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_002_GODAVARI_RESERVOIR_2023",
+      "location_id": "LOC_002_GODAVARI_RESERVOIR",
+      "latitude": 18.9647,
+      "longitude": 78.3283,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2A",
+      "acquisition_date": "2023-01-10",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_002_GODAVARI_RESERVOIR/before_2023.jpg",
+      "thumbnail_path": "data/samples/LOC_002_GODAVARI_RESERVOIR/before_2023.jpg",
+      "cloud_percentage": 1.2,
+      "source": "prototype_dataset",
+      "tags": [
+        "water",
+        "reservoir",
+        "lake",
+        "drought",
+        "wetland"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_002_GODAVARI_RESERVOIR_2025",
+      "location_id": "LOC_002_GODAVARI_RESERVOIR",
+      "latitude": 18.9647,
+      "longitude": 78.3283,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2B",
+      "acquisition_date": "2025-01-25",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_002_GODAVARI_RESERVOIR/after_2025.jpg",
+      "thumbnail_path": "data/samples/LOC_002_GODAVARI_RESERVOIR/after_2025.jpg",
+      "cloud_percentage": 2.5,
+      "source": "prototype_dataset",
+      "tags": [
+        "water",
+        "reservoir",
+        "lake",
+        "drought",
+        "wetland"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_003_WESTERN_GHATS_FOREST_2023",
+      "location_id": "LOC_003_WESTERN_GHATS_FOREST",
+      "latitude": 14.8512,
+      "longitude": 74.5238,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2A",
+      "acquisition_date": "2023-04-05",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_003_WESTERN_GHATS_FOREST/before_2023.jpg",
+      "thumbnail_path": "data/samples/LOC_003_WESTERN_GHATS_FOREST/before_2023.jpg",
+      "cloud_percentage": 1.2,
+      "source": "prototype_dataset",
+      "tags": [
+        "forest",
+        "deforestation",
+        "trees",
+        "corridor",
+        "road"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_003_WESTERN_GHATS_FOREST_2025",
+      "location_id": "LOC_003_WESTERN_GHATS_FOREST",
+      "latitude": 14.8512,
+      "longitude": 74.5238,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2B",
+      "acquisition_date": "2025-03-12",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_003_WESTERN_GHATS_FOREST/after_2025.jpg",
+      "thumbnail_path": "data/samples/LOC_003_WESTERN_GHATS_FOREST/after_2025.jpg",
+      "cloud_percentage": 2.5,
+      "source": "prototype_dataset",
+      "tags": [
+        "forest",
+        "deforestation",
+        "trees",
+        "corridor",
+        "road"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_004_CHENNAI_COASTAL_2023",
+      "location_id": "LOC_004_CHENNAI_COASTAL",
+      "latitude": 13.2541,
+      "longitude": 80.3312,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2A",
+      "acquisition_date": "2023-02-18",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_004_CHENNAI_COASTAL/before_2023.jpg",
+      "thumbnail_path": "data/samples/LOC_004_CHENNAI_COASTAL/before_2023.jpg",
+      "cloud_percentage": 1.2,
+      "source": "prototype_dataset",
+      "tags": [
+        "coastal",
+        "port",
+        "reclamation",
+        "ocean",
+        "industrial"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_004_CHENNAI_COASTAL_2025",
+      "location_id": "LOC_004_CHENNAI_COASTAL",
+      "latitude": 13.2541,
+      "longitude": 80.3312,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2B",
+      "acquisition_date": "2025-02-14",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_004_CHENNAI_COASTAL/after_2025.jpg",
+      "thumbnail_path": "data/samples/LOC_004_CHENNAI_COASTAL/after_2025.jpg",
+      "cloud_percentage": 2.5,
+      "source": "prototype_dataset",
+      "tags": [
+        "coastal",
+        "port",
+        "reclamation",
+        "ocean",
+        "industrial"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_005_THAR_SOLAR_PARK_2023",
+      "location_id": "LOC_005_THAR_SOLAR_PARK",
+      "latitude": 27.538,
+      "longitude": 71.917,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2A",
+      "acquisition_date": "2023-05-12",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_005_THAR_SOLAR_PARK/before_2023.jpg",
+      "thumbnail_path": "data/samples/LOC_005_THAR_SOLAR_PARK/before_2023.jpg",
+      "cloud_percentage": 1.2,
+      "source": "prototype_dataset",
+      "tags": [
+        "solar",
+        "energy",
+        "desert",
+        "panels",
+        "infrastructure"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_005_THAR_SOLAR_PARK_2025",
+      "location_id": "LOC_005_THAR_SOLAR_PARK",
+      "latitude": 27.538,
+      "longitude": 71.917,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2B",
+      "acquisition_date": "2025-04-18",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_005_THAR_SOLAR_PARK/after_2025.jpg",
+      "thumbnail_path": "data/samples/LOC_005_THAR_SOLAR_PARK/after_2025.jpg",
+      "cloud_percentage": 2.5,
+      "source": "prototype_dataset",
+      "tags": [
+        "solar",
+        "energy",
+        "desert",
+        "panels",
+        "infrastructure"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    }
+  ]
+}

@@ -1,0 +1,427 @@
+{
+  "metadata": {
+    "benchmark_name": "TerraLens AI Evaluation Suite",
+    "version": "1.0.0",
+    "total_locations": 5,
+    "total_scenes": 10
+  },
+  "environment": {
+    "operating_system": "Windows 11 (10.0.26300)",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python_version": "3.13.14",
+    "python_implementation": "CPython",
+    "architecture": "AMD64",
+    "processor": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+    "total_ram_gb": 15.68,
+    "available_ram_gb": 4.18,
+    "cpu_cores_logical": 12,
+    "cpu_cores_physical": 8
+  },
+  "retrieval": {
+    "total_queries_evaluated": 5,
+    "cold_start_model_init_ms": 477.38,
+    "first_query_latency_ms": 10280.78,
+    "warm_retrieval_mean_latency_ms": 21.47,
+    "warm_retrieval_min_latency_ms": 16.59,
+    "warm_retrieval_max_latency_ms": 28.22,
+    "mean_latency_ms": 21.47,
+    "mean_recalls": {
+      "recall@1": 0.2,
+      "recall@3": 0.5,
+      "recall@5": 0.5
+    },
+    "mean_precisions": {
+      "precision@1": 0.4,
+      "precision@3": 0.3333,
+      "precision@5": 0.2
+    },
+    "mean_mrr": 0.6667,
+    "location_accuracy_at_1": 0.4,
+    "query_details": [
+      {
+        "query_text": "urban expansion and new construction near river",
+        "relevant_scenes_count": 2,
+        "retrieved_scenes_count": 5,
+        "retrieved_scene_ids": [
+          "SCENE_LOC_001_HYDERABAD_URBAN_2025",
+          "SCENE_LOC_002_GODAVARI_RESERVOIR_2023",
+          "SCENE_LOC_003_WESTERN_GHATS_FOREST_2025",
+          "SCENE_LOC_004_CHENNAI_COASTAL_2023",
+          "SCENE_LOC_005_THAR_SOLAR_PARK_2025"
+        ],
+        "latency_ms": 10280.78,
+        "recalls": {
+          "recall@1": 0.5,
+          "recall@3": 0.5,
+          "recall@5": 0.5
+        },
+        "precisions": {
+          "precision@1": 1.0,
+          "precision@3": 0.3333,
+          "precision@5": 0.2
+        },
+        "mrr": 1.0,
+        "location_hit_at_1": true,
+        "score_distribution": {
+          "min": 0.204,
+          "max": 0.2756,
+          "mean": 0.2257,
+          "std": 0.0259
+        },
+        "domain": "urban_growth",
+        "rationale": "Queries peri-urban building construction and roads adjacent to a seasonal waterway."
+      },
+      {
+        "query_text": "water reservoir shoreline drying and lake shrinkage",
+        "relevant_scenes_count": 2,
+        "retrieved_scenes_count": 5,
+        "retrieved_scene_ids": [
+          "SCENE_LOC_001_HYDERABAD_URBAN_2023",
+          "SCENE_LOC_002_GODAVARI_RESERVOIR_2023",
+          "SCENE_LOC_003_WESTERN_GHATS_FOREST_2025",
+          "SCENE_LOC_005_THAR_SOLAR_PARK_2025",
+          "SCENE_LOC_004_CHENNAI_COASTAL_2023"
+        ],
+        "latency_ms": 16.59,
+        "recalls": {
+          "recall@1": 0.0,
+          "recall@3": 0.5,
+          "recall@5": 0.5
+        },
+        "precisions": {
+          "precision@1": 0.0,
+          "precision@3": 0.3333,
+          "precision@5": 0.2
+        },
+        "mrr": 0.5,
+        "location_hit_at_1": false,
+        "score_distribution": {
+          "min": 0.2075,
+          "max": 0.2482,
+          "mean": 0.2251,
+          "std": 0.0139
+        },
+        "domain": "hydrology",
+        "rationale": "Queries reservoir basin surface water fluctuations and drying shoreline dynamics."
+      },
+      {
+        "query_text": "forest road clearing corridor and tree removal",
+        "relevant_scenes_count": 2,
+        "retrieved_scenes_count": 5,
+        "retrieved_scene_ids": [
+          "SCENE_LOC_001_HYDERABAD_URBAN_2025",
+          "SCENE_LOC_003_WESTERN_GHATS_FOREST_2025",
+          "SCENE_LOC_005_THAR_SOLAR_PARK_2025",
+          "SCENE_LOC_004_CHENNAI_COASTAL_2025",
+          "SCENE_LOC_002_GODAVARI_RESERVOIR_2023"
+        ],
+        "latency_ms": 22.7,
+        "recalls": {
+          "recall@1": 0.0,
+          "recall@3": 0.5,
+          "recall@5": 0.5
+        },
+        "precisions": {
+          "precision@1": 0.0,
+          "precision@3": 0.3333,
+          "precision@5": 0.2
+        },
+        "mrr": 0.5,
+        "location_hit_at_1": false,
+        "score_distribution": {
+          "min": 0.1553,
+          "max": 0.2363,
+          "mean": 0.1863,
+          "std": 0.0309
+        },
+        "domain": "forestry",
+        "rationale": "Queries linear infrastructure cut through dense forest canopy."
+      },
+      {
+        "query_text": "coastal port reclamation and ocean harbor pier",
+        "relevant_scenes_count": 2,
+        "retrieved_scenes_count": 5,
+        "retrieved_scene_ids": [
+          "SCENE_LOC_001_HYDERABAD_URBAN_2025",
+          "SCENE_LOC_002_GODAVARI_RESERVOIR_2023",
+          "SCENE_LOC_004_CHENNAI_COASTAL_2023",
+          "SCENE_LOC_003_WESTERN_GHATS_FOREST_2025",
+          "SCENE_LOC_005_THAR_SOLAR_PARK_2025"
+        ],
+        "latency_ms": 18.38,
+        "recalls": {
+          "recall@1": 0.0,
+          "recall@3": 0.5,
+          "recall@5": 0.5
+        },
+        "precisions": {
+          "precision@1": 0.0,
+          "precision@3": 0.3333,
+          "precision@5": 0.2
+        },
+        "mrr": 0.3333,
+        "location_hit_at_1": false,
+        "score_distribution": {
+          "min": 0.1743,
+          "max": 0.2034,
+          "mean": 0.1903,
+          "std": 0.0104
+        },
+        "domain": "coastal",
+        "rationale": "Queries industrial land reclamation into coastal mudflats and port waterways."
+      },
+      {
+        "query_text": "solar panel farm photovoltaic arrays in desert terrain",
+        "relevant_scenes_count": 2,
+        "retrieved_scenes_count": 5,
+        "retrieved_scene_ids": [
+          "SCENE_LOC_005_THAR_SOLAR_PARK_2025",
+          "SCENE_LOC_001_HYDERABAD_URBAN_2025",
+          "SCENE_LOC_002_GODAVARI_RESERVOIR_2023",
+          "SCENE_LOC_003_WESTERN_GHATS_FOREST_2025",
+          "SCENE_LOC_004_CHENNAI_COASTAL_2023"
+        ],
+        "latency_ms": 28.22,
+        "recalls": {
+          "recall@1": 0.5,
+          "recall@3": 0.5,
+          "recall@5": 0.5
+        },
+        "precisions": {
+          "precision@1": 1.0,
+          "precision@3": 0.3333,
+          "precision@5": 0.2
+        },
+        "mrr": 1.0,
+        "location_hit_at_1": true,
+        "score_distribution": {
+          "min": 0.1969,
+          "max": 0.2677,
+          "mean": 0.2346,
+          "std": 0.0239
+        },
+        "domain": "energy_infrastructure",
+        "rationale": "Queries high-density photovoltaic solar array fields installed over arid sands."
+      }
+    ]
+  },
+  "change_detection": {
+    "total_pairs_considered": 4,
+    "pairs_with_ground_truth": 2,
+    "pairs_without_ground_truth": 2,
+    "ground_truth_coverage_ratio": 0.5,
+    "mean_metrics_on_annotated_benchmark": {
+      "mean_precision": 1.0,
+      "mean_recall": 0.9985,
+      "mean_f1": 0.9992,
+      "mean_iou": 0.9985,
+      "mean_fpr": 0.0
+    },
+    "detailed_results": [
+      {
+        "pair_id": "PAIR_SYNTHETIC_CHANGE",
+        "ground_truth_available": true,
+        "message": "Metrics successfully computed against ground truth mask.",
+        "metrics": {
+          "precision": 1.0,
+          "recall": 0.9969,
+          "f1": 0.9984,
+          "iou": 0.9969,
+          "false_positive_rate": 0.0
+        },
+        "pixel_counts": {
+          "total_pixels": 14400,
+          "ground_truth_changed_pixels": 1600,
+          "predicted_changed_pixels": 1595,
+          "ground_truth_change_ratio": 0.11111,
+          "predicted_change_ratio": 0.11076
+        },
+        "confusion_matrix": {
+          "tp": 1595,
+          "fp": 0,
+          "fn": 5,
+          "tn": 12800
+        },
+        "name": "Controlled Synthetic Structural Change",
+        "detected_status": "CHANGE_DETECTED",
+        "expected_status": "CHANGE_DETECTED",
+        "notes": "Exact 40x40 pixel block change (1600 pixels) on smooth terrain gradient."
+      },
+      {
+        "pair_id": "PAIR_SYNTHETIC_NO_CHANGE",
+        "ground_truth_available": true,
+        "message": "Metrics successfully computed against ground truth mask.",
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "iou": 1.0,
+          "false_positive_rate": 0.0
+        },
+        "pixel_counts": {
+          "total_pixels": 14400,
+          "ground_truth_changed_pixels": 0,
+          "predicted_changed_pixels": 0,
+          "ground_truth_change_ratio": 0.0,
+          "predicted_change_ratio": 0.0
+        },
+        "confusion_matrix": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 14400
+        },
+        "name": "Controlled Synthetic Invariant Scene",
+        "detected_status": "NO_SIGNIFICANT_CHANGE",
+        "expected_status": "NO_SIGNIFICANT_CHANGE",
+        "notes": "Identical baseline and monitoring scenes; ground truth mask is all zeroes."
+      },
+      {
+        "pair_id": "PAIR_LOC_001_HYDERABAD",
+        "ground_truth_available": false,
+        "message": "Ground truth unavailable \u2014 metric not computed.",
+        "metrics": {
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "iou": null,
+          "false_positive_rate": null
+        },
+        "confusion_matrix": null,
+        "name": "Hyderabad Peri-Urban Growth Zone (2023 vs 2025)",
+        "detected_status": "CHANGE_DETECTED",
+        "expected_status": "CHANGE_DETECTED",
+        "notes": "Pixel-level ground truth unavailable for prototype archive; metric not computed."
+      },
+      {
+        "pair_id": "PAIR_LOC_002_GODAVARI",
+        "ground_truth_available": false,
+        "message": "Ground truth unavailable \u2014 metric not computed.",
+        "metrics": {
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "iou": null,
+          "false_positive_rate": null
+        },
+        "confusion_matrix": null,
+        "name": "Sriram Sagar Reservoir Catchment (2023 vs 2025)",
+        "detected_status": "CHANGE_DETECTED",
+        "expected_status": "CHANGE_DETECTED",
+        "notes": "Pixel-level ground truth unavailable for prototype archive; metric not computed."
+      }
+    ]
+  },
+  "robustness": {
+    "all_passed": true,
+    "total_scenarios": 7,
+    "passed_scenarios": 7,
+    "scenarios": {
+      "scenario_1_no_change": {
+        "scenario": "No-change invariant pair",
+        "passed": true,
+        "status": "NO_SIGNIFICANT_CHANGE",
+        "changed_pixels": 0,
+        "confidence_score": 0.1,
+        "notes": "Verified that zero change occurs on identical inputs."
+      },
+      "scenario_2_known_change": {
+        "scenario": "Known synthetic change block",
+        "passed": true,
+        "status": "CHANGE_DETECTED",
+        "changed_pixels": 1595,
+        "iou_vs_ground_truth": 0.9969,
+        "regions_count": 1,
+        "confidence_score": 0.57,
+        "notes": "Verified detection of continuous change block with region clustering (IoU: 0.9969 >= 0.85)."
+      },
+      "scenario_3_low_quality": {
+        "scenario": "Low-quality / narrow dynamic range",
+        "passed": true,
+        "warnings_generated": [
+          "Low contrast warning: One or both scenes exhibit narrow radiometric dynamic range."
+        ],
+        "quality_penalty_applied": true,
+        "quality_score": 0.0,
+        "notes": "Verified that detector triggers low-contrast warning, applies quality penalty, and dampens confidence."
+      },
+      "scenario_4_illumination_variation": {
+        "scenario": "Global illumination variation (+40 offset)",
+        "passed": true,
+        "status": "NO_SIGNIFICANT_CHANGE",
+        "changed_pixels": 0,
+        "preprocessing_steps": [
+          "Image validation: 3-channel RGB uint8 arrays confirmed",
+          "Image quality assessment: Quality score 0.327",
+          "Spatial alignment: Identity alignment: Native coordinates aligned",
+          "Gaussian filtering: Kernel size (3x3) applied for high-frequency noise rejection",
+          "Radiometric normalization: Contrast & mean illumination matched (mu=99.2, sigma=16.3)",
+          "Difference calculation: Absolute intensity delta with threshold=30.0",
+          "Morphological filtering: Opening + Closing with (3x3) kernel",
+          "Connected component extraction: 0 contiguous regions retained (min_area=25px)"
+        ],
+        "notes": "Verified that mean/std illumination normalization prevents false alarms from sun angle."
+      },
+      "scenario_5_seasonal_variation": {
+        "scenario": "Seasonal phenology variation",
+        "passed": true,
+        "status": "NO_SIGNIFICANT_CHANGE",
+        "changed_pixels": 0,
+        "notes": "Verified that thresholding + illumination matching suppresses diffuse seasonal foliage shifts."
+      },
+      "scenario_6_spatial_misalignment": {
+        "scenario": "Spatial dimension mismatch normalization",
+        "passed": true,
+        "total_pixels_evaluated": 10000,
+        "preprocessing_steps": [
+          "Image validation: 3-channel RGB uint8 arrays confirmed",
+          "Image quality assessment: Quality score 0.000",
+          "Spatial alignment: Image dimensions normalized: Resized monitoring scene from (140, 140) to (100x100)",
+          "Gaussian filtering: Kernel size (3x3) applied for high-frequency noise rejection",
+          "Difference calculation: Absolute intensity delta with threshold=28.0",
+          "Morphological filtering: Opening + Closing with (3x3) kernel",
+          "Connected component extraction: 0 contiguous regions retained (min_area=120px)"
+        ],
+        "notes": "Verified that ImageAlignmentService reconciles dimensions without crashing."
+      },
+      "scenario_7_cross_sensor": {
+        "scenario": "Cross-sensor comparison",
+        "passed": true,
+        "warnings": [
+          "Cross-sensor comparison (Sentinel-2 MSI vs PlanetScope Dove): Different spectral band passes and radiometric responses may elevate false alarms.",
+          "Low contrast warning: One or both scenes exhibit narrow radiometric dynamic range."
+        ],
+        "sensor_mismatch_penalty": 0.15,
+        "notes": "Verified that sensor mismatch triggers explicit warnings and score penalty."
+      }
+    }
+  },
+  "system_performance": {
+    "retrieval_timing": {
+      "benchmark_queries_count": 3,
+      "trials_per_query": 3,
+      "total_runs": 9,
+      "mean_latency_ms": 13.54,
+      "min_latency_ms": 12.55,
+      "max_latency_ms": 15.96
+    },
+    "index_storage": {
+      "index_type": "IndexFlatIP",
+      "total_vectors": 10,
+      "dimension": 512,
+      "index_file_kb": 20.04,
+      "metadata_file_kb": 5.35,
+      "is_valid": true
+    },
+    "change_detection_timing": {
+      "location_id": "LOC_001_HYDERABAD_URBAN",
+      "scene_dimensions": "(512, 512)",
+      "repetitions": 3,
+      "mean_latency_ms": 33.29,
+      "min_latency_ms": 32.12,
+      "max_latency_ms": 34.43,
+      "changed_pixels": 33544,
+      "regions_extracted": 11
+    }
+  }
+}
