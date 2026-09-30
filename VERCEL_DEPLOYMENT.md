@@ -26,7 +26,7 @@ TerraLens AI employs a dual-track architecture designed for both research depth 
 ```
 
 - **Research Engine (Local / Server):** Streamlit + Python 3.13 + PyTorch + CLIP ViT-B/32 + FAISS IndexFlatIP + OpenCV deterministic change detection.
-- **Public Demo (Vercel Serverless):** Next.js 14 + React 18 + TypeScript + Tailwind CSS. Operates in **Controlled Benchmark Mode** using pre-indexed 512-dimensional normalized vectors and pre-computed raster change artifacts, providing $<20\text{ ms}$ response times without serverless crashes or timeouts.
+- **Public Demo (Vercel Serverless):** Next.js 14 + React 18 + TypeScript + Tailwind CSS. Operates in **Controlled Benchmark Mode** using pre-indexed 512-dimensional normalized vectors and pre-computed raster change artifacts, providing $<20\text{ ms}$ response times (local production-build measurement) without serverless crashes or timeouts.
 
 ---
 
@@ -87,7 +87,7 @@ Expected output:
 
 ## 5. API Structure
 
-All serverless endpoints run in `web/app/api/` and respond in $<20\text{ ms}$:
+All serverless endpoints run in `web/app/api/` and respond in $<20\text{ ms}$ (local production-build measurement):
 
 | Endpoint | Method | Description |
 | :--- | :--- | :--- |
@@ -148,13 +148,13 @@ vercel deploy --temporary -y
 
 Post-deployment checklist for hackathon judges and evaluators:
 - [x] **Homepage Hero Banner:** Displays SIH26227, Space Technology, and motto `SEARCH → DISCOVER → COMPARE → VERIFY`.
-- [x] **Zero Cold-Start:** Vector retrieval responds in $<20\text{ ms}$.
+- [x] **Zero Cold-Start:** Vector retrieval responds in $<20\text{ ms}$ (local production-build measurement).
 - [x] **Interactive Leaflet AOI Map:** Markers and bounding boxes render correctly.
 - [x] **Swipe Comparison Slider:** Smoothly compares before ($T_1$) and after ($T_2$) satellite scenes.
 - [x] **Raster Diagnostics:** Instant toggling between Difference Heatmap, Binary Change Mask, and Highlight Overlay with opacity slider.
 - [x] **Auditable Provenance:** Displays every step in the deterministic processing pipeline.
 - [x] **Analyst Adjudication & Dossier Export:** Supports analyst verification notes and one-click Markdown/JSON download.
-- [x] **Live Evaluation Modal:** Presents empirical benchmarks (MRR: 0.6667, Mean IoU: 0.9764, Illumination Invariance: 0.999).
+- [x] **Live Evaluation Modal:** Presents empirical benchmarks (MRR: 0.6667, Mean IoU: 0.9985 on controlled benchmark pairs, Illumination Invariance: 0.999).
 
 ---
 
@@ -179,7 +179,7 @@ Post-deployment checklist for hackathon judges and evaluators:
 | **Change Detection** | Dynamic OpenCV / NumPy bitemporal pipeline | Pre-rendered raster layers + telemetry serving |
 | **Deployment Target** | Local workstation / Dedicated GPU server | Vercel Serverless Edge & Node.js Runtime |
 | **Bundle Footprint** | $\sim 2.5\text{ GB}$ (PyTorch + CUDA + Transformers) | $\sim 15\text{ MB}$ (Static assets + optimized JS) |
-| **Query Latency** | $\sim 21.47\text{ ms}$ (warm) / $477\text{ ms}$ (cold model load) | $< 20\text{ ms}$ (zero cold start) |
+| **Query Latency** | $\sim 21.47\text{ ms}$ (warm) / $477\text{ ms}$ (cold model load) | $< 20\text{ ms}$ (Local production-build measurement) |
 
 ---
 

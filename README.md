@@ -300,7 +300,7 @@ TerraLens AI supports two deployment targets tailored for research rigor and pub
 - **Framework:** Next.js 14, React 18, TypeScript, Tailwind CSS (`web/`)
 - **Runtime:** Vercel Serverless Edge & Node.js Runtime (zero-cold-start, $<20\text{ ms}$ response).
 - **Positioning:** *Controlled Benchmark Demo* — evaluates supported benchmark queries using pre-indexed 512-dimensional normalized vectors and pre-computed bitemporal change artifacts.
-- **No Heavy ML Dependencies:** Completely excludes PyTorch, Transformers, and FAISS from serverless bundles, ensuring 100% uptime and zero out-of-memory crashes.
+- **No Heavy ML Dependencies:** Completely excludes PyTorch, Transformers, and FAISS from serverless bundles, ensuring high operational reliability and avoiding out-of-memory crashes.
 - **Run Command Locally:**
   ```bash
   cd web

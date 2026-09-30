@@ -19,6 +19,7 @@ export default function HomePage() {
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [selectedLocationId, setSelectedLocationId] = useState<string>("LOC_001_HYDERABAD_URBAN");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searchOutcome, setSearchOutcome] = useState<any>(null);
   const [activeQuery, setActiveQuery] = useState<string>("");
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [lastLatencyMs, setLastLatencyMs] = useState<number | undefined>(undefined);
@@ -83,13 +84,17 @@ export default function HomePage() {
         body: JSON.stringify({ query, top_k: 5 }),
       });
       const data = await res.json();
-      if (data.results) {
-        setSearchResults(data.results);
+      setSearchOutcome(data);
+      if (data.supported) {
+        setSearchResults(data.results || []);
         setLastLatencyMs(data.latency_ms);
         // Automatically select the top ranked location
-        if (data.results.length > 0 && data.results[0].location?.location_id) {
+        if (data.results && data.results.length > 0 && data.results[0].location?.location_id) {
           setSelectedLocationId(data.results[0].location.location_id);
         }
+      } else {
+        setSearchResults([]);
+        setLastLatencyMs(data.latency_ms);
       }
     } catch (err) {
       console.error("Search failed", err);
@@ -156,6 +161,8 @@ export default function HomePage() {
               allLocations={locations}
               selectedLocationId={selectedLocationId}
               onSelectLocation={(id) => setSelectedLocationId(id)}
+              searchOutcome={searchOutcome}
+              onSelectBenchmarkQuery={handleSearch}
             />
           </div>
 

@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
 
 ## 4. AUDIT & PROVENANCE CHAIN
 1. **Semantic Discovery:** CLIP ViT-B/32 query projection -> FAISS L2 Normalized Cosine Search.
-2. **Temporal Alignment:** Sub-pixel affine verification -> Resolution standardization.
+2. **Temporal Alignment:** Spatial dimension verification -> Image alignment & resolution reconciliation.
 3. **Radiometric Correction:** Global histogram contrast & illumination normalization.
 4. **Differentiation:** Absolute luminance subtraction ($|T_2 - T_1|$).
 5. **False-Alarm Suppression:** Morphological opening + Minimum region thresholding (20 px).

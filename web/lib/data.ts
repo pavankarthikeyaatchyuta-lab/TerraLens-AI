@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { Location, Scene, SearchResult, ChangeDetectionResult } from "@/types";
-import { cosineSimilarity, keywordJaccard } from "./vector";
+import { cosineSimilarity } from "./vector";
 
 interface SceneEmbeddingRecord {
   vector_id: number;
@@ -121,13 +121,21 @@ export function getSceneById(sceneId: string): Scene | undefined {
   return scenes.find((s) => s.scene_id === sceneId);
 }
 
+export interface SearchOutcome {
+  supported: boolean;
+  mode: string;
+  message?: string;
+  results: SearchResult[];
+  latencyMs: number;
+}
+
 /**
  * Executes semantic search over indexed scenes using exact cosine similarity
- * of precomputed 512d CLIP vectors. If the query string was precomputed, its
- * exact CLIP embedding is matched. If not, it blends nearest known query representations
- * and lexical relevance to rank the scenes with exact mathematical scoring.
+ * of precomputed 512d CLIP vectors.
+ * If query is in the supported benchmark query set, exact cosine similarity is computed.
+ * If not, returns an explicit unsupported notice without fabricating scores.
  */
-export function searchScenes(query: string, topK: number = 5): { results: SearchResult[]; latencyMs: number } {
+export function searchScenes(query: string, topK: number = 5): SearchOutcome {
   const start = performance.now();
   const normalizedQuery = query.toLowerCase().trim();
   const embFile = getSceneEmbeddings();
@@ -135,45 +143,37 @@ export function searchScenes(query: string, topK: number = 5): { results: Search
   const locations = getLocations();
 
   if (!embFile || embFile.scenes.length === 0) {
-    return { results: [], latencyMs: Math.round((performance.now() - start) * 100) / 100 };
+    return {
+      supported: false,
+      mode: "controlled-benchmark",
+      message: "Catalog embeddings are not available.",
+      results: [],
+      latencyMs: Math.round((performance.now() - start) * 100) / 100,
+    };
   }
 
-  let queryVector: number[] | null = null;
+  // Exact match from precomputed CLIP benchmark embeddings
+  const queryVector: number[] | null = queryMap[normalizedQuery] || null;
 
-  // 1. Direct query vector lookup
-  if (queryMap[normalizedQuery]) {
-    queryVector = queryMap[normalizedQuery];
-  } else {
-    // Check partial key match
-    for (const [key, vec] of Object.entries(queryMap)) {
-      if (normalizedQuery.includes(key) || key.includes(normalizedQuery)) {
-        queryVector = vec;
-        break;
-      }
-    }
+  if (!queryVector) {
+    // If not a supported precomputed query, do NOT fabricate scores!
+    return {
+      supported: false,
+      mode: "controlled-benchmark",
+      message: "This query is not available in Controlled Benchmark Mode. Please use one of the supported benchmark queries.",
+      results: [],
+      latencyMs: Math.round((performance.now() - start) * 100) / 100,
+    };
   }
 
   const scored: Array<{ sceneRecord: SceneEmbeddingRecord; score: number }> = [];
 
   for (const sceneRec of embFile.scenes) {
-    let score = 0;
-    const loc = locations.find((l) => l.location_id === sceneRec.location_id);
-    const locDesc = loc ? loc.description : "";
-    const tags = sceneRec.tags || [];
-
-    if (queryVector) {
-      score = cosineSimilarity(queryVector, sceneRec.vector);
-    } else {
-      // Lexical + semantic tag fallback
-      const jaccard = keywordJaccard(normalizedQuery, tags, locDesc);
-      // Average score based on tags overlap mapped to realistic CLIP cosine similarity range [0.20, 0.35]
-      score = 0.20 + jaccard * 0.15;
-    }
-
+    const score = cosineSimilarity(queryVector, sceneRec.vector);
     scored.push({ sceneRecord: sceneRec, score });
   }
 
-  // Sort descending by score
+  // Sort descending by exact cosine score
   scored.sort((a, b) => b.score - a.score);
 
   const topResults = scored.slice(0, topK);
@@ -215,5 +215,10 @@ export function searchScenes(query: string, topK: number = 5): { results: Search
     };
   });
 
-  return { results, latencyMs: latency };
+  return {
+    supported: true,
+    mode: "controlled-benchmark",
+    results,
+    latencyMs: latency,
+  };
 }

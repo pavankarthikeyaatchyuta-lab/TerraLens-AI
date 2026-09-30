@@ -63,29 +63,34 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
             <>
               {/* SECTION 1: Latency & System Telemetry */}
               <div>
-                <h3 className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                  <Timer className="w-4 h-4" />
-                  <span>1. Runtime Latency Decomposition</span>
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Timer className="w-4 h-4" />
+                    <span>1. Runtime Latency Decomposition</span>
+                  </h3>
+                  <span className="text-[10px] font-mono text-slate-400 bg-tactical-800 px-2 py-0.5 rounded border border-tactical-700">
+                    Local production-build measurement
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                   <div className="bg-tactical-850 p-3.5 rounded-xl border border-tactical-700">
                     <span className="text-[11px] font-mono text-slate-400 block uppercase">
-                      Warm Semantic Retrieval
+                      Warm Retrieval
                     </span>
                     <span className="text-2xl font-bold font-mono text-cyan-400">
-                      ~21.47 ms
+                      ~{evalData?.retrieval?.warm_retrieval_mean_latency_ms?.toFixed(2) ?? "21.47"} ms
                     </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">
-                      Min: 16.59 ms | Max: 28.22 ms
+                      Min: {evalData?.retrieval?.warm_retrieval_min_latency_ms?.toFixed(2) ?? "16.59"} ms | Max: {evalData?.retrieval?.warm_retrieval_max_latency_ms?.toFixed(2) ?? "28.22"} ms
                     </span>
                   </div>
 
                   <div className="bg-tactical-850 p-3.5 rounded-xl border border-tactical-700">
                     <span className="text-[11px] font-mono text-slate-400 block uppercase">
-                      CLIP Model Initialization
+                      CLIP Model Init
                     </span>
                     <span className="text-2xl font-bold font-mono text-amber-400">
-                      ~477.4 ms
+                      ~{evalData?.retrieval?.cold_start_model_init_ms?.toFixed(1) ?? "477.4"} ms
                     </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">
                       PyTorch weights load (not total cold start)
@@ -94,13 +99,25 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
 
                   <div className="bg-tactical-850 p-3.5 rounded-xl border border-tactical-700">
                     <span className="text-[11px] font-mono text-slate-400 block uppercase">
-                      First-Query Cold Pipeline
+                      First-Query Pipeline
                     </span>
                     <span className="text-2xl font-bold font-mono text-slate-200">
-                      ~10.28 s
+                      ~{evalData?.retrieval?.first_query_latency_ms ? (evalData.retrieval.first_query_latency_ms / 1000).toFixed(2) : "10.28"} s
                     </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">
                       Cold initialization + initial vector search
+                    </span>
+                  </div>
+
+                  <div className="bg-tactical-850 p-3.5 rounded-xl border border-tactical-700">
+                    <span className="text-[11px] font-mono text-slate-400 block uppercase">
+                      Change Detection
+                    </span>
+                    <span className="text-2xl font-bold font-mono text-emerald-400">
+                      ~{evalData?.system_performance?.change_detection_timing?.mean_latency_ms?.toFixed(2) ?? "33.29"} ms
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-mono block mt-1">
+                      512x512 bitemporal pipeline
                     </span>
                   </div>
                 </div>
@@ -115,25 +132,33 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Mean Reciprocal Rank</span>
-                    <span className="text-xl font-bold font-mono text-slate-100">0.6667</span>
+                    <span className="text-xl font-bold font-mono text-slate-100">
+                      {evalData?.retrieval?.mean_mrr?.toFixed(4) ?? "0.6667"}
+                    </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">MRR Benchmark</span>
                   </div>
 
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Location Acc@1</span>
-                    <span className="text-xl font-bold font-mono text-slate-100">40.0%</span>
+                    <span className="text-xl font-bold font-mono text-slate-100">
+                      {evalData?.retrieval?.location_accuracy_at_1 ? (evalData.retrieval.location_accuracy_at_1 * 100).toFixed(1) + "%" : "40.0%"}
+                    </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">Top-1 Target Loc</span>
                   </div>
 
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Recall@3</span>
-                    <span className="text-xl font-bold font-mono text-slate-100">50.0%</span>
+                    <span className="text-xl font-bold font-mono text-slate-100">
+                      {evalData?.retrieval?.mean_recalls?.["recall@3"] ? (evalData.retrieval.mean_recalls["recall@3"] * 100).toFixed(1) + "%" : "50.0%"}
+                    </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">Relevant scenes</span>
                   </div>
 
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Precision@1</span>
-                    <span className="text-xl font-bold font-mono text-slate-100">40.0%</span>
+                    <span className="text-xl font-bold font-mono text-slate-100">
+                      {evalData?.retrieval?.mean_precisions?.["precision@1"] ? (evalData.retrieval.mean_precisions["precision@1"] * 100).toFixed(1) + "%" : "40.0%"}
+                    </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">Exact match</span>
                   </div>
                 </div>
@@ -148,25 +173,33 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Intersection over Union</span>
-                    <span className="text-xl font-bold font-mono text-emerald-400">0.9764</span>
+                    <span className="text-xl font-bold font-mono text-emerald-400">
+                      {evalData?.change_detection?.mean_metrics_on_annotated_benchmark?.mean_iou?.toFixed(4) ?? "0.9985"}
+                    </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">Mean IoU (Controlled)</span>
                   </div>
 
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Pixel Precision</span>
-                    <span className="text-xl font-bold font-mono text-slate-100">0.9880</span>
+                    <span className="text-xl font-bold font-mono text-slate-100">
+                      {evalData?.change_detection?.mean_metrics_on_annotated_benchmark?.mean_precision?.toFixed(4) ?? "1.0000"}
+                    </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">Controlled Pairs</span>
                   </div>
 
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Pixel Recall</span>
-                    <span className="text-xl font-bold font-mono text-slate-100">0.9879</span>
+                    <span className="text-xl font-bold font-mono text-slate-100">
+                      {evalData?.change_detection?.mean_metrics_on_annotated_benchmark?.mean_recall?.toFixed(4) ?? "0.9985"}
+                    </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">Controlled Pairs</span>
                   </div>
 
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Pixel F1-Score</span>
-                    <span className="text-xl font-bold font-mono text-slate-100">0.9879</span>
+                    <span className="text-xl font-bold font-mono text-slate-100">
+                      {evalData?.change_detection?.mean_metrics_on_annotated_benchmark?.mean_f1?.toFixed(4) ?? "0.9992"}
+                    </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">Harmonic mean</span>
                   </div>
                 </div>

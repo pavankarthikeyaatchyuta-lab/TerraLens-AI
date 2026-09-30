@@ -65,7 +65,7 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
     {
       num: "02",
       title: "Spatial Image Alignment",
-      engine: "ImageAlignmentService (Homography & Sub-pixel Validation)",
+      engine: "ImageAlignmentService (Image Alignment / Dimension Reconciliation)",
       status: "SUCCESS",
       detail: `Identity spatial grid verified across multi-temporal acquisition frames.`,
     },

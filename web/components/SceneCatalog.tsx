@@ -2,13 +2,15 @@
 
 import React from "react";
 import { SearchResult, Location } from "@/types";
-import { Layers, Calendar, Compass, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Layers, Calendar, Compass, ArrowRight, CheckCircle2, AlertTriangle } from "lucide-react";
 
 interface SceneCatalogProps {
   results: SearchResult[];
   allLocations: Location[];
   selectedLocationId: string;
   onSelectLocation: (locationId: string) => void;
+  searchOutcome?: any;
+  onSelectBenchmarkQuery?: (query: string) => void;
 }
 
 export function SceneCatalog({
@@ -16,6 +18,8 @@ export function SceneCatalog({
   allLocations,
   selectedLocationId,
   onSelectLocation,
+  searchOutcome,
+  onSelectBenchmarkQuery,
 }: SceneCatalogProps) {
   // If no search results, show all locations
   const items = results.length > 0
@@ -46,6 +50,33 @@ export function SceneCatalog({
         </div>
         <span className="text-[11px] font-mono text-slate-400">FAISS Normalized Cosine</span>
       </div>
+
+      {searchOutcome && searchOutcome.supported === false && (
+        <div className="mb-3 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-xs font-mono text-amber-300 space-y-2">
+          <div className="flex items-center gap-1.5 font-bold text-amber-400">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>CONTROLLED BENCHMARK NOTICE</span>
+          </div>
+          <p className="text-slate-300 text-[11px] leading-relaxed">
+            Query <span className="text-amber-200 font-semibold">&ldquo;{searchOutcome.query}&rdquo;</span> is not available in Controlled Benchmark Mode. Public demo evaluation uses pre-indexed 512-dim normalized vectors for verified benchmark queries.
+          </p>
+          <div className="pt-1">
+            <span className="text-[10px] text-slate-400 block mb-1.5">Select a verified benchmark query:</span>
+            <div className="flex flex-col gap-1.5">
+              {searchOutcome.supported_benchmark_queries?.map((q: string) => (
+                <button
+                  key={q}
+                  type="button"
+                  onClick={() => onSelectBenchmarkQuery?.(q)}
+                  className="text-[11px] px-2.5 py-1 rounded bg-tactical-800 border border-tactical-700 text-cyan-300 hover:border-cyan-400 hover:bg-tactical-750 transition-colors text-left font-mono"
+                >
+                  &rarr; {q}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-2.5 max-h-[420px] overflow-y-auto pr-1">
         {items.map((item) => {
