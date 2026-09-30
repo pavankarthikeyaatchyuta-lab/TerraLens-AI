@@ -35,6 +35,24 @@ class Evidence(BaseModel):
     source: str = Field(default="prototype_dataset", description="Origin of the imagery")
     processing_status: str = Field(default="PROTOTYPE_STAGED", description="Pipeline state")
 
+    # Retrieval Evidence (Phase 2)
+    retrieval_method: str = Field(
+        default="Direct Catalog Navigation",
+        description="Method used to retrieve candidate location (e.g. Semantic Vector Search, Keyword Filter)"
+    )
+    embedding_model: Optional[str] = Field(
+        default=None,
+        description="Vision-language model used for embedding (e.g. CLIP baseline)"
+    )
+    index_name: Optional[str] = Field(
+        default=None,
+        description="Vector index file used for retrieval (e.g. satellite_embeddings.index)"
+    )
+    similarity_score: Optional[float] = Field(
+        default=None,
+        description="Cosine similarity score from FAISS vector search"
+    )
+
     # Change Analysis fields (Strictly honest: None / Not yet calculated in Phase 1)
     change_type: Optional[str] = Field(
         default=None,

@@ -36,6 +36,13 @@ class AppConfig:
     LOG_LEVEL: str = os.getenv("TERRALENS_LOG_LEVEL", "INFO")
     STRICT_METADATA: bool = os.getenv("TERRALENS_STRICT_METADATA", "true").lower() in ("1", "true", "yes")
 
+    # Semantic Retrieval & Vector Index (Phase 2)
+    EMBEDDING_MODEL_NAME: str = os.getenv("TERRALENS_EMBEDDING_MODEL", "openai/clip-vit-base-patch32")
+    EMBEDDING_MODEL_LABEL: str = "CLIP baseline"
+    DEVICE: str = os.getenv("TERRALENS_DEVICE", "cpu")
+    FAISS_INDEX_PATH: Path = BASE_DIR / os.getenv("TERRALENS_FAISS_INDEX_PATH", "indexes/satellite_embeddings.index")
+    FAISS_METADATA_PATH: Path = BASE_DIR / os.getenv("TERRALENS_FAISS_METADATA_PATH", "indexes/satellite_embeddings_metadata.json")
+
 
 # Global singleton config
 config = AppConfig()

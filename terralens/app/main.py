@@ -17,7 +17,12 @@ if str(PROJECT_ROOT) not in sys.path:
 from terralens.app.utils.config import config
 from terralens.app.services.metadata_service import MetadataService
 from terralens.app.services.dataset_service import DatasetService
-from terralens.app.services.retrieval_service import PrototypeMetadataRetrievalService
+from terralens.app.services.embedding_service import get_embedding_model
+from terralens.app.services.index_service import IndexService
+from terralens.app.services.retrieval_service import (
+    SemanticEmbeddingRetrievalService,
+    PrototypeMetadataRetrievalService,
+)
 from terralens.app.services.temporal_service import TemporalAnalysisService
 from terralens.app.services.provenance_service import ProvenanceService
 
@@ -91,22 +96,38 @@ st.markdown(
 
 @st.cache_resource
 def initialize_services():
-    """Initializes and caches backend services."""
-    logger.info("Initializing TerraLens core services...")
+    """Initializes and caches backend services including FAISS vector index and CLIP model."""
+    logger.info("Initializing TerraLens core services and semantic embedding model...")
     meta_service = MetadataService()
     data_service = DatasetService(metadata_service=meta_service)
-    retrieval_service = PrototypeMetadataRetrievalService(metadata_service=meta_service)
+    index_service = IndexService()
+    
+    # Try initializing Semantic Embedding Model
+    try:
+        embed_model = get_embedding_model()
+        retrieval_service = SemanticEmbeddingRetrievalService(
+            metadata_service=meta_service,
+            dataset_service=data_service,
+            index_service=index_service,
+            embedding_model=embed_model,
+        )
+    except Exception as e:
+        logger.warning(f"Semantic model failed to initialize ({e}). Falling back to metadata retrieval.")
+        embed_model = None
+        retrieval_service = PrototypeMetadataRetrievalService(metadata_service=meta_service)
+
     temporal_service = TemporalAnalysisService(metadata_service=meta_service, dataset_service=data_service)
     provenance_service = ProvenanceService()
 
-    return meta_service, data_service, retrieval_service, temporal_service, provenance_service
+    return meta_service, data_service, index_service, embed_model, retrieval_service, temporal_service, provenance_service
 
 
 def main():
-    meta_service, data_service, retrieval_service, temporal_service, provenance_service = initialize_services()
+    meta_service, data_service, index_service, embed_model, retrieval_service, temporal_service, provenance_service = initialize_services()
 
-    # Get dataset summary
+    # Get dataset & index summary
     dataset_summary = data_service.get_dataset_summary()
+    index_summary = index_service.get_summary()
     all_locations = meta_service.get_all_locations()
 
     # Session State defaults
@@ -114,12 +135,18 @@ def main():
         st.session_state.selected_location_id = all_locations[0].location_id if all_locations else None
     if "active_query" not in st.session_state:
         st.session_state.active_query = ""
+    if "active_similarity" not in st.session_state:
+        st.session_state.active_similarity = None
 
     # Current selected location
     selected_loc = meta_service.get_location_by_id(st.session_state.selected_location_id) if st.session_state.selected_location_id else None
 
-    # Render Sidebar
-    active_nav = render_sidebar(dataset_summary)
+    # Render Sidebar with dynamic FAISS index status
+    active_nav = render_sidebar(
+        dataset_summary=dataset_summary,
+        index_summary=index_summary,
+        model_label=getattr(embed_model, "model_label", "CLIP baseline") if embed_model else "Fallback",
+    )
 
     # Top App Header
     header_col1, header_col2 = st.columns([4, 1])
@@ -161,7 +188,7 @@ def main():
 
     # Dispatch to Active View
     if active_nav == "Search & Discovery":
-        new_loc, query_text = render_search_panel(
+        new_loc, query_text, sim_score = render_search_panel(
             retrieval_service=retrieval_service,
             dataset_service=data_service,
             all_locations=all_locations,
@@ -171,6 +198,8 @@ def main():
             st.session_state.selected_location_id = new_loc.location_id
         if query_text:
             st.session_state.active_query = query_text
+        if sim_score is not None:
+            st.session_state.active_similarity = sim_score
 
     elif active_nav == "Interactive Map":
         st.markdown("## Geospatial Intelligence Map")
@@ -213,6 +242,10 @@ def main():
             provenance_service=provenance_service,
             metadata_service=meta_service,
             active_query=st.session_state.active_query,
+            active_similarity=st.session_state.active_similarity,
+            retrieval_method=getattr(retrieval_service, "engine_name", "Semantic Vector Search"),
+            embedding_model=getattr(embed_model, "model_label", "CLIP baseline") if embed_model else "Metadata Fallback",
+            index_name="satellite_embeddings.index",
         )
 
     elif active_nav == "System Diagnostics":
@@ -230,9 +263,9 @@ def main():
         with col2:
             st.metric("Total Scenes", dataset_summary["total_scenes"])
         with col3:
-            st.metric("Disk Images Verified", dataset_summary["valid_scenes_on_disk"])
+            st.metric("FAISS Vectors", index_summary["total_vectors"])
         with col4:
-            st.metric("Missing Images", dataset_summary["missing_scenes_count"])
+            st.metric("Vector Dim", index_summary["dimension"] or 512)
 
         st.markdown("---")
         st.markdown("### Architecture Pipeline Matrix")
@@ -244,18 +277,23 @@ def main():
             | **UI & Dashboard** | **IMPLEMENTED** | Streamlit, Folium interactive mapping, HUD styling | Phase 1 |
             | **Data Schema & Catalog** | **IMPLEMENTED** | Pydantic strict schemas (`Scene`, `Location`, `Evidence`) | Phase 1 |
             | **Archive Discovery** | **IMPLEMENTED** | `DatasetService` with integrity check and image loaders | Phase 1 |
-            | **Search Engine** | **IMPLEMENTED (Prototype)** | `PrototypeMetadataRetrievalService` (Lexical & Filter) | Phase 1 |
+            | **Vector Embeddings** | **IMPLEMENTED** | Multi-modal CLIP baseline (`openai/clip-vit-base-patch32`) | **Phase 2** |
+            | **FAISS Vector Search** | **IMPLEMENTED** | `IndexFlatIP` Cosine Similarity over L2-normalized vectors | **Phase 2** |
+            | **Text-to-Image Retrieval**| **IMPLEMENTED** | Cross-modal text query to satellite scene ranking | **Phase 2** |
+            | **Image-to-Image Search**  | **IMPLEMENTED** | Reference satellite image to scene similarity | **Phase 2** |
+            | **Similar Location Discovery**| **IMPLEMENTED** | Neighbor scene discovery via visual embeddings | **Phase 2** |
             | **Temporal Inspection** | **IMPLEMENTED** | Side-by-side multi-temporal baseline vs monitoring display | Phase 1 |
-            | **Lineage & Provenance** | **IMPLEMENTED** | End-to-end `ProvenanceTrace` & human analyst adjudication | Phase 1 |
-            | **Vector Embeddings** | *PLANNED* | Multi-modal Remote Sensing CLIP (Vision-Language model) | Phase 2 |
-            | **Semantic Indexing** | *PLANNED* | FAISS Indexing for sub-second nearest neighbor search | Phase 2 |
-            | **Automated Change Detection** | *PLANNED* | Bi-Temporal Siamese UNet / ChangeFormer | Phase 2 |
-            | **False-Alarm Mitigation** | *PLANNED* | Cloud/shadow masking + seasonal phenology filtering | Phase 2 |
-            | **Raster Change Masking** | *PLANNED* | Pixel-level binary & categorical change heatmaps | Phase 2 |
+            | **Lineage & Provenance** | **IMPLEMENTED** | End-to-end `ProvenanceTrace` & human analyst adjudication | Phase 1 & 2 |
+            | **Automated Change Detection** | *PLANNED* | Bi-Temporal Siamese UNet / ChangeFormer | Phase 3 |
+            | **False-Alarm Mitigation** | *PLANNED* | Cloud/shadow masking + seasonal phenology filtering | Phase 3 |
+            | **Raster Change Masking** | *PLANNED* | Pixel-level binary & categorical change heatmaps | Phase 3 |
             """
         )
 
         st.markdown("---")
+        st.markdown("### Vector Index Diagnostic Summary")
+        st.json(index_summary)
+
         st.markdown("### Dataset Audit Details")
         st.json(dataset_summary)
 

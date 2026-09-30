@@ -13,7 +13,11 @@ def render_evidence_panel(
     location: Optional[Location],
     provenance_service: ProvenanceService,
     metadata_service: MetadataService,
-    active_query: Optional[str] = None
+    active_query: Optional[str] = None,
+    active_similarity: Optional[float] = None,
+    retrieval_method: str = "Semantic Vector Search",
+    embedding_model: str = "CLIP baseline",
+    index_name: str = "satellite_embeddings.index",
 ) -> None:
     """Renders the intelligence verification evidence dossier and lineage trace."""
     st.markdown("## Evidence & Intelligence Verification")
@@ -37,6 +41,10 @@ def render_evidence_panel(
         before_scene=before_scene,
         after_scene=after_scene,
         query=active_query,
+        retrieval_method=retrieval_method,
+        embedding_model=embedding_model,
+        index_name=index_name,
+        similarity_score=active_similarity,
     )
 
     # Dossier Metadata Matrix
@@ -62,8 +70,71 @@ def render_evidence_panel(
         unsafe_allow_html=True,
     )
 
+    # Retrieval Evidence (Phase 2 Vector Retrieval Metrics)
+    st.markdown("### Retrieval Evidence (Stage 1: DISCOVER)")
+    r_col1, r_col2, r_col3, r_col4 = st.columns(4)
+
+    with r_col1:
+        st.markdown(
+            f"""
+            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;">
+                <div style="font-size: 0.78rem; color: #94a3b8;">Active Query</div>
+                <div style="font-size: 0.92rem; font-weight: 600; color: #e2e8f0; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    {active_query or "Catalog Direct"}
+                </div>
+                <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Natural language / Reference image</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with r_col2:
+        st.markdown(
+            f"""
+            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;">
+                <div style="font-size: 0.78rem; color: #94a3b8;">Retrieval Engine</div>
+                <div style="font-size: 0.92rem; font-weight: 600; color: #38bdf8; margin-top: 4px;">
+                    {retrieval_method}
+                </div>
+                <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Cosine Similarity Search</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with r_col3:
+        st.markdown(
+            f"""
+            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;">
+                <div style="font-size: 0.78rem; color: #94a3b8;">Model & Index</div>
+                <div style="font-size: 0.92rem; font-weight: 600; color: #e2e8f0; margin-top: 4px;">
+                    {embedding_model}
+                </div>
+                <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Index: {index_name}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with r_col4:
+        sim_val_str = f"{active_similarity:.4f}" if active_similarity is not None else "N/A"
+        st.markdown(
+            f"""
+            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;">
+                <div style="font-size: 0.78rem; color: #94a3b8;">Semantic Similarity</div>
+                <div style="font-size: 1.15rem; font-weight: 700; color: #4ade80; margin-top: 2px;">
+                    {sim_val_str}
+                </div>
+                <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Actual FAISS inner-product score</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("---")
+
     # Change Detection Evidence Fields (Strictly honest "Not yet calculated" display)
-    st.markdown("### Change Detection Metrics")
+    st.markdown("### Temporal Change Metrics (Stage 2: ANALYZE)")
     m_col1, m_col2, m_col3 = st.columns(3)
 
     with m_col1:
@@ -74,7 +145,7 @@ def render_evidence_panel(
                 <div style="font-size: 1rem; font-weight: 600; color: #94a3b8; margin-top: 4px;">
                     Not yet calculated
                 </div>
-                <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Phase 2 Deep Semantic Classifier</div>
+                <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Phase 3 Bi-Temporal Neural Detector</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -114,7 +185,7 @@ def render_evidence_panel(
     st.markdown("### Provenance & Chain of Custody")
     st.markdown(
         "<p style='color: #94a3b8; font-size: 0.85rem; margin-top: -6px;'>"
-        "The complete execution lineage guaranteeing full reproducibility and zero black-box drift."
+        "The complete execution lineage guaranteeing full auditability across retrieval, preprocessing, and analysis."
         "</p>",
         unsafe_allow_html=True,
     )

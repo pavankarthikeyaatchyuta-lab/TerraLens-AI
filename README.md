@@ -2,7 +2,7 @@
 
 **Smart India Hackathon 2026 (SIH 2026)**  
 **Problem Statement ID:** SIH26227  
-**Operational Status:** Phase 1 Working Foundation (Local Prototype)
+**Operational Status:** Phase 2 Complete (Real Semantic Retrieval & FAISS Vector Index)
 
 ---
 
@@ -23,7 +23,7 @@ TerraLens AI bridges natural language semantic retrieval and multi-temporal chan
 ```
 SEARCH (Natural language query / reference image)
    ↓
-DISCOVER (Semantic retrieval + similar candidate locations)
+DISCOVER (Semantic retrieval + similar candidate locations via FAISS)
    ↓
 COMPARE (Multi-temporal satellite imagery registration)
    ↓
@@ -39,18 +39,20 @@ VERIFY (Confidence scoring + provenance audit + analyst adjudication)
 ```
 terralens/
 ├── app/
-│   ├── main.py                     # Streamlit application entrypoint
+│   ├── main.py                     # Streamlit application entrypoint with cached FAISS/CLIP
 │   ├── components/
-│   │   ├── search.py               # Search interface & ranked candidate cards
+│   │   ├── search.py               # Semantic query bar, similar discovery, candidate cards
 │   │   ├── map_view.py             # Interactive Folium map with satellite/topo layers
 │   │   ├── temporal_view.py        # Side-by-side multi-temporal baseline vs. monitoring
 │   │   ├── evidence_panel.py       # Evidence dossier, audit trail & analyst adjudication
-│   │   ├── sidebar.py              # Navigation and live system architecture status
+│   │   ├── sidebar.py              # Navigation and live FAISS/CLIP system status
 │   │   └── image_viewer.py         # Resilient image rendering & placeholder fallbacks
 │   ├── services/
+│   │   ├── embedding_service.py    # BaseEmbeddingModel, CLIP baseline & Mock model
+│   │   ├── index_service.py        # FAISS IndexFlatIP cosine similarity manager
+│   │   ├── retrieval_service.py    # SemanticEmbeddingRetrievalService & Metadata fallback
 │   │   ├── dataset_service.py      # Archive scanner, integrity checks & path resolver
 │   │   ├── metadata_service.py     # Schema validation and metadata query filters
-│   │   ├── retrieval_service.py    # Modular retrieval engine (Prototype & future FAISS)
 │   │   ├── temporal_service.py     # Temporal pairing, alignment & change detector stubs
 │   │   └── provenance_service.py   # Audit step construction & evidence dossier builder
 │   ├── models/
@@ -71,14 +73,19 @@ terralens/
 │       ├── LOC_004_CHENNAI_COASTAL/
 │       └── LOC_005_THAR_SOLAR_PARK/
 ├── indexes/
-│   └── README.md                   # FAISS vector index architecture specification
+│   ├── satellite_embeddings.index          # Real FAISS IndexFlatIP vector index
+│   ├── satellite_embeddings_metadata.json  # Vector ID to scene metadata mapping
+│   └── README.md                           # Index architecture & validation guide
 ├── tests/
+│   ├── test_semantic_retrieval.py  # CLIP embedding, text search, similar image tests
+│   ├── test_index.py               # FAISS index creation, persistence & validation tests
 │   ├── test_metadata.py            # Pydantic validation & catalog query tests
 │   ├── test_dataset.py             # Archive discovery & image loader tests
 │   ├── test_retrieval.py           # Lexical & filter retrieval tests
 │   ├── test_temporal.py            # Temporal pairing & alignment tests
 │   └── test_provenance.py          # Lineage trace & adjudication tests
 ├── scripts/
+│   ├── build_embedding_index.py    # Builds & saves FAISS vector index from archive
 │   └── generate_sample_dataset.py  # Benchmark dataset generator
 ├── requirements.txt
 ├── .env.example
@@ -88,52 +95,84 @@ terralens/
 
 ---
 
-## 4. Phase 1 Capabilities vs. Future Roadmap
+## 4. Phase 1 & 2 Capabilities vs. Roadmap
 
 To uphold scientific and engineering integrity, TerraLens AI strictly distinguishes between **implemented capabilities** and **planned features**:
 
-### ✅ IMPLEMENTED (Phase 1 Foundation)
-- [x] **Geospatial Intelligence UI:** Professional dark-mode dashboard built on Streamlit with defense/research HUD aesthetics.
-- [x] **Satellite Archive Browser:** Multi-temporal location exploration across India-centric benchmark operational scenarios.
-- [x] **Interactive Mapping:** Open-source Folium/Leaflet map with Esri World Imagery & OpenStreetMap base tiles, candidate markers, selected AOI pulsing radar circle, and bounding box extents.
-- [x] **Location & Scene Metadata Catalog:** Strict Pydantic models (`Location`, `Scene`, `BoundingBox`) with latitude/longitude validation, ISO date checks, and sensor tagging.
-- [x] **Multi-Temporal Imagery Inspection:** True side-by-side comparison of baseline (2023) and monitoring (2025) satellite observations.
-- [x] **Search Foundation:** Pluggable retrieval architecture supporting keyword matching, thematic category filtering (urban, water, forest, coastal, solar), sensor family constraints, and cloud cover thresholds.
-- [x] **Lineage & Provenance Tracking:** Complete auditable execution trail (`QUERY` → `RETRIEVED_LOCATION` → `SOURCE_IMAGES` → `PREPROCESSING` → `TEMPORAL_COMPARISON` → `CONFIDENCE_EVALUATION` → `ANALYST_DECISION`).
-- [x] **Human Analyst Adjudication:** Adjudication form allowing reviewers to record confirmation, mark false alarms (phenology/shadow), and log operational remarks.
-- [x] **Resilient Error Boundaries:** Graceful handling of missing images, corrupted files, and malformed queries with no unhandled crashes.
-- [x] **Automated Test Suite:** 16 unit and integration tests passing in `< 1.0s` across metadata, dataset, temporal, and retrieval layers.
+### ✅ IMPLEMENTED (Phases 1 & 2)
+- [x] **Real Vision-Language Embeddings:** `openai/clip-vit-base-patch32` (*CLIP baseline*) generating 512-dimensional normalized vector embeddings for both text and satellite imagery.
+- [x] **FAISS Vector Indexing:** Real `faiss.IndexFlatIP` structure storing dense image vectors and computing sub-second exact cosine similarity scores.
+- [x] **Cross-Modal Text Search:** Natural language search (e.g., *"new buildings near a river"*, *"reservoir water retreat"*) ranked by real cosine similarity without hardcoded scores.
+- [x] **Image-to-Image Search:** Reference satellite image upload embedding and similarity retrieval across the archive.
+- [x] **Similar Location Discovery:** Clicking *"Find Similar"* on any location embeds its satellite observation, searches FAISS, excludes the target itself, and returns ranked similar geographic sites.
+- [x] **Resilient Fallback Mode:** Automatic fallback to `PrototypeMetadataRetrievalService` if vector index is missing or model fails to load, with explicit UI status warnings.
+- [x] **Retrieval Evidence & Provenance:** Audit trace recording `QUERY` → `EMBEDDING` → `VECTOR_SEARCH` → `RETRIEVED_LOCATION` → `SOURCE_IMAGES` with exact model names, index file references, and similarity values.
+- [x] **Interactive Mapping & Temporal Viewer:** Folium map with satellite/topo layers, radar circles, and side-by-side baseline (2023) vs monitoring (2025) comparison.
+- [x] **Comprehensive Test Suite:** 23 unit, integration, and end-to-end tests passing.
 
-### ⏳ PLANNED (Phase 2 & Beyond)
-- [ ] **Multi-Modal Embeddings:** Remote Sensing CLIP / OpenCLIP fine-tuned on satellite imagery and multi-spectral bands.
-- [ ] **FAISS Vector Indexing:** Sub-second vector similarity retrieval over large-scale satellite tile archives.
-- [ ] **Visual Feature Search:** Uploading a reference satellite patch to retrieve structurally similar geographic locations.
+### ⏳ PLANNED (Phase 3 Roadmap)
+- [ ] **Remote Sensing Fine-Tuned Model:** Upgrading from general *CLIP baseline* to specialized Earth Observation vision-language models (e.g. RemoteCLIP).
 - [ ] **Automated Deep Change Detection:** Bi-temporal Siamese UNet / ChangeFormer architectures for automated change boundary extraction.
 - [ ] **Pixel-Level Change Masks:** Generation of georeferenced GeoTIFF binary and categorical change heatmaps.
 - [ ] **False-Alarm Mitigation Pipeline:** Deep cloud/cloud-shadow masking (Fmask/s2cloudless) and multi-seasonal phenology normalization.
-- [ ] **Statistical Confidence Calibration:** Temperature-scaled confidence scores providing true Bayesian uncertainty metrics.
+- [ ] **Bayesian Confidence Calibration:** Statistical confidence scoring based on uncertainty estimation.
 
 ---
 
-## 5. Prototype Dataset
+## 5. Semantic Retrieval Pipeline
 
-TerraLens AI includes 5 diverse, realistic multi-temporal benchmark scenarios clearly marked as `PROTOTYPE DATASET`:
+```
+Text Query ("new buildings near a river") OR Reference Satellite Image
+                         ↓
+         EmbeddingModel (CLIP baseline: 512-dim)
+                         ↓
+               L2 Vector Normalization
+                         ↓
+             FAISS IndexFlatIP Search
+                         ↓
+         Exact Cosine Similarities (Inner Product)
+                         ↓
+            Deduplication & Metadata Filtering
+                         ↓
+    Ranked Satellite Locations with Real Similarity Scores
+```
 
-| Location ID | Name | Coordinates | Sensor | Temporal Baseline | Temporal Monitoring | Operational Scenario |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `LOC_001_HYDERABAD_URBAN` | Hyderabad Peri-Urban Growth | `17.4483° N, 78.3742° E` | Sentinel-2 MSI | March 2023 | February 2025 | Peri-urban construction & road network expansion |
-| `LOC_002_GODAVARI_RESERVOIR` | Sriram Sagar Catchment | `18.9647° N, 78.3283° E` | Sentinel-2 MSI | January 2023 | January 2025 | Reservoir water volume retreat & exposed mudflats |
-| `LOC_003_WESTERN_GHATS_FOREST`| Western Ghats Corridor | `14.8512° N, 74.5238° E` | Sentinel-2 MSI | April 2023 | March 2025 | Linear infrastructure clearance through dense canopy |
-| `LOC_004_CHENNAI_COASTAL` | Ennore Coastal Reclamation | `13.2541° N, 80.3312° E` | Sentinel-2 MSI | February 2023 | February 2025 | Port jetty construction and industrial land reclamation |
-| `LOC_005_THAR_SOLAR_PARK` | Bhadla Solar Intelligence | `27.5380° N, 71.9170° E` | Sentinel-2 MSI | May 2023 | April 2025 | Arid desert conversion into high-density PV solar arrays |
+> **Note on Model Type:** The current model is `openai/clip-vit-base-patch32` clearly designated as **"CLIP baseline"**. It is a generic vision-language model and has not yet been fine-tuned on multispectral satellite imagery.
 
 ---
 
-## 6. Installation & Local Setup
+## 6. Build or Rebuild the Semantic Index
 
-### Prerequisites
-- Python 3.10+ (Tested on Python 3.13)
-- Git
+To generate or rebuild the FAISS vector index across all satellite images in the archive:
+
+```bash
+python scripts/build_embedding_index.py
+```
+
+Output:
+```text
+============================================================
+TerraLens AI — Semantic Satellite Vector Index Builder
+============================================================
+1. Discovered 10 scenes in metadata catalog.
+2. Initializing Embedding Model...
+   Model Name:          openai/clip-vit-base-patch32
+   Model Label:         CLIP baseline
+   Embedding Dimension: 512
+3. Generating image embeddings across archive...
+   [1/10] Indexed SCENE_LOC_001_HYDERABAD_URBAN_2023 (2023-03-15)
+   ...
+   [10/10] Indexed SCENE_LOC_005_THAR_SOLAR_PARK_2025 (2025-04-18)
+4. Building FAISS IndexFlatIP (Cosine Similarity) with 10 vectors...
+5. Index Validation:
+   Status:    [OK] VALID
+   Details:   Index and metadata verified successfully.
+============================================================
+```
+
+---
+
+## 7. Installation & Running Locally
 
 ### 1. Clone the Repository
 ```bash
@@ -146,9 +185,10 @@ cd "TerraLens AI"
 pip install -r requirements.txt
 ```
 
-### 3. Generate Benchmark Dataset (If not already present)
+### 3. Generate Benchmark Dataset & Vector Index
 ```bash
 python scripts/generate_sample_dataset.py
+python scripts/build_embedding_index.py
 ```
 
 ### 4. Run the Test Suite
@@ -160,53 +200,12 @@ python -m pytest -v
 ```bash
 streamlit run terralens/app/main.py
 ```
-The application will launch at `http://localhost:8501`.
-
----
-
-## 7. How to Add Real Satellite Imagery
-
-TerraLens AI was architected from day one to ingest actual GeoTIFF / satellite imagery (e.g. Sentinel-2 L2A, Landsat-8/9, PlanetScope):
-
-1. **Place Imagery in Archive:**
-   Copy your imagery files into `data/imagery/<YOUR_LOCATION_ID>/`:
-   ```
-   data/imagery/LOC_006_DELHI_NCR/
-       before_2023.tif (or .jpg/.png)
-       after_2025.tif (or .jpg/.png)
-   ```
-
-2. **Register in `data/metadata/locations.json`:**
-   Add a scene and location entry:
-   ```json
-   {
-     "location_id": "LOC_006_DELHI_NCR",
-     "name": "Delhi NCR Northern Corridor",
-     "description": "Highway expansion and logistics hub construction.",
-     "latitude": 28.7041,
-     "longitude": 77.1025,
-     "primary_sensor": "Sentinel-2 MSI",
-     "before_scene_id": "SCENE_LOC_006_2023",
-     "after_scene_id": "SCENE_LOC_006_2025",
-     "available_dates": ["2023-02-10", "2025-02-12"],
-     "tags": ["urban", "highways", "logistics"],
-     "source": "Copernicus Open Access Hub"
-   }
-   ```
-3. Restart or reload the Streamlit app. The dataset service will automatically discover, validate, and index the new imagery on the interactive map and temporal viewer.
+Open `http://localhost:8501` in your browser.
 
 ---
 
 ## 8. Current Limitations
-- **Retrieval Engine:** Currently operates via structured metadata querying and keyword indexing. Neural cross-modal embedding search (CLIP + FAISS) will be activated in Phase 2.
-- **Change Detection Models:** Change classification, statistical confidence, and binary masks are marked as `Not yet calculated` until bi-temporal neural networks are trained.
-- **Image Formats:** Phase 1 visualizes 3-band RGB/JPEG/PNG scenes; multi-spectral 12-band GeoTIFF radiometric pipelines are scheduled for Phase 2.
-
----
-
-## 9. Next Steps: Phase 2 Execution
-1. Implement `SemanticEmbeddingRetrievalService` using pre-trained `RemoteCLIP` / `OpenCLIP`.
-2. Generate vector embeddings for satellite image tiles and build the FAISS index in `indexes/`.
-3. Implement `BiTemporalChangeDetector` using Siamese Feature Difference networks.
-4. Integrate automated cloud/shadow masking via Sentinel-2 QA60 / SCL scene classification bands.
-5. Connect analyst adjudication feedback into a local fine-tuning loop to continuously suppress false positives.
+- **Dataset Size:** Current prototype archive contains 10 benchmark scenes across 5 locations.
+- **Generic Vision-Language Model:** Uses `openai/clip-vit-base-patch32` (CLIP baseline), which is not yet fine-tuned for remote sensing spectral bands.
+- **Temporal Change Detection:** Remains Phase 3 (automated change detection, cloud/shadow filtering, and raster change masking are not claimed to be implemented).
+- **Global Indexing:** Current FAISS index is configured for local sandbox scale (`IndexFlatIP`). Large-scale deployment with millions of tiles will utilize `IndexIVFFlat` or `IndexHNSW`.

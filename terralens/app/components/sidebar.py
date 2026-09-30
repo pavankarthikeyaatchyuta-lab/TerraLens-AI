@@ -1,11 +1,15 @@
 """Sidebar component for TerraLens AI navigation and system status."""
 
 import streamlit as st
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from terralens.app.utils.config import config
 
 
-def render_sidebar(dataset_summary: Dict[str, Any]) -> str:
+def render_sidebar(
+    dataset_summary: Dict[str, Any],
+    index_summary: Optional[Dict[str, Any]] = None,
+    model_label: str = "CLIP baseline"
+) -> str:
     """Renders the professional satellite intelligence sidebar."""
     with st.sidebar:
         # Brand & Status Header
@@ -39,7 +43,6 @@ def render_sidebar(dataset_summary: Dict[str, Any]) -> str:
             "System Diagnostics",
         ]
 
-        # Use session state for navigation
         if "active_nav" not in st.session_state:
             st.session_state.active_nav = nav_options[0]
 
@@ -61,7 +64,7 @@ def render_sidebar(dataset_summary: Dict[str, Any]) -> str:
             st.markdown(
                 f"""
                 <div style="margin-bottom: 8px;">
-                    <div style="font-size: 0.8rem; color: #94a3b8;">Dataset Status</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8;">Dataset Archive</div>
                     <div style="font-size: 0.85rem; font-weight: 600; color: #4ade80;">
                         ● Loaded ({dataset_summary['total_locations']} Locations, {dataset_summary['total_scenes']} Scenes)
                     </div>
@@ -73,7 +76,7 @@ def render_sidebar(dataset_summary: Dict[str, Any]) -> str:
             st.markdown(
                 f"""
                 <div style="margin-bottom: 8px;">
-                    <div style="font-size: 0.8rem; color: #94a3b8;">Dataset Status</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8;">Dataset Archive</div>
                     <div style="font-size: 0.85rem; font-weight: 600; color: #f87171;">
                         ▲ {dataset_summary['status']} ({dataset_summary['missing_scenes_count']} missing)
                     </div>
@@ -82,18 +85,47 @@ def render_sidebar(dataset_summary: Dict[str, Any]) -> str:
                 unsafe_allow_html=True,
             )
 
-        # Semantic Embedding Index (Phase 2 honest status)
+        # Semantic Embedding Model Status
         st.markdown(
-            """
+            f"""
             <div style="margin-bottom: 8px;">
-                <div style="font-size: 0.8rem; color: #94a3b8;">Semantic Index (FAISS)</div>
-                <div style="font-size: 0.85rem; font-weight: 600; color: #94a3b8;">
-                    ○ Not initialized (Phase 2)
+                <div style="font-size: 0.8rem; color: #94a3b8;">Semantic Model</div>
+                <div style="font-size: 0.85rem; font-weight: 600; color: #38bdf8;">
+                    ● Loaded ({model_label})
                 </div>
             </div>
             """,
             unsafe_allow_html=True,
         )
+
+        # Vector Index Status
+        idx_valid = index_summary and index_summary.get("is_valid", False)
+        vec_count = index_summary.get("total_vectors", 0) if index_summary else 0
+
+        if idx_valid and vec_count > 0:
+            st.markdown(
+                f"""
+                <div style="margin-bottom: 8px;">
+                    <div style="font-size: 0.8rem; color: #94a3b8;">Vector Index (FAISS)</div>
+                    <div style="font-size: 0.85rem; font-weight: 600; color: #4ade80;">
+                        ● Ready ({vec_count} vectors, Dim: 512)
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown(
+                """
+                <div style="margin-bottom: 8px;">
+                    <div style="font-size: 0.8rem; color: #94a3b8;">Vector Index (FAISS)</div>
+                    <div style="font-size: 0.85rem; font-weight: 600; color: #fbbf24;">
+                        ⚠ Fallback (Metadata Retrieval)
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
         # Temporal Engine Status
         st.markdown(

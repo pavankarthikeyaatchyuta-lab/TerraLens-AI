@@ -1,0 +1,188 @@
+{
+  "model_name": "CLIP baseline",
+  "embedding_dimension": 512,
+  "metric": "cosine_similarity (IndexFlatIP with L2 normalized vectors)",
+  "total_vectors": 10,
+  "records": [
+    {
+      "vector_id": 0,
+      "location_id": "LOC_001_HYDERABAD_URBAN",
+      "scene_id": "SCENE_LOC_001_HYDERABAD_URBAN_2023",
+      "acquisition_date": "2023-03-15",
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2A",
+      "image_path": "data/samples/LOC_001_HYDERABAD_URBAN/before_2023.jpg",
+      "cloud_percentage": 1.2,
+      "tags": [
+        "urban",
+        "construction",
+        "buildings",
+        "infrastructure",
+        "river"
+      ],
+      "resolution_meters": 10.0
+    },
+    {
+      "vector_id": 1,
+      "location_id": "LOC_001_HYDERABAD_URBAN",
+      "scene_id": "SCENE_LOC_001_HYDERABAD_URBAN_2025",
+      "acquisition_date": "2025-02-20",
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2B",
+      "image_path": "data/samples/LOC_001_HYDERABAD_URBAN/after_2025.jpg",
+      "cloud_percentage": 2.5,
+      "tags": [
+        "urban",
+        "construction",
+        "buildings",
+        "infrastructure",
+        "river"
+      ],
+      "resolution_meters": 10.0
+    },
+    {
+      "vector_id": 2,
+      "location_id": "LOC_002_GODAVARI_RESERVOIR",
+      "scene_id": "SCENE_LOC_002_GODAVARI_RESERVOIR_2023",
+      "acquisition_date": "2023-01-10",
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2A",
+      "image_path": "data/samples/LOC_002_GODAVARI_RESERVOIR/before_2023.jpg",
+      "cloud_percentage": 1.2,
+      "tags": [
+        "water",
+        "reservoir",
+        "lake",
+        "drought",
+        "wetland"
+      ],
+      "resolution_meters": 10.0
+    },
+    {
+      "vector_id": 3,
+      "location_id": "LOC_002_GODAVARI_RESERVOIR",
+      "scene_id": "SCENE_LOC_002_GODAVARI_RESERVOIR_2025",
+      "acquisition_date": "2025-01-25",
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2B",
+      "image_path": "data/samples/LOC_002_GODAVARI_RESERVOIR/after_2025.jpg",
+      "cloud_percentage": 2.5,
+      "tags": [
+        "water",
+        "reservoir",
+        "lake",
+        "drought",
+        "wetland"
+      ],
+      "resolution_meters": 10.0
+    },
+    {
+      "vector_id": 4,
+      "location_id": "LOC_003_WESTERN_GHATS_FOREST",
+      "scene_id": "SCENE_LOC_003_WESTERN_GHATS_FOREST_2023",
+      "acquisition_date": "2023-04-05",
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2A",
+      "image_path": "data/samples/LOC_003_WESTERN_GHATS_FOREST/before_2023.jpg",
+      "cloud_percentage": 1.2,
+      "tags": [
+        "forest",
+        "deforestation",
+        "trees",
+        "corridor",
+        "road"
+      ],
+      "resolution_meters": 10.0
+    },
+    {
+      "vector_id": 5,
+      "location_id": "LOC_003_WESTERN_GHATS_FOREST",
+      "scene_id": "SCENE_LOC_003_WESTERN_GHATS_FOREST_2025",
+      "acquisition_date": "2025-03-12",
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2B",
+      "image_path": "data/samples/LOC_003_WESTERN_GHATS_FOREST/after_2025.jpg",
+      "cloud_percentage": 2.5,
+      "tags": [
+        "forest",
+        "deforestation",
+        "trees",
+        "corridor",
+        "road"
+      ],
+      "resolution_meters": 10.0
+    },
+    {
+      "vector_id": 6,
+      "location_id": "LOC_004_CHENNAI_COASTAL",
+      "scene_id": "SCENE_LOC_004_CHENNAI_COASTAL_2023",
+      "acquisition_date": "2023-02-18",
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2A",
+      "image_path": "data/samples/LOC_004_CHENNAI_COASTAL/before_2023.jpg",
+      "cloud_percentage": 1.2,
+      "tags": [
+        "coastal",
+        "port",
+        "reclamation",
+        "ocean",
+        "industrial"
+      ],
+      "resolution_meters": 10.0
+    },
+    {
+      "vector_id": 7,
+      "location_id": "LOC_004_CHENNAI_COASTAL",
+      "scene_id": "SCENE_LOC_004_CHENNAI_COASTAL_2025",
+      "acquisition_date": "2025-02-14",
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2B",
+      "image_path": "data/samples/LOC_004_CHENNAI_COASTAL/after_2025.jpg",
+      "cloud_percentage": 2.5,
+      "tags": [
+        "coastal",
+        "port",
+        "reclamation",
+        "ocean",
+        "industrial"
+      ],
+      "resolution_meters": 10.0
+    },
+    {
+      "vector_id": 8,
+      "location_id": "LOC_005_THAR_SOLAR_PARK",
+      "scene_id": "SCENE_LOC_005_THAR_SOLAR_PARK_2023",
+      "acquisition_date": "2023-05-12",
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2A",
+      "image_path": "data/samples/LOC_005_THAR_SOLAR_PARK/before_2023.jpg",
+      "cloud_percentage": 1.2,
+      "tags": [
+        "solar",
+        "energy",
+        "desert",
+        "panels",
+        "infrastructure"
+      ],
+      "resolution_meters": 10.0
+    },
+    {
+      "vector_id": 9,
+      "location_id": "LOC_005_THAR_SOLAR_PARK",
+      "scene_id": "SCENE_LOC_005_THAR_SOLAR_PARK_2025",
+      "acquisition_date": "2025-04-18",
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2B",
+      "image_path": "data/samples/LOC_005_THAR_SOLAR_PARK/after_2025.jpg",
+      "cloud_percentage": 2.5,
+      "tags": [
+        "solar",
+        "energy",
+        "desert",
+        "panels",
+        "infrastructure"
+      ],
+      "resolution_meters": 10.0
+    }
+  ]
+}
