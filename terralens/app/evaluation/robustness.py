@@ -67,15 +67,21 @@ class RobustnessSuite:
             min_region_size_pixels=25,
         )
 
-        passed = (res.status == "CHANGE_DETECTED") and (res.changed_pixels >= 1400) and (len(res.change_regions) >= 1)
+        pred_mask = np.array(Image.open(res.change_mask_path).convert("L")) if res.change_mask_path else np.zeros((120, 120), dtype=np.uint8)
+        cm = compute_confusion_matrix(pred_mask, gt)
+        tp, fp, fn = cm["tp"], cm["fp"], cm["fn"]
+        iou = float(tp) / float(tp + fp + fn) if (tp + fp + fn) > 0 else 0.0
+
+        passed = (res.status == "CHANGE_DETECTED") and (iou >= 0.85) and (len(res.change_regions) >= 1)
         return {
             "scenario": "Known synthetic change block",
             "passed": passed,
             "status": res.status,
             "changed_pixels": res.changed_pixels,
+            "iou_vs_ground_truth": round(iou, 4),
             "regions_count": len(res.change_regions),
             "confidence_score": res.confidence_score,
-            "notes": "Verified detection of continuous change block with region clustering.",
+            "notes": f"Verified detection of continuous change block with region clustering (IoU: {iou:.4f} >= 0.85).",
         }
 
     def test_low_quality(self) -> Dict[str, Any]:
@@ -84,13 +90,15 @@ class RobustnessSuite:
         res = self.detector.detect(Image.fromarray(arr_low), Image.fromarray(arr_low), location_id="ROB_LOW_QUALITY")
 
         has_warning = any("Low contrast" in w for w in res.warnings)
-        passed = has_warning and (res.quality_score is not None and res.quality_score < 0.20)
+        has_quality_penalty = res.confidence_breakdown.get("penalty", 0.0) >= 0.10
+        passed = has_warning and (res.quality_score is not None and res.quality_score < 0.20) and has_quality_penalty
         return {
             "scenario": "Low-quality / narrow dynamic range",
             "passed": passed,
             "warnings_generated": res.warnings,
+            "quality_penalty_applied": has_quality_penalty,
             "quality_score": res.quality_score,
-            "notes": "Verified that detector triggers low-contrast warning and avoids blind trust.",
+            "notes": "Verified that detector triggers low-contrast warning, applies quality penalty, and dampens confidence.",
         }
 
     def test_illumination_variation(self) -> Dict[str, Any]:

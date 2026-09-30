@@ -25,7 +25,7 @@ SEARCH (Natural language query / reference image)
    ↓
 DISCOVER (Semantic retrieval + similar candidate locations via FAISS)
    ↓
-COMPARE (Multi-temporal satellite imagery registration & alignment)
+COMPARE (Multi-temporal satellite imagery alignment & dimension normalization)
    ↓
 ANALYZE (Deterministic change detection + morphological false-alarm mitigation)
    ↓
@@ -273,21 +273,24 @@ Open `http://localhost:8501` in your browser.
 
 Results from automated benchmark run (`scripts/run_evaluation.py`):
 
-| Evaluation Category | Metric | Measured Value | Standard / Target |
+| Evaluation Category | Metric | Measured Value | Mathematical Definition / Standard |
 |:---|:---|:---|:---|
-| **Semantic Retrieval** | Mean Recall@1 | **0.20** | Top-1 retrieval accuracy |
-| **Semantic Retrieval** | Mean Recall@3 | **0.50** | Top-3 relevant coverage |
-| **Semantic Retrieval** | Mean Recall@5 | **0.50** | Full benchmark coverage |
-| **Semantic Retrieval** | Mean Reciprocal Rank (MRR) | **0.667** | High ranking position quality |
+| **Semantic Retrieval** | Mean Recall@1 | **0.20** | Fraction of relevant benchmark items retrieved in top 1 result |
+| **Semantic Retrieval** | Mean Recall@3 | **0.50** | Fraction of relevant benchmark items retrieved in top 3 results |
+| **Semantic Retrieval** | Mean Recall@5 | **0.50** | Fraction of relevant benchmark items retrieved in top 5 results |
+| **Semantic Retrieval** | Mean Reciprocal Rank (MRR) | **0.667** | Mean Reciprocal Rank over benchmark queries |
 | **Semantic Retrieval** | Mean Query Latency | **16.36 ms** | Sub-50ms interactive threshold |
-| **Change Detection (GT)** | Precision | **1.0000** | Zero false alarm rate on GT |
-| **Change Detection (GT)** | Recall | **0.9985** | Complete change boundary capture |
-| **Change Detection (GT)** | F1-Score | **0.9992** | Balanced change segmentation |
-| **Change Detection (GT)** | Intersection over Union (IoU) | **0.9985** | High-fidelity spatial overlap |
+| **Change Detection (Controlled Synthetic GT)** | Precision | **1.0000** | Zero false alarm rate on controlled synthetic GT |
+| **Change Detection (Controlled Synthetic GT)** | Recall | **0.9985** | Complete change boundary capture |
+| **Change Detection (Controlled Synthetic GT)** | F1-Score | **0.9992** | Balanced change segmentation |
+| **Change Detection (Controlled Synthetic GT)** | Intersection over Union (IoU) | **0.9985** | High-fidelity spatial overlap |
 | **Robustness Suite** | Pass Rate | **7 / 7 (100%)** | All 7 stress scenarios passed |
 | **Inference Latency** | Bi-Temporal Change Detection | **32.64 ms** | Sub-100ms real-time analysis |
 
-*Note: For real catalog scenes without pixel ground-truth annotations, metrics are strictly reported as `"Ground truth unavailable — metric not computed."` to prevent artificial fabrication.*
+*Important Scientific Disclosures:*
+- **Benchmark Limitation:** The 5-query semantic retrieval set is a small manually defined benchmark; results indicate prototype behavior and are not a production-scale accuracy estimate.
+- **Controlled Synthetic Benchmark Notice:** Change metrics (Precision, Recall, F1, IoU) are measured on controlled synthetic verification pairs to mathematically validate detector algorithms. They **do not represent performance on independently annotated real satellite imagery**, where ground truth is unannotated and metrics are honestly reported as unavailable.
+- **Invariant Scene Convention:** When both prediction and ground truth contain zero changed pixels, Precision, Recall, F1, and IoU are defined as 1.0 (empty set agreement convention for non-events), and FPR is 0.0.
 
 ---
 
@@ -296,4 +299,5 @@ Results from automated benchmark run (`scripts/run_evaluation.py`):
 - **CLIP Baseline:** Uses `openai/clip-vit-base-patch32` (*CLIP baseline*), a general vision-language model, rather than a domain-specific satellite foundation model.
 - **Deterministic Baseline Detector:** The Phase 3/4 change detector uses deterministic radiometric difference and morphological filtering. While robust and defensible on small datasets, it does not perform semantic change classification (e.g., distinguishing urban construction from agricultural harvesting without contextual prompts).
 - **Ground-Truth Annotation:** Unannotated catalog scenes do not have pixel-level ground truth masks; only controlled synthetic pairs have mathematical pixel annotations.
+- **Provenance Trace Lineage:** The system records up to 10 granular chronological steps across query ingestion, embedding generation, FAISS vector search, candidate location retrieval, source image loading, spatial alignment, change detection, morphological false-alarm filtering, confidence evaluation, and human analyst adjudication.
 - **Index Mode:** The current FAISS index uses `IndexFlatIP` (exact search). For scaling to millions of tiles, `IndexIVFFlat` or `IndexHNSW` is recommended.

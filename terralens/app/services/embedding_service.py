@@ -1,11 +1,15 @@
 """Embedding service abstraction and CLIP model implementation for multi-modal satellite search."""
 
+import os
 from abc import ABC, abstractmethod
 import hashlib
 import logging
 from typing import List, Union, Optional, Any
 import numpy as np
 from PIL import Image
+
+os.environ.setdefault("HF_HUB_DISABLE_DISK_INTEGRITY_CHECK", "1")
+os.environ.setdefault("TRANSFORMERS_NO_ADVISORY_WARNINGS", "1")
 
 from terralens.app.utils.config import config
 

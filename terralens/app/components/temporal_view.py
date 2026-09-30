@@ -236,6 +236,7 @@ def render_temporal_view(
     # Change Detection Metrics Cards
     if active_result and active_result.status != "NOT_IMPLEMENTED":
         st.markdown("### Analysis Results & Honest Confidence Breakdown")
+        st.caption("ℹ️ *Cloud / shadow mask not available for this scene — morphological noise suppression applied.*")
 
         m1, m2, m3, m4 = st.columns(4)
         status_color = "#4ade80" if active_result.status == "CHANGE_DETECTED" else "#94a3b8"

@@ -64,42 +64,63 @@ def render_evaluation_view(
 
     # Pillar 1 & 2 Metrics Grid
     st.markdown("### 1. Semantic Retrieval Performance (Stage 1: DISCOVER)")
+    st.caption("ℹ️ *Small manually defined benchmark (5 queries); results indicate prototype behavior and are not a production-scale accuracy estimate.*")
     r1, r2, r3, r4, r5 = st.columns(5)
     recalls = ret.get("mean_recalls", {})
     with r1:
-        st.metric("Recall @ 1", f"{recalls.get('recall@1', 0.0) * 100:.1f}%")
+        st.metric(
+            "Recall @ 1",
+            f"{recalls.get('recall@1', 0.0) * 100:.1f}%",
+            help="Fraction of relevant benchmark items retrieved within the top 1 result."
+        )
     with r2:
-        st.metric("Recall @ 3", f"{recalls.get('recall@3', 0.0) * 100:.1f}%")
+        st.metric(
+            "Recall @ 3",
+            f"{recalls.get('recall@3', 0.0) * 100:.1f}%",
+            help="Fraction of relevant benchmark items retrieved within the top 3 results."
+        )
     with r3:
-        st.metric("Recall @ 5", f"{recalls.get('recall@5', 0.0) * 100:.1f}%")
+        st.metric(
+            "Recall @ 5",
+            f"{recalls.get('recall@5', 0.0) * 100:.1f}%",
+            help="Fraction of relevant benchmark items retrieved within the top 5 results."
+        )
     with r4:
-        st.metric("Mean MRR", f"{ret.get('mean_mrr', 0.0):.3f}")
+        st.metric(
+            "Mean MRR",
+            f"{ret.get('mean_mrr', 0.0):.3f}",
+            help="Mean Reciprocal Rank over the benchmark queries."
+        )
     with r5:
-        st.metric("Mean Latency", f"{ret.get('mean_latency_ms', 0.0):.1f} ms")
+        st.metric(
+            "Mean Latency",
+            f"{ret.get('mean_latency_ms', 0.0):.1f} ms",
+            help="Average search latency across query execution."
+        )
 
     st.markdown("---")
 
     # Pillar 3 Metrics Grid
-    st.markdown("### 2. Multi-Temporal Change Detection Metrics (Stage 2: ANALYZE)")
+    st.markdown("### 2. Controlled Synthetic Benchmark Change Metrics (Stage 2: ANALYZE)")
+    st.caption(
+        "> ⚠️ **Notice:** These scores are measured on **controlled synthetic verification pairs** to mathematically validate the detector algorithms. "
+        "They **do not represent performance on independently annotated real satellite imagery**, where ground truth is unannotated and metrics are honestly reported as unavailable."
+    )
     cd_summary = cd.get("mean_metrics_on_annotated_benchmark", {})
     if isinstance(cd_summary, dict):
         c1, c2, c3, c4, c5 = st.columns(5)
         with c1:
-            st.metric("Precision (GT)", f"{cd_summary.get('mean_precision', 0.0) * 100:.1f}%")
+            st.metric("Precision (Synthetic GT)", f"{cd_summary.get('mean_precision', 0.0) * 100:.1f}%")
         with c2:
-            st.metric("Recall (GT)", f"{cd_summary.get('mean_recall', 0.0) * 100:.1f}%")
+            st.metric("Recall (Synthetic GT)", f"{cd_summary.get('mean_recall', 0.0) * 100:.1f}%")
         with c3:
-            st.metric("F1-Score (GT)", f"{cd_summary.get('mean_f1', 0.0) * 100:.1f}%")
+            st.metric("F1-Score (Synthetic GT)", f"{cd_summary.get('mean_f1', 0.0) * 100:.1f}%")
         with c4:
-            st.metric("IoU (Jaccard)", f"{cd_summary.get('mean_iou', 0.0) * 100:.1f}%")
+            st.metric("IoU (Synthetic GT)", f"{cd_summary.get('mean_iou', 0.0) * 100:.1f}%")
         with c5:
-            st.metric("False Pos. Rate", f"{cd_summary.get('mean_fpr', 0.0):.5f}")
+            st.metric("FPR (Synthetic GT)", f"{cd_summary.get('mean_fpr', 0.0):.5f}")
     else:
         st.info("Ground truth unavailable for this benchmark subset — metrics not fabricated.")
-
-    st.caption(
-        "> **Scientific Transparency:** Change metrics are computed exclusively on pairs with verified ground-truth masks. For unannotated real scenes, metrics are honestly reported as unavailable."
-    )
 
     st.markdown("---")
 

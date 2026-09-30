@@ -1,6 +1,7 @@
 {
   "description": "Benchmark query set for evaluating semantic retrieval against the TerraLens prototype satellite archive.",
   "version": "1.0.0",
+  "benchmark_limitation": "Small manually defined benchmark; results indicate prototype behavior and are not a production-scale accuracy estimate.",
   "queries": [
     {
       "query_id": "QUERY_001",

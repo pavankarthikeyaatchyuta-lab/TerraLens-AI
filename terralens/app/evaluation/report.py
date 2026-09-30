@@ -19,12 +19,12 @@ def generate_markdown_report(results: Dict[str, Any]) -> str:
     precisions = ret.get("mean_precisions", {})
 
     retrieval_lines = [
-        f"- **Recall@1:** {recalls.get('recall@1', 'N/A')}",
-        f"- **Recall@3:** {recalls.get('recall@3', 'N/A')}",
-        f"- **Recall@5:** {recalls.get('recall@5', 'N/A')}",
-        f"- **Precision@1:** {precisions.get('precision@1', 'N/A')}",
-        f"- **Mean Reciprocal Rank (MRR):** {ret.get('mean_mrr', 'N/A')}",
-        f"- **Target Location Accuracy@1:** {ret.get('location_accuracy_at_1', 'N/A')}",
+        f"- **Recall@1:** {recalls.get('recall@1', 'N/A')} *(Fraction of relevant benchmark items retrieved in top 1 result)*",
+        f"- **Recall@3:** {recalls.get('recall@3', 'N/A')} *(Fraction of relevant benchmark items retrieved in top 3 results)*",
+        f"- **Recall@5:** {recalls.get('recall@5', 'N/A')} *(Fraction of relevant benchmark items retrieved in top 5 results)*",
+        f"- **Precision@1:** {precisions.get('precision@1', 'N/A')} *(Fraction of top 1 retrieved items that are relevant)*",
+        f"- **Mean Reciprocal Rank (MRR):** {ret.get('mean_mrr', 'N/A')} *(Mean Reciprocal Rank over benchmark queries)*",
+        f"- **Target Location Hit@1:** {ret.get('location_accuracy_at_1', 'N/A')} *(Top-1 candidate location match rate)*",
         f"- **Mean Query Latency:** {ret.get('mean_latency_ms', 'N/A')} ms",
     ]
 
@@ -32,14 +32,16 @@ def generate_markdown_report(results: Dict[str, Any]) -> str:
     annotated_summary = cd.get("mean_metrics_on_annotated_benchmark", {})
     if isinstance(annotated_summary, dict):
         change_lines = [
-            f"- **Benchmark Pairs Evaluated:** {cd.get('total_pairs_considered', 0)} ({cd.get('pairs_with_ground_truth', 0)} with ground truth, {cd.get('pairs_without_ground_truth', 0)} unannotated)",
-            f"- **Precision:** {annotated_summary.get('mean_precision', 'N/A')}",
-            f"- **Recall:** {annotated_summary.get('mean_recall', 'N/A')}",
-            f"- **F1-Score:** {annotated_summary.get('mean_f1', 'N/A')}",
-            f"- **IoU (Jaccard Index):** {annotated_summary.get('mean_iou', 'N/A')}",
+            f"- **Benchmark Pairs Evaluated:** {cd.get('total_pairs_considered', 0)} ({cd.get('pairs_with_ground_truth', 0)} controlled synthetic pairs with ground truth, {cd.get('pairs_without_ground_truth', 0)} unannotated catalog pairs)",
+            f"- **Precision (Controlled Synthetic GT):** {annotated_summary.get('mean_precision', 'N/A')}",
+            f"- **Recall (Controlled Synthetic GT):** {annotated_summary.get('mean_recall', 'N/A')}",
+            f"- **F1-Score (Controlled Synthetic GT):** {annotated_summary.get('mean_f1', 'N/A')}",
+            f"- **IoU / Jaccard Index (Controlled Synthetic GT):** {annotated_summary.get('mean_iou', 'N/A')}",
             f"- **False Positive Rate (FPR):** {annotated_summary.get('mean_fpr', 'N/A')}",
             "",
-            "> **Honesty Principle:** Metrics are computed strictly on benchmark pairs where explicit pixel-level ground truth exists. For unannotated catalog pairs, metrics are marked as *'Ground truth unavailable — metric not computed'*, preserving scientific defensibility.",
+            "> **Controlled Synthetic Benchmark Notice:** Metrics are computed strictly on benchmark pairs where explicit pixel-level ground truth exists. For unannotated catalog pairs, metrics are marked as *'Ground truth unavailable — metric not computed'*, preserving scientific defensibility. These synthetic scores validate detector algorithms and **do not represent performance on independently annotated real satellite imagery**.",
+            "",
+            "> **Invariant Scene Convention:** When both prediction and ground truth contain zero changed pixels, Precision, Recall, F1, and IoU are defined as 1.0 (empty set agreement convention for non-events), and FPR is 0.0.",
         ]
     else:
         change_lines = [
@@ -87,6 +89,8 @@ def generate_markdown_report(results: Dict[str, Any]) -> str:
 
 Cross-modal semantic search using normalized 512-dimensional CLIP baseline embeddings against a FAISS `IndexFlatIP` cosine similarity index:
 
+> **Benchmark Limitation:** Small manually defined benchmark (5 queries); results indicate prototype behavior and are not a production-scale accuracy estimate.
+
 {chr(10).join(retrieval_lines)}
 
 ### Individual Query Performance
@@ -107,7 +111,7 @@ Cross-modal semantic search using normalized 512-dimensional CLIP baseline embed
     report_md += f"""
 ---
 
-## 3. Multi-Temporal Change Detection Evaluation
+## 3. Controlled Synthetic Benchmark Change Detection Evaluation
 
 Deterministic bi-temporal change detection with morphological noise reduction and minimum region filtering:
 
@@ -155,10 +159,11 @@ Actual measured execution times using `time.perf_counter()`:
 
 1. **Benchmark Scale:** The current benchmark contains 10 scenes across 5 monitored locations. It is designed to demonstrate architectural soundness and workflow reproducibility at prototype scale, not global planetary scale.
 2. **Generic Vision-Language Model:** Embeddings are produced by `openai/clip-vit-base-patch32` (*CLIP baseline*). While effective for generic semantic retrieval, fine-tuning on multispectral remote-sensing bands (e.g. RemoteCLIP) is planned for future phases.
-3. **Ground-Truth Availability:** Full pixel-level ground truth masks are provided for synthetic controlled verification pairs. For complex real satellite scenes, ground truth is marked as unavailable to avoid unverified synthetic metric fabrication.
+3. **Controlled Synthetic Ground-Truth:** Full pixel-level ground truth masks are provided exclusively for synthetic controlled verification pairs. For complex real satellite scenes, ground truth is marked as unavailable to avoid unverified synthetic metric fabrication.
 4. **Deterministic Change Detector:** The Phase 3 detector detects radiometric and structural changes using difference magnitudes and morphological filtering. It does not perform autonomous semantic classification (e.g., distinguishing urban construction from agricultural land clearing without contextual prompts).
 5. **Image Alignment vs. Geodetic Co-Registration:** The current `ImageAlignmentService` performs spatial dimension validation and resolution resizing to a common comparison space. It does not claim rigorous sub-pixel geodetic bundle adjustment.
 6. **Model-Derived Analytical Confidence:** Confidence scores are computed directly from contrast dynamic range, spatial cluster coherence, and sensor mismatch penalties. They represent an engineered analytical confidence score, not a calibrated Bayesian posterior probability.
+7. **End-to-End Provenance Lineage:** The system records up to 10 granular chronological steps across query ingestion, embedding generation, FAISS vector search, candidate location retrieval, source image loading, spatial alignment, change detection, morphological false-alarm filtering, confidence evaluation, and human analyst adjudication.
 """
 
     return report_md

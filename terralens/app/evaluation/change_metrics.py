@@ -52,6 +52,14 @@ def evaluate_change_mask(
     cm = compute_confusion_matrix(pred_binary_mask, gt_binary_mask)
     tp, fp, fn, tn = cm["tp"], cm["fp"], cm["fn"], cm["tn"]
 
+    # Metric Convention for Invariant / No-Change Cases:
+    # When both ground truth and prediction contain zero changed pixels (tp == 0, fp == 0, fn == 0):
+    # - Precision is defined as 1.0 (zero false alarms occurred).
+    # - Recall is defined as 1.0 (zero missed changes occurred).
+    # - IoU / Jaccard Index is defined as 1.0 (standard empty set intersection/union convention for invariant scenes).
+    # - F1-Score is defined as 1.0 (harmonic mean of precision=1.0 and recall=1.0).
+    # If prediction contains false alarms (fp > 0) while ground truth has zero change, precision=0.0 and IoU=0.0.
+
     # Precision: TP / (TP + FP)
     precision = (tp / float(tp + fp)) if (tp + fp) > 0 else (1.0 if (fn == 0) else 0.0)
 

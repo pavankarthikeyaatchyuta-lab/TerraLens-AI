@@ -297,11 +297,13 @@ def main():
             | **Image-to-Image Search**  | **IMPLEMENTED** | Reference satellite image to scene similarity | **Phase 2** |
             | **Similar Location Discovery**| **IMPLEMENTED** | Neighbor scene discovery via visual embeddings | **Phase 2** |
             | **Temporal Inspection** | **IMPLEMENTED** | Side-by-side multi-temporal baseline vs monitoring display | Phase 1 |
-            | **Lineage & Provenance** | **IMPLEMENTED** | End-to-end `ProvenanceTrace` & human analyst adjudication | Phase 1 & 2 & 3 |
+            | **Lineage & Provenance** | **IMPLEMENTED** | End-to-end `ProvenanceTrace` (up to 10 steps) & analyst adjudication | Phases 1–4 |
             | **Automated Change Detection** | **IMPLEMENTED** | `DeterministicBiTemporalChangeDetector` (luminance diff) | **Phase 3** |
             | **False-Alarm Mitigation** | **IMPLEMENTED** | Morphological filtering (opening/closing) + min region threshold | **Phase 3** |
             | **Raster Change Masking** | **IMPLEMENTED** | Binary mask, difference heatmap, and overlay PNGs | **Phase 3** |
             | **Honest Confidence Scoring** | **IMPLEMENTED** | Contrast + spatial coherence + dynamic range - cross-sensor penalty | **Phase 3** |
+            | **Evaluation Framework** | **IMPLEMENTED** | Benchmark runner, Recall@K, pixel metrics, 7-scenario robustness suite | **Phase 4** |
+            | **Intelligence Dossier Export** | **IMPLEMENTED** | Downloadable JSON audit packets & Markdown operational reports | **Phase 4** |
             | **Deep Learning Extension** | *PLUGGABLE* | Pluggable `BaseChangeDetector` interface ready for ChangeFormer | Future |
             """
         )
