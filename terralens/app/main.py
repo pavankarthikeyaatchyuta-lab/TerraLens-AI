@@ -137,6 +137,8 @@ def main():
         st.session_state.active_query = ""
     if "active_similarity" not in st.session_state:
         st.session_state.active_similarity = None
+    if "temporal_results" not in st.session_state:
+        st.session_state.temporal_results = {}
 
     # Current selected location
     selected_loc = meta_service.get_location_by_id(st.session_state.selected_location_id) if st.session_state.selected_location_id else None
@@ -234,9 +236,11 @@ def main():
         render_temporal_view(
             location=selected_loc,
             temporal_service=temporal_service,
+            temporal_results=st.session_state.temporal_results,
         )
 
     elif active_nav == "Evidence & Lineage":
+        change_res = st.session_state.temporal_results.get(selected_loc.location_id) if selected_loc else None
         render_evidence_panel(
             location=selected_loc,
             provenance_service=provenance_service,
@@ -246,13 +250,14 @@ def main():
             retrieval_method=getattr(retrieval_service, "engine_name", "Semantic Vector Search"),
             embedding_model=getattr(embed_model, "model_label", "CLIP baseline") if embed_model else "Metadata Fallback",
             index_name="satellite_embeddings.index",
+            change_result=change_res,
         )
 
     elif active_nav == "System Diagnostics":
         st.markdown("## System Diagnostics & Architecture Matrix")
         st.markdown(
             "<p style='color: #94a3b8; font-size: 0.95rem; margin-top: -8px;'>"
-            "Technical status, data layer integrity, and Phase 1 vs. Phase 2 roadmap alignment."
+            "Technical status, data layer integrity, and roadmap alignment across Phases 1, 2, and 3."
             "</p>",
             unsafe_allow_html=True,
         )
@@ -275,7 +280,7 @@ def main():
             | Pipeline Stage | Implementation Status | Technical Engine / Method | Phase |
             | :--- | :--- | :--- | :--- |
             | **UI & Dashboard** | **IMPLEMENTED** | Streamlit, Folium interactive mapping, HUD styling | Phase 1 |
-            | **Data Schema & Catalog** | **IMPLEMENTED** | Pydantic strict schemas (`Scene`, `Location`, `Evidence`) | Phase 1 |
+            | **Data Schema & Catalog** | **IMPLEMENTED** | Pydantic strict schemas (`Scene`, `Location`, `Evidence`, `Change`) | Phase 1 & 3 |
             | **Archive Discovery** | **IMPLEMENTED** | `DatasetService` with integrity check and image loaders | Phase 1 |
             | **Vector Embeddings** | **IMPLEMENTED** | Multi-modal CLIP baseline (`openai/clip-vit-base-patch32`) | **Phase 2** |
             | **FAISS Vector Search** | **IMPLEMENTED** | `IndexFlatIP` Cosine Similarity over L2-normalized vectors | **Phase 2** |
@@ -283,10 +288,12 @@ def main():
             | **Image-to-Image Search**  | **IMPLEMENTED** | Reference satellite image to scene similarity | **Phase 2** |
             | **Similar Location Discovery**| **IMPLEMENTED** | Neighbor scene discovery via visual embeddings | **Phase 2** |
             | **Temporal Inspection** | **IMPLEMENTED** | Side-by-side multi-temporal baseline vs monitoring display | Phase 1 |
-            | **Lineage & Provenance** | **IMPLEMENTED** | End-to-end `ProvenanceTrace` & human analyst adjudication | Phase 1 & 2 |
-            | **Automated Change Detection** | *PLANNED* | Bi-Temporal Siamese UNet / ChangeFormer | Phase 3 |
-            | **False-Alarm Mitigation** | *PLANNED* | Cloud/shadow masking + seasonal phenology filtering | Phase 3 |
-            | **Raster Change Masking** | *PLANNED* | Pixel-level binary & categorical change heatmaps | Phase 3 |
+            | **Lineage & Provenance** | **IMPLEMENTED** | End-to-end `ProvenanceTrace` & human analyst adjudication | Phase 1 & 2 & 3 |
+            | **Automated Change Detection** | **IMPLEMENTED** | `DeterministicBiTemporalChangeDetector` (luminance diff) | **Phase 3** |
+            | **False-Alarm Mitigation** | **IMPLEMENTED** | Morphological filtering (opening/closing) + min region threshold | **Phase 3** |
+            | **Raster Change Masking** | **IMPLEMENTED** | Binary mask, difference heatmap, and overlay PNGs | **Phase 3** |
+            | **Honest Confidence Scoring** | **IMPLEMENTED** | Contrast + spatial coherence + dynamic range - cross-sensor penalty | **Phase 3** |
+            | **Deep Learning Extension** | *PLUGGABLE* | Pluggable `BaseChangeDetector` interface ready for ChangeFormer | Future |
             """
         )
 

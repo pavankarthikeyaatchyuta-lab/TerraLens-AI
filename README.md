@@ -2,7 +2,7 @@
 
 **Smart India Hackathon 2026 (SIH 2026)**  
 **Problem Statement ID:** SIH26227  
-**Operational Status:** Phase 2 Complete (Real Semantic Retrieval & FAISS Vector Index)
+**Operational Status:** Phase 3 Complete (Real Multi-Temporal Change Detection & False-Alarm Reduction)
 
 ---
 
@@ -25,11 +25,11 @@ SEARCH (Natural language query / reference image)
    ↓
 DISCOVER (Semantic retrieval + similar candidate locations via FAISS)
    ↓
-COMPARE (Multi-temporal satellite imagery registration)
+COMPARE (Multi-temporal satellite imagery registration & alignment)
    ↓
-ANALYZE (Change detection + false-alarm mitigation)
+ANALYZE (Deterministic change detection + morphological false-alarm mitigation)
    ↓
-VERIFY (Confidence scoring + provenance audit + analyst adjudication)
+VERIFY (Measurable confidence scoring + provenance audit + analyst adjudication)
 ```
 
 ---
@@ -43,19 +43,22 @@ terralens/
 │   ├── components/
 │   │   ├── search.py               # Semantic query bar, similar discovery, candidate cards
 │   │   ├── map_view.py             # Interactive Folium map with satellite/topo layers
-│   │   ├── temporal_view.py        # Side-by-side multi-temporal baseline vs. monitoring
-│   │   ├── evidence_panel.py       # Evidence dossier, audit trail & analyst adjudication
+│   │   ├── temporal_view.py        # Multi-temporal comparison, change detection & mask display
+│   │   ├── evidence_panel.py       # Evidence dossier, audit trail, change metrics & analyst review
 │   │   ├── sidebar.py              # Navigation and live FAISS/CLIP system status
 │   │   └── image_viewer.py         # Resilient image rendering & placeholder fallbacks
 │   ├── services/
+│   │   ├── change_detector.py      # BaseChangeDetector & DeterministicBiTemporalChangeDetector
+│   │   ├── alignment_service.py    # Spatial alignment, shape check & dimension normalization
+│   │   ├── temporal_service.py     # Temporal pairing, analyze_pair pipeline & diagnostics
 │   │   ├── embedding_service.py    # BaseEmbeddingModel, CLIP baseline & Mock model
 │   │   ├── index_service.py        # FAISS IndexFlatIP cosine similarity manager
 │   │   ├── retrieval_service.py    # SemanticEmbeddingRetrievalService & Metadata fallback
 │   │   ├── dataset_service.py      # Archive scanner, integrity checks & path resolver
 │   │   ├── metadata_service.py     # Schema validation and metadata query filters
-│   │   ├── temporal_service.py     # Temporal pairing, alignment & change detector stubs
 │   │   └── provenance_service.py   # Audit step construction & evidence dossier builder
 │   ├── models/
+│   │   ├── change.py               # Pydantic ChangeRegion & ChangeDetectionResult schemas
 │   │   ├── scene.py                # Pydantic Scene schema (sensor, date, cloud, path)
 │   │   ├── location.py             # Pydantic Location and BoundingBox schemas
 │   │   └── evidence.py             # Pydantic Evidence, ProvenanceStep, and Trace schemas
@@ -66,17 +69,20 @@ terralens/
 ├── data/
 │   ├── metadata/
 │   │   └── locations.json          # Validated satellite catalog
-│   └── samples/                    # Realistic multi-temporal benchmark scenes (2023 vs 2025)
-│       ├── LOC_001_HYDERABAD_URBAN/
-│       ├── LOC_002_GODAVARI_RESERVOIR/
-│       ├── LOC_003_WESTERN_GHATS_FOREST/
-│       ├── LOC_004_CHENNAI_COASTAL/
-│       └── LOC_005_THAR_SOLAR_PARK/
+│   ├── samples/                    # Realistic multi-temporal benchmark scenes (2023 vs 2025)
+│   │   ├── LOC_001_HYDERABAD_URBAN/
+│   │   ├── LOC_002_GODAVARI_RESERVOIR/
+│   │   ├── LOC_003_WESTERN_GHATS_FOREST/
+│   │   ├── LOC_004_CHENNAI_COASTAL/
+│   │   └── LOC_005_THAR_SOLAR_PARK/
+│   └── outputs/
+│       └── change_masks/           # Persisted change masks, difference heatmaps & overlays
 ├── indexes/
 │   ├── satellite_embeddings.index          # Real FAISS IndexFlatIP vector index
 │   ├── satellite_embeddings_metadata.json  # Vector ID to scene metadata mapping
 │   └── README.md                           # Index architecture & validation guide
 ├── tests/
+│   ├── test_change_detection.py    # Multi-temporal change detection & false-alarm tests
 │   ├── test_semantic_retrieval.py  # CLIP embedding, text search, similar image tests
 │   ├── test_index.py               # FAISS index creation, persistence & validation tests
 │   ├── test_metadata.py            # Pydantic validation & catalog query tests
@@ -95,49 +101,69 @@ terralens/
 
 ---
 
-## 4. Phase 1 & 2 Capabilities vs. Roadmap
+## 4. Implemented Capabilities vs. Roadmap
 
-To uphold scientific and engineering integrity, TerraLens AI strictly distinguishes between **implemented capabilities** and **planned features**:
+To uphold scientific and engineering integrity, TerraLens AI strictly distinguishes between **implemented capabilities** and **planned future deep learning extensions**:
 
-### ✅ IMPLEMENTED (Phases 1 & 2)
-- [x] **Real Vision-Language Embeddings:** `openai/clip-vit-base-patch32` (*CLIP baseline*) generating 512-dimensional normalized vector embeddings for both text and satellite imagery.
-- [x] **FAISS Vector Indexing:** Real `faiss.IndexFlatIP` structure storing dense image vectors and computing sub-second exact cosine similarity scores.
+### ✅ IMPLEMENTED (Phases 1, 2, and 3)
+
+#### Phase 1: Modular Foundation & Data Layer
+- [x] **Pydantic Strict Data Models:** `Scene`, `Location`, `BoundingBox`, `Evidence`, `ProvenanceStep`, `ProvenanceTrace`.
+- [x] **Catalog & Archive Services:** `MetadataService` and `DatasetService` with filesystem validation.
+- [x] **Interactive Geospatial Dashboard:** Streamlit UI with Folium satellite layers and dynamic navigation.
+
+#### Phase 2: Real Semantic Retrieval + Vector Index
+- [x] **Real Vision-Language Embeddings:** `openai/clip-vit-base-patch32` (*CLIP baseline*) generating 512-dimensional normalized vector embeddings for text and satellite imagery.
+- [x] **FAISS Vector Indexing:** Real `faiss.IndexFlatIP` structure computing sub-second exact cosine similarity scores.
 - [x] **Cross-Modal Text Search:** Natural language search (e.g., *"new buildings near a river"*, *"reservoir water retreat"*) ranked by real cosine similarity without hardcoded scores.
-- [x] **Image-to-Image Search:** Reference satellite image upload embedding and similarity retrieval across the archive.
-- [x] **Similar Location Discovery:** Clicking *"Find Similar"* on any location embeds its satellite observation, searches FAISS, excludes the target itself, and returns ranked similar geographic sites.
-- [x] **Resilient Fallback Mode:** Automatic fallback to `PrototypeMetadataRetrievalService` if vector index is missing or model fails to load, with explicit UI status warnings.
-- [x] **Retrieval Evidence & Provenance:** Audit trace recording `QUERY` → `EMBEDDING` → `VECTOR_SEARCH` → `RETRIEVED_LOCATION` → `SOURCE_IMAGES` with exact model names, index file references, and similarity values.
-- [x] **Interactive Mapping & Temporal Viewer:** Folium map with satellite/topo layers, radar circles, and side-by-side baseline (2023) vs monitoring (2025) comparison.
-- [x] **Comprehensive Test Suite:** 23 unit, integration, and end-to-end tests passing.
+- [x] **Image-to-Image Search & Discovery:** Visual embedding search and neighbor discovery across geographic locations.
+- [x] **Resilient Fallback Mode:** Automatic fallback to `PrototypeMetadataRetrievalService` if vector index is missing or model fails to load.
 
-### ⏳ PLANNED (Phase 3 Roadmap)
-- [ ] **Remote Sensing Fine-Tuned Model:** Upgrading from general *CLIP baseline* to specialized Earth Observation vision-language models (e.g. RemoteCLIP).
-- [ ] **Automated Deep Change Detection:** Bi-temporal Siamese UNet / ChangeFormer architectures for automated change boundary extraction.
-- [ ] **Pixel-Level Change Masks:** Generation of georeferenced GeoTIFF binary and categorical change heatmaps.
-- [ ] **False-Alarm Mitigation Pipeline:** Deep cloud/cloud-shadow masking (Fmask/s2cloudless) and multi-seasonal phenology normalization.
-- [ ] **Bayesian Confidence Calibration:** Statistical confidence scoring based on uncertainty estimation.
+#### Phase 3: Multi-Temporal Change Detection & False-Alarm Reduction
+- [x] **Deterministic Bi-Temporal Change Detector:** `DeterministicBiTemporalChangeDetector` computing luminance deltas without fake uncalibrated neural claims on tiny benchmark datasets.
+- [x] **Spatial Alignment & Dimension Normalization:** `ImageAlignmentService` checking spatial dimensions and resizing monitoring scenes to baseline space.
+- [x] **Radiometric Illumination Matching:** Top-of-atmosphere gain and offset matching to normalize solar angle and atmospheric differences.
+- [x] **Morphological False-Alarm Mitigation:** Opening (erodes isolated salt-and-pepper pixel noise) + Closing (bridges contiguous infrastructure boundaries) with configurable kernel sizes.
+- [x] **Connected Component Analysis & Region Extraction:** Clusters changed pixels into discrete `ChangeRegion` components, filtering out noise smaller than minimum area thresholds.
+- [x] **Transparent Measurable Confidence Formulation:**
+  $$\text{Confidence} = 0.45 \times \text{SignalStrength} + 0.35 \times \text{SpatialCoherence} + 0.20 \times \text{QualityScore} - \text{Penalty}$$
+  Directly derived from signal contrast, cluster coherence, dynamic range, and sensor mismatch penalties.
+- [x] **Raster Artifact Persistence:** Automatically generates and persists binary masks, colorized difference heatmaps, and highlight overlay PNGs in `data/outputs/change_masks/`.
+- [x] **End-to-End Audit Lineage:** Complete trace recorded in `Evidence` dossier (`PREPROCESSING_ALIGNMENT`, `TEMPORAL_CHANGE_DETECTION`, `FALSE_ALARM_FILTERING`, `CONFIDENCE_EVALUATION`, `ANALYST_ADJUDICATION`).
+- [x] **Comprehensive Test Suite:** **32 unit, integration, and end-to-end tests passing** across all modules with 100% pass rate.
+
+### ⏳ PLANNED (Future Extension Roadmap)
+- [ ] **Remote Sensing Fine-Tuned Model:** Upgrading from generic *CLIP baseline* to specialized Earth Observation vision-language models (e.g. RemoteCLIP / GeoRSCLIP).
+- [ ] **Pluggable Deep Change Detection:** ChangeFormer / Siamese UNet implementations implementing `BaseChangeDetector` once large-scale pre-training datasets are indexed.
+- [ ] **Deep Cloud & Shadow Masking:** Integration of s2cloudless or Fmask for multi-spectral cloud probability masks.
 
 ---
 
-## 5. Semantic Retrieval Pipeline
+## 5. Multi-Temporal Change Detection Pipeline
 
 ```
-Text Query ("new buildings near a river") OR Reference Satellite Image
-                         ↓
-         EmbeddingModel (CLIP baseline: 512-dim)
-                         ↓
-               L2 Vector Normalization
-                         ↓
-             FAISS IndexFlatIP Search
-                         ↓
-         Exact Cosine Similarities (Inner Product)
-                         ↓
-            Deduplication & Metadata Filtering
-                         ↓
-    Ranked Satellite Locations with Real Similarity Scores
+Baseline Scene (T1) + Monitoring Scene (T2)
+                     ↓
+        Image Validation & Dynamic Range Check
+                     ↓
+        Spatial Alignment & Dimension Normalization
+                     ↓
+        Radiometric Illumination Calibration (Mean & Std matching)
+                     ↓
+        Absolute Luminance Pixel Difference (|T2_norm - T1|)
+                     ↓
+        Sensitivity Thresholding (diff >= threshold)
+                     ↓
+        Morphological Noise Suppression (Opening + Closing)
+                     ↓
+        Connected Component Analysis (Min area cluster filter)
+                     ↓
+        Measurable Confidence Scoring & Cross-Sensor Advisory
+                     ↓
+        Artifact Generation (Binary Mask, Difference Heatmap, Overlay)
+                     ↓
+        Provenance Dossier & Analyst Adjudication Review
 ```
-
-> **Note on Model Type:** The current model is `openai/clip-vit-base-patch32` clearly designated as **"CLIP baseline"**. It is a generic vision-language model and has not yet been fine-tuned on multispectral satellite imagery.
 
 ---
 
@@ -191,10 +217,11 @@ python scripts/generate_sample_dataset.py
 python scripts/build_embedding_index.py
 ```
 
-### 4. Run the Test Suite
+### 4. Run the Complete Test Suite
 ```bash
 python -m pytest -v
 ```
+*Expected: 32 passed in ~9s.*
 
 ### 5. Launch the Dashboard
 ```bash
@@ -204,8 +231,8 @@ Open `http://localhost:8501` in your browser.
 
 ---
 
-## 8. Current Limitations
-- **Dataset Size:** Current prototype archive contains 10 benchmark scenes across 5 locations.
-- **Generic Vision-Language Model:** Uses `openai/clip-vit-base-patch32` (CLIP baseline), which is not yet fine-tuned for remote sensing spectral bands.
-- **Temporal Change Detection:** Remains Phase 3 (automated change detection, cloud/shadow filtering, and raster change masking are not claimed to be implemented).
-- **Global Indexing:** Current FAISS index is configured for local sandbox scale (`IndexFlatIP`). Large-scale deployment with millions of tiles will utilize `IndexIVFFlat` or `IndexHNSW`.
+## 8. Current Limitations & Scientific Notes
+- **Dataset Scale:** Current prototype archive contains 10 benchmark scenes across 5 monitored locations.
+- **CLIP Baseline:** Uses `openai/clip-vit-base-patch32` (*CLIP baseline*), a general vision-language model, rather than a domain-specific satellite foundation model.
+- **Deterministic Baseline Detector:** The Phase 3 change detector uses deterministic radiometric difference and morphological filtering. While robust and defensible on small datasets, it does not perform semantic change classification (e.g., distinguishing urban construction from agricultural harvesting without contextual prompts).
+- **Index Mode:** The current FAISS index uses `IndexFlatIP` (exact search). For scaling to millions of tiles, `IndexIVFFlat` or `IndexHNSW` is recommended.

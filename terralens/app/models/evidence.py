@@ -53,20 +53,52 @@ class Evidence(BaseModel):
         description="Cosine similarity score from FAISS vector search"
     )
 
-    # Change Analysis fields (Strictly honest: None / Not yet calculated in Phase 1)
+    # Change Analysis fields (Phase 3 Real Multi-Temporal Metrics)
     change_type: Optional[str] = Field(
         default=None,
-        description="Categorical change detected (None indicates not yet calculated)"
+        description="Categorical change detected (None indicates not yet analyzed)"
     )
     change_confidence: Optional[float] = Field(
         default=None,
         ge=0.0,
         le=1.0,
-        description="Statistical confidence score (None indicates not yet calculated)"
+        description="Measurable confidence score derived from physical contrast and spatial coherence"
+    )
+    changed_pixels: Optional[int] = Field(
+        default=None,
+        description="Number of changed pixels identified after false-alarm mitigation"
+    )
+    total_pixels: Optional[int] = Field(
+        default=None,
+        description="Total valid evaluated scene pixels"
+    )
+    change_ratio: Optional[float] = Field(
+        default=None,
+        description="Fraction of scene exhibiting change (changed_pixels / total_pixels)"
+    )
+    detected_regions_count: Optional[int] = Field(
+        default=None,
+        description="Number of structured connected components extracted"
+    )
+    quality_score: Optional[float] = Field(
+        default=None,
+        description="Image pair contrast and dynamic range assessment score"
     )
     change_mask_path: Optional[str] = Field(
         default=None,
-        description="Path to generated raster change mask if calculated"
+        description="Path to generated binary change mask PNG"
+    )
+    difference_image_path: Optional[str] = Field(
+        default=None,
+        description="Path to generated difference heatmap PNG"
+    )
+    overlay_image_path: Optional[str] = Field(
+        default=None,
+        description="Path to generated visual change overlay PNG"
+    )
+    warnings: List[str] = Field(
+        default_factory=list,
+        description="Quality, cross-sensor, or seasonal false-alarm warnings"
     )
 
     # Lineage and Review

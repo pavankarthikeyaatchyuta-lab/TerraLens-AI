@@ -44,6 +44,11 @@ ENV/
 indexes/*.faiss
 indexes/*.index
 
+# Generated Runtime Outputs
+data/outputs/**/*.png
+data/outputs/**/*.json
+!data/outputs/**/.gitkeep
+
 # IDE
 .vscode/
 .idea/

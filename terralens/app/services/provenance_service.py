@@ -27,8 +27,9 @@ class ProvenanceService:
         embedding_model: Optional[str] = "CLIP baseline",
         index_name: Optional[str] = "satellite_embeddings.index",
         similarity_score: Optional[float] = None,
+        change_result: Optional[Any] = None,
     ) -> Evidence:
-        """Assembles a formal evidence packet for a given location and search context."""
+        """Assembles a formal evidence packet for a given location, search context, and optional change analysis."""
         trace_id = str(uuid.uuid4())[:8]
         now_iso = datetime.now(timezone.utc).isoformat()
 
@@ -90,31 +91,82 @@ class ProvenanceService:
                     "source": location.source,
                 },
             ),
-            ProvenanceStep(
-                step_name="PREPROCESSING",
-                timestamp=now_iso,
-                status="COMPLETED",
-                details={"alignment": "Identity/Dimension Check", "normalization": "Pending Phase 3"},
-            ),
-            ProvenanceStep(
-                step_name="TEMPORAL_COMPARISON",
-                timestamp=now_iso,
-                status="PENDING_MODEL",
-                details={"model": "Scheduled for Phase 3", "change_mask": "Not generated"},
-            ),
-            ProvenanceStep(
-                step_name="CONFIDENCE_EVALUATION",
-                timestamp=now_iso,
-                status="NOT_CALCULATED",
-                details={"score": None, "note": "Change confidence deferred to Phase 3"},
-            ),
+        ])
+
+        if change_result and getattr(change_result, "status", None) not in ("NOT_IMPLEMENTED", "INCOMPLETE_DATA", None):
+            # Phase 3 change detection pipeline steps
+            steps.extend([
+                ProvenanceStep(
+                    step_name="PREPROCESSING_ALIGNMENT",
+                    timestamp=now_iso,
+                    status="COMPLETED",
+                    details={
+                        "steps": getattr(change_result, "preprocessing_steps", []),
+                        "quality_score": getattr(change_result, "quality_score", None),
+                    },
+                ),
+                ProvenanceStep(
+                    step_name="TEMPORAL_CHANGE_DETECTION",
+                    timestamp=now_iso,
+                    status="COMPLETED",
+                    details={
+                        "detector": getattr(change_result, "detector_label", "Deterministic Bi-Temporal Baseline"),
+                        "changed_pixels": getattr(change_result, "changed_pixels", 0),
+                        "total_pixels": getattr(change_result, "total_pixels", 0),
+                        "change_ratio_pct": f"{getattr(change_result, 'change_ratio', 0.0) * 100:.2f}%",
+                    },
+                ),
+                ProvenanceStep(
+                    step_name="FALSE_ALARM_FILTERING",
+                    timestamp=now_iso,
+                    status="COMPLETED",
+                    details={
+                        "morphological_filter": "Opening 3x3 + Closing 5x5",
+                        "min_region_pixels": getattr(change_result, "diagnostics", {}).get("min_region_size_pixels", 25),
+                        "retained_connected_regions": len(getattr(change_result, "change_regions", [])),
+                        "warnings": getattr(change_result, "warnings", []),
+                    },
+                ),
+                ProvenanceStep(
+                    step_name="CONFIDENCE_EVALUATION",
+                    timestamp=now_iso,
+                    status="COMPLETED",
+                    details={
+                        "overall_confidence": getattr(change_result, "confidence_score", None),
+                        "breakdown": getattr(change_result, "confidence_breakdown", {}),
+                    },
+                ),
+            ])
+        else:
+            steps.extend([
+                ProvenanceStep(
+                    step_name="PREPROCESSING",
+                    timestamp=now_iso,
+                    status="COMPLETED",
+                    details={"alignment": "Identity/Dimension Check", "normalization": "Pending Analysis"},
+                ),
+                ProvenanceStep(
+                    step_name="TEMPORAL_COMPARISON",
+                    timestamp=now_iso,
+                    status="PENDING_ANALYSIS",
+                    details={"model": "DeterministicBiTemporalChangeDetector ready to execute"},
+                ),
+                ProvenanceStep(
+                    step_name="CONFIDENCE_EVALUATION",
+                    timestamp=now_iso,
+                    status="NOT_CALCULATED",
+                    details={"score": None, "note": "Run temporal analysis to compute confidence"},
+                ),
+            ])
+
+        steps.append(
             ProvenanceStep(
                 step_name="ANALYST_DECISION",
                 timestamp=now_iso,
                 status="PENDING_REVIEW",
                 details={"analyst": "Human Reviewer", "decision": "Pending"},
-            ),
-        ])
+            )
+        )
 
         trace = ProvenanceTrace(
             trace_id=trace_id,
@@ -123,6 +175,8 @@ class ProvenanceService:
             location_id=location.location_id,
             steps=steps,
         )
+
+        has_cr = change_result and getattr(change_result, "status", None) not in ("NOT_IMPLEMENTED", "INCOMPLETE_DATA", None)
 
         evidence = Evidence(
             evidence_id=f"EVID_{location.location_id}_{trace_id}",
@@ -133,14 +187,22 @@ class ProvenanceService:
             before_date=before_scene.acquisition_date if before_scene else "Unknown",
             after_date=after_scene.acquisition_date if after_scene else "Unknown",
             source=location.source,
-            processing_status="STAGED_FOR_ANALYST",
+            processing_status="ANALYZED_READY_FOR_REVIEW" if has_cr else "STAGED_FOR_ANALYST",
             retrieval_method=retrieval_method,
             embedding_model=embedding_model,
             index_name=index_name,
             similarity_score=similarity_score,
-            change_type=None,
-            change_confidence=None,
-            change_mask_path=None,
+            change_type=getattr(change_result, "change_type", None) if has_cr else None,
+            change_confidence=getattr(change_result, "confidence_score", None) if has_cr else None,
+            change_mask_path=getattr(change_result, "change_mask_path", None) if has_cr else None,
+            difference_image_path=getattr(change_result, "difference_image_path", None) if has_cr else None,
+            overlay_image_path=getattr(change_result, "overlay_image_path", None) if has_cr else None,
+            changed_pixels=getattr(change_result, "changed_pixels", None) if has_cr else None,
+            total_pixels=getattr(change_result, "total_pixels", None) if has_cr else None,
+            change_ratio=getattr(change_result, "change_ratio", None) if has_cr else None,
+            detected_regions_count=len(getattr(change_result, "change_regions", [])) if has_cr else None,
+            quality_score=getattr(change_result, "quality_score", None) if has_cr else None,
+            warnings=getattr(change_result, "warnings", []) if has_cr else [],
             provenance=trace,
             analyst_decision="PENDING_REVIEW",
             analyst_notes="",

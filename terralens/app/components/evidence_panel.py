@@ -1,10 +1,12 @@
 """Evidence panel component for intelligence verification, audit lineage, and analyst adjudication."""
 
-from typing import Optional
+from typing import Optional, Any
 import streamlit as st
+from PIL import Image
 
 from terralens.app.models.location import Location
 from terralens.app.models.scene import Scene
+from terralens.app.models.change import ChangeDetectionResult
 from terralens.app.services.provenance_service import ProvenanceService
 from terralens.app.services.metadata_service import MetadataService
 
@@ -18,8 +20,9 @@ def render_evidence_panel(
     retrieval_method: str = "Semantic Vector Search",
     embedding_model: str = "CLIP baseline",
     index_name: str = "satellite_embeddings.index",
+    change_result: Optional[ChangeDetectionResult] = None,
 ) -> None:
-    """Renders the intelligence verification evidence dossier and lineage trace."""
+    """Renders the intelligence verification evidence dossier, lineage trace, and analyst review."""
     st.markdown("## Evidence & Intelligence Verification")
     st.markdown(
         "<p style='color: #94a3b8; font-size: 0.95rem; margin-top: -8px;'>"
@@ -45,15 +48,20 @@ def render_evidence_panel(
         embedding_model=embedding_model,
         index_name=index_name,
         similarity_score=active_similarity,
+        change_result=change_result,
     )
 
     # Dossier Metadata Matrix
+    status_bg = "rgba(74, 222, 128, 0.15)" if evidence.processing_status == "ANALYZED_READY_FOR_REVIEW" else "rgba(56, 189, 248, 0.15)"
+    status_fg = "#4ade80" if evidence.processing_status == "ANALYZED_READY_FOR_REVIEW" else "#38bdf8"
+    status_border = "rgba(74, 222, 128, 0.3)" if evidence.processing_status == "ANALYZED_READY_FOR_REVIEW" else "rgba(56, 189, 248, 0.3)"
+
     st.markdown(
         f"""
         <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid #334155; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 10px; margin-bottom: 12px;">
                 <span style="font-weight: 700; color: #f8fafc; font-size: 1.05rem;">Dossier ID: {evidence.evidence_id}</span>
-                <span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; border: 1px solid rgba(56, 189, 248, 0.3);">
+                <span style="background: {status_bg}; color: {status_fg}; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; border: 1px solid {status_border};">
                     STATUS: {evidence.processing_status}
                 </span>
             </div>
@@ -133,51 +141,119 @@ def render_evidence_panel(
 
     st.markdown("---")
 
-    # Change Detection Evidence Fields (Strictly honest "Not yet calculated" display)
+    # Change Detection Evidence Fields
     st.markdown("### Temporal Change Metrics (Stage 2: ANALYZE)")
     m_col1, m_col2, m_col3 = st.columns(3)
 
-    with m_col1:
-        st.markdown(
-            """
-            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;">
-                <div style="font-size: 0.78rem; color: #94a3b8;">Change Classification</div>
-                <div style="font-size: 1rem; font-weight: 600; color: #94a3b8; margin-top: 4px;">
-                    Not yet calculated
+    if evidence.change_confidence is not None:
+        with m_col1:
+            st.markdown(
+                f"""
+                <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;">
+                    <div style="font-size: 0.78rem; color: #94a3b8;">Change Classification</div>
+                    <div style="font-size: 1.05rem; font-weight: 700; color: #f59e0b; margin-top: 4px;">
+                        {evidence.change_type or "Detected Change"}
+                    </div>
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Deterministic Bi-Temporal Baseline</div>
                 </div>
-                <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Phase 3 Bi-Temporal Neural Detector</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+                """,
+                unsafe_allow_html=True,
+            )
 
-    with m_col2:
-        st.markdown(
-            """
-            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;">
-                <div style="font-size: 0.78rem; color: #94a3b8;">Statistical Confidence</div>
-                <div style="font-size: 1rem; font-weight: 600; color: #94a3b8; margin-top: 4px;">
-                    Not yet calculated
+        with m_col2:
+            st.markdown(
+                f"""
+                <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;">
+                    <div style="font-size: 0.78rem; color: #94a3b8;">Statistical Confidence</div>
+                    <div style="font-size: 1.05rem; font-weight: 700; color: #a855f7; margin-top: 4px;">
+                        {evidence.change_confidence * 100:.1f}%
+                    </div>
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Measurable signal + spatial coherence</div>
                 </div>
-                <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Requires Bi-Temporal Model Inference</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+                """,
+                unsafe_allow_html=True,
+            )
 
-    with m_col3:
-        st.markdown(
-            """
-            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;">
-                <div style="font-size: 0.78rem; color: #94a3b8;">Raster Change Mask</div>
-                <div style="font-size: 1rem; font-weight: 600; color: #94a3b8; margin-top: 4px;">
-                    Not yet calculated
+        with m_col3:
+            ratio_pct = f"{evidence.change_ratio * 100:.2f}%" if evidence.change_ratio is not None else "0.00%"
+            px_count = f"{evidence.changed_pixels:,}" if evidence.changed_pixels is not None else "0"
+            st.markdown(
+                f"""
+                <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;">
+                    <div style="font-size: 0.78rem; color: #94a3b8;">Raster Change Mask</div>
+                    <div style="font-size: 1.05rem; font-weight: 700; color: #38bdf8; margin-top: 4px;">
+                        {px_count} px ({ratio_pct})
+                    </div>
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">{evidence.detected_regions_count or 0} discrete components</div>
                 </div>
-                <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Pending Segmentation Mask Pipeline</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+                """,
+                unsafe_allow_html=True,
+            )
+
+        if evidence.warnings:
+            for w in evidence.warnings:
+                st.warning(f"⚠️ **Advisory:** {w}")
+
+        # Artifact inspection expander
+        with st.expander("🖼️ Inspect Generated Change Artifacts", expanded=False):
+            art_col1, art_col2 = st.columns(2)
+            with art_col1:
+                if evidence.overlay_image_path:
+                    st.caption("Change Highlight Overlay")
+                    try:
+                        st.image(Image.open(evidence.overlay_image_path), use_container_width=True)
+                    except Exception as e:
+                        st.caption(f"Overlay path: {evidence.overlay_image_path}")
+            with art_col2:
+                if evidence.change_mask_path:
+                    st.caption("Filtered Binary Mask")
+                    try:
+                        st.image(Image.open(evidence.change_mask_path), use_container_width=True)
+                    except Exception as e:
+                        st.caption(f"Mask path: {evidence.change_mask_path}")
+
+    else:
+        with m_col1:
+            st.markdown(
+                """
+                <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;">
+                    <div style="font-size: 0.78rem; color: #94a3b8;">Change Classification</div>
+                    <div style="font-size: 1rem; font-weight: 600; color: #94a3b8; margin-top: 4px;">
+                        Pending Execution
+                    </div>
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Run Temporal Comparison to analyze</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        with m_col2:
+            st.markdown(
+                """
+                <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;">
+                    <div style="font-size: 0.78rem; color: #94a3b8;">Statistical Confidence</div>
+                    <div style="font-size: 1rem; font-weight: 600; color: #94a3b8; margin-top: 4px;">
+                        Pending Execution
+                    </div>
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Requires Bi-Temporal Model Inference</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        with m_col3:
+            st.markdown(
+                """
+                <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;">
+                    <div style="font-size: 0.78rem; color: #94a3b8;">Raster Change Mask</div>
+                    <div style="font-size: 1rem; font-weight: 600; color: #94a3b8; margin-top: 4px;">
+                        Pending Execution
+                    </div>
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Pending Segmentation Mask Pipeline</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
     st.markdown("---")
 
@@ -231,6 +307,7 @@ def render_evidence_panel(
             "CONFIRMED_GROUND_CHANGE",
             "FALSE_ALARM (Phenology/Seasonal)",
             "FALSE_ALARM (Cloud/Shadow)",
+            "FALSE_ALARM (Sensor Inconsistency)",
             "ESCALATE_FOR_FURTHER_SURVEILLANCE",
         ]
         current_decision = st.selectbox(
