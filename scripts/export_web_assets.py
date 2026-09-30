@@ -49,9 +49,15 @@ def main():
             count += 1
     print(f"  Copied {count} change mask artifacts.")
 
-    print("Step 3: Copying evaluation results and locations catalog...")
+    print("Step 3: Copying evaluation results, locations catalog, and scenes...")
     shutil.copy2(root / "evaluation_results.json", public_data_dir / "evaluation_results.json")
     shutil.copy2(root / "data" / "metadata" / "locations.json", public_data_dir / "locations.json")
+    
+    ms_export = MetadataService()
+    scenes_list = [s.model_dump() for s in ms_export.get_all_scenes()]
+    with open(public_data_dir / "scenes.json", "w", encoding="utf-8") as f:
+        json.dump({"total_scenes": len(scenes_list), "scenes": scenes_list}, f, indent=2)
+    print(f"  Exported {len(scenes_list)} scenes to scenes.json.")
 
     print("Step 4: Extracting 512-dim scene vectors from FAISS index...")
     faiss_index_path = root / "indexes" / "satellite_embeddings.index"

@@ -1,0 +1,265 @@
+{
+  "total_scenes": 10,
+  "scenes": [
+    {
+      "scene_id": "SCENE_LOC_001_HYDERABAD_URBAN_2023",
+      "location_id": "LOC_001_HYDERABAD_URBAN",
+      "latitude": 17.4483,
+      "longitude": 78.3742,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2A",
+      "acquisition_date": "2023-03-15",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_001_HYDERABAD_URBAN/before_2023.jpg",
+      "thumbnail_path": "data/samples/LOC_001_HYDERABAD_URBAN/before_2023.jpg",
+      "cloud_percentage": 1.2,
+      "source": "prototype_dataset",
+      "tags": [
+        "urban",
+        "construction",
+        "buildings",
+        "infrastructure",
+        "river"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_001_HYDERABAD_URBAN_2025",
+      "location_id": "LOC_001_HYDERABAD_URBAN",
+      "latitude": 17.4483,
+      "longitude": 78.3742,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2B",
+      "acquisition_date": "2025-02-20",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_001_HYDERABAD_URBAN/after_2025.jpg",
+      "thumbnail_path": "data/samples/LOC_001_HYDERABAD_URBAN/after_2025.jpg",
+      "cloud_percentage": 2.5,
+      "source": "prototype_dataset",
+      "tags": [
+        "urban",
+        "construction",
+        "buildings",
+        "infrastructure",
+        "river"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_002_GODAVARI_RESERVOIR_2023",
+      "location_id": "LOC_002_GODAVARI_RESERVOIR",
+      "latitude": 18.9647,
+      "longitude": 78.3283,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2A",
+      "acquisition_date": "2023-01-10",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_002_GODAVARI_RESERVOIR/before_2023.jpg",
+      "thumbnail_path": "data/samples/LOC_002_GODAVARI_RESERVOIR/before_2023.jpg",
+      "cloud_percentage": 1.2,
+      "source": "prototype_dataset",
+      "tags": [
+        "water",
+        "reservoir",
+        "lake",
+        "drought",
+        "wetland"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_002_GODAVARI_RESERVOIR_2025",
+      "location_id": "LOC_002_GODAVARI_RESERVOIR",
+      "latitude": 18.9647,
+      "longitude": 78.3283,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2B",
+      "acquisition_date": "2025-01-25",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_002_GODAVARI_RESERVOIR/after_2025.jpg",
+      "thumbnail_path": "data/samples/LOC_002_GODAVARI_RESERVOIR/after_2025.jpg",
+      "cloud_percentage": 2.5,
+      "source": "prototype_dataset",
+      "tags": [
+        "water",
+        "reservoir",
+        "lake",
+        "drought",
+        "wetland"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_003_WESTERN_GHATS_FOREST_2023",
+      "location_id": "LOC_003_WESTERN_GHATS_FOREST",
+      "latitude": 14.8512,
+      "longitude": 74.5238,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2A",
+      "acquisition_date": "2023-04-05",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_003_WESTERN_GHATS_FOREST/before_2023.jpg",
+      "thumbnail_path": "data/samples/LOC_003_WESTERN_GHATS_FOREST/before_2023.jpg",
+      "cloud_percentage": 1.2,
+      "source": "prototype_dataset",
+      "tags": [
+        "forest",
+        "deforestation",
+        "trees",
+        "corridor",
+        "road"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_003_WESTERN_GHATS_FOREST_2025",
+      "location_id": "LOC_003_WESTERN_GHATS_FOREST",
+      "latitude": 14.8512,
+      "longitude": 74.5238,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2B",
+      "acquisition_date": "2025-03-12",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_003_WESTERN_GHATS_FOREST/after_2025.jpg",
+      "thumbnail_path": "data/samples/LOC_003_WESTERN_GHATS_FOREST/after_2025.jpg",
+      "cloud_percentage": 2.5,
+      "source": "prototype_dataset",
+      "tags": [
+        "forest",
+        "deforestation",
+        "trees",
+        "corridor",
+        "road"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_004_CHENNAI_COASTAL_2023",
+      "location_id": "LOC_004_CHENNAI_COASTAL",
+      "latitude": 13.2541,
+      "longitude": 80.3312,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2A",
+      "acquisition_date": "2023-02-18",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_004_CHENNAI_COASTAL/before_2023.jpg",
+      "thumbnail_path": "data/samples/LOC_004_CHENNAI_COASTAL/before_2023.jpg",
+      "cloud_percentage": 1.2,
+      "source": "prototype_dataset",
+      "tags": [
+        "coastal",
+        "port",
+        "reclamation",
+        "ocean",
+        "industrial"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_004_CHENNAI_COASTAL_2025",
+      "location_id": "LOC_004_CHENNAI_COASTAL",
+      "latitude": 13.2541,
+      "longitude": 80.3312,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2B",
+      "acquisition_date": "2025-02-14",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_004_CHENNAI_COASTAL/after_2025.jpg",
+      "thumbnail_path": "data/samples/LOC_004_CHENNAI_COASTAL/after_2025.jpg",
+      "cloud_percentage": 2.5,
+      "source": "prototype_dataset",
+      "tags": [
+        "coastal",
+        "port",
+        "reclamation",
+        "ocean",
+        "industrial"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_005_THAR_SOLAR_PARK_2023",
+      "location_id": "LOC_005_THAR_SOLAR_PARK",
+      "latitude": 27.538,
+      "longitude": 71.917,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2A",
+      "acquisition_date": "2023-05-12",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_005_THAR_SOLAR_PARK/before_2023.jpg",
+      "thumbnail_path": "data/samples/LOC_005_THAR_SOLAR_PARK/before_2023.jpg",
+      "cloud_percentage": 1.2,
+      "source": "prototype_dataset",
+      "tags": [
+        "solar",
+        "energy",
+        "desert",
+        "panels",
+        "infrastructure"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    },
+    {
+      "scene_id": "SCENE_LOC_005_THAR_SOLAR_PARK_2025",
+      "location_id": "LOC_005_THAR_SOLAR_PARK",
+      "latitude": 27.538,
+      "longitude": 71.917,
+      "sensor": "Sentinel-2 MSI",
+      "platform": "Sentinel-2B",
+      "acquisition_date": "2025-04-18",
+      "resolution_meters": 10.0,
+      "image_path": "data/samples/LOC_005_THAR_SOLAR_PARK/after_2025.jpg",
+      "thumbnail_path": "data/samples/LOC_005_THAR_SOLAR_PARK/after_2025.jpg",
+      "cloud_percentage": 2.5,
+      "source": "prototype_dataset",
+      "tags": [
+        "solar",
+        "energy",
+        "desert",
+        "panels",
+        "infrastructure"
+      ],
+      "processing_status": "available",
+      "extra_metadata": {
+        "orbit": "Descending",
+        "tile_id": "T44_LOC_"
+      }
+    }
+  ]
+}

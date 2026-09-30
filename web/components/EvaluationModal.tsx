@@ -73,34 +73,34 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
                       Warm Semantic Retrieval
                     </span>
                     <span className="text-2xl font-bold font-mono text-cyan-400">
-                      {evalData?.retrieval?.warm_retrieval_mean_latency_ms || "21.47"} ms
+                      ~21.47 ms
                     </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">
-                      Min: {evalData?.retrieval?.warm_retrieval_min_latency_ms || "16.59"}ms | Max: {evalData?.retrieval?.warm_retrieval_max_latency_ms || "28.22"}ms
+                      Min: 16.59 ms | Max: 28.22 ms
                     </span>
                   </div>
 
                   <div className="bg-tactical-850 p-3.5 rounded-xl border border-tactical-700">
                     <span className="text-[11px] font-mono text-slate-400 block uppercase">
-                      Model Cold Start Load
+                      CLIP Model Initialization
                     </span>
                     <span className="text-2xl font-bold font-mono text-amber-400">
-                      {evalData?.retrieval?.cold_start_model_init_ms || "477.38"} ms
+                      ~477.4 ms
                     </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">
-                      CLIP ViT-B/32 PyTorch weights load
+                      PyTorch weights load (not total cold start)
                     </span>
                   </div>
 
                   <div className="bg-tactical-850 p-3.5 rounded-xl border border-tactical-700">
                     <span className="text-[11px] font-mono text-slate-400 block uppercase">
-                      Mean Change Detection
+                      First-Query Cold Pipeline
                     </span>
-                    <span className="text-2xl font-bold font-mono text-emerald-400">
-                      {evalData?.change_detection?.benchmark_pairs?.[0]?.execution_time_ms?.toFixed(1) || "14.2"} ms
+                    <span className="text-2xl font-bold font-mono text-slate-200">
+                      ~10.28 s
                     </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">
-                      262,144 pixels full bi-temporal pipeline
+                      Cold initialization + initial vector search
                     </span>
                   </div>
                 </div>
@@ -110,13 +110,13 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
               <div>
                 <h3 className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                   <Layers className="w-4 h-4" />
-                  <span>2. Semantic Retrieval Accuracy (CLIP + FAISS IndexFlatIP)</span>
+                  <span>2. Semantic Retrieval Accuracy (CLIP ViT-B/32 + FAISS IndexFlatIP)</span>
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Mean Reciprocal Rank</span>
                     <span className="text-xl font-bold font-mono text-slate-100">0.6667</span>
-                    <span className="text-[10px] text-slate-500 font-mono block mt-1">MRR Score</span>
+                    <span className="text-[10px] text-slate-500 font-mono block mt-1">MRR Benchmark</span>
                   </div>
 
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
@@ -139,29 +139,29 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
                 </div>
               </div>
 
-              {/* SECTION 3: Change Detection Accuracy (Synthetic Controlled Benchmark) */}
+              {/* SECTION 3: Change Detection Accuracy (Controlled Synthetic Benchmark) */}
               <div>
                 <h3 className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                   <CheckCircle className="w-4 h-4 text-emerald-400" />
-                  <span>3. Change Detection Ground Truth Metrics (Controlled Synthetic Pairs)</span>
+                  <span>3. Change Detection Ground Truth Metrics (Controlled Synthetic Benchmark)</span>
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Intersection over Union</span>
                     <span className="text-xl font-bold font-mono text-emerald-400">0.9764</span>
-                    <span className="text-[10px] text-slate-500 font-mono block mt-1">Mean IoU (97.6%)</span>
+                    <span className="text-[10px] text-slate-500 font-mono block mt-1">Mean IoU (Controlled)</span>
                   </div>
 
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Pixel Precision</span>
                     <span className="text-xl font-bold font-mono text-slate-100">0.9880</span>
-                    <span className="text-[10px] text-slate-500 font-mono block mt-1">True / Predicted</span>
+                    <span className="text-[10px] text-slate-500 font-mono block mt-1">Controlled Pairs</span>
                   </div>
 
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Pixel Recall</span>
                     <span className="text-xl font-bold font-mono text-slate-100">0.9879</span>
-                    <span className="text-[10px] text-slate-500 font-mono block mt-1">True / Ground Truth</span>
+                    <span className="text-[10px] text-slate-500 font-mono block mt-1">Controlled Pairs</span>
                   </div>
 
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
@@ -170,13 +170,19 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">Harmonic mean</span>
                   </div>
                 </div>
+
+                {/* Real-Scene Ground Truth Disclosure */}
+                <div className="mt-2 p-2.5 rounded-lg bg-tactical-850 border border-tactical-750 text-[11px] font-mono text-slate-400 flex items-center justify-between">
+                  <span className="text-slate-300">Unannotated Real Catalog Scenes (Hyderabad, Godavari, Western Ghats, Chennai, Thar):</span>
+                  <span className="text-amber-400 font-bold">Ground truth unavailable — metric not computed.</span>
+                </div>
               </div>
 
               {/* SECTION 4: Robustness & False-Alarm Suppression */}
               <div>
                 <h3 className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                   <ShieldAlert className="w-4 h-4 text-amber-400" />
-                  <span>4. Robustness & Invariance Tests (False-Alarm Elimination)</span>
+                  <span>4. Robustness Diagnostics (7/7 Scenarios Passing)</span>
                 </h3>
                 <div className="bg-tactical-850 p-4 rounded-xl border border-tactical-700 space-y-2 text-xs font-mono">
                   <div className="flex items-center justify-between pb-2 border-b border-tactical-750">
@@ -198,15 +204,20 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
                 </div>
               </div>
 
-              {/* Scientific Disclosure Notice */}
+              {/* SECTION 5: Explicit Limitations & Scientific Disclosures */}
               <div className="bg-tactical-950 p-4 rounded-xl border border-tactical-700 text-xs text-slate-400 space-y-2">
                 <div className="flex items-center gap-2 text-slate-200 font-mono font-semibold">
                   <AlertCircle className="w-4 h-4 text-cyan-400" />
-                  <span>Scientific Validation & Benchmark Scope Disclosure</span>
+                  <span>Known Scientific Limitations</span>
                 </div>
-                <p className="leading-relaxed">
-                  The precision, recall, and IoU metrics above are computed against controlled synthetic bitemporal ground-truth masks where exact pixel changes are mathematically known. Unannotated real-world satellite pairs (Hyderabad, Godavari, Western Ghats, Chennai, Thar) provide qualitative change detection, raster difference heatmaps, and spatial clustering without claims of unverified ground-truth pixel IoU.
-                </p>
+                <ol className="list-decimal list-inside space-y-1.5 leading-relaxed pl-1">
+                  <li>Real satellite catalog scenes currently lack polygon-level ground truth; pixel-level IoU is therefore not reported for those scenes.</li>
+                  <li>The current semantic model is the zero-shot CLIP baseline (<code className="text-cyan-300">openai/clip-vit-base-patch32</code>).</li>
+                  <li>Domain-specific Earth-observation fine-tuning (e.g., RemoteCLIP, SatMAE) is a planned future extension.</li>
+                  <li>The public Vercel demo operates in Controlled Benchmark Mode using pre-indexed 512-dim normalized vectors and precomputed artifacts.</li>
+                  <li>The full scientific research pipeline remains available through the local Python Streamlit application.</li>
+                  <li>Analytical confidence reflects signal contrast and spatial consistency, not a calibrated statistical probability of change.</li>
+                </ol>
               </div>
             </>
           )}

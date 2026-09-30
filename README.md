@@ -261,15 +261,57 @@ python -m pytest -v
 ```
 *Expected: 44 passed in ~12s (100% pass rate).*
 
-### 6. Launch the Dashboard
+### 6. Launch the Python Research Prototype (Streamlit)
 ```bash
 streamlit run terralens/app/main.py
 ```
-Open `http://localhost:8501` in your browser.
+Open `http://localhost:8501` in your browser. This runs the full scientific Python environment (PyTorch, CLIP ViT-B/32, FAISS IndexFlatIP, and OpenCV).
 
 ---
 
-## 8. Evaluation & Benchmark Summary
+## 8. Dual-Track Deployment Architecture
+
+TerraLens AI supports two deployment targets tailored for research rigor and public hackathon evaluation:
+
+```
+                    TERRALENS AI
+                         |
+             +-----------+-----------+
+             |                       |
+      RESEARCH TRACK           PUBLIC DEMO
+             |                       |
+         Streamlit             Next.js / React
+             |                       |
+     PyTorch + CLIP + FAISS        Vercel
+             |                       |
+       Full scientific         Lightweight APIs
+          pipeline                  |
+                               Static benchmark
+                                  assets
+```
+
+### Track A: Research Prototype (Local / Server Target)
+- **Framework:** Streamlit (`terralens/app/main.py`)
+- **Backend:** Python 3.13, PyTorch, HuggingFace Transformers, CLIP ViT-B/32, FAISS C++ IndexFlatIP, OpenCV.
+- **Purpose:** Full algorithmic experimentation, live embedding generation, automated evaluation harness, and 45-test regression verification.
+- **Run Command:** `streamlit run terralens/app/main.py`
+
+### Track B: Public Demo (Vercel Production Target)
+- **Framework:** Next.js 14, React 18, TypeScript, Tailwind CSS (`web/`)
+- **Runtime:** Vercel Serverless Edge & Node.js Runtime (zero-cold-start, $<20\text{ ms}$ response).
+- **Positioning:** *Controlled Benchmark Demo* — evaluates supported benchmark queries using pre-indexed 512-dimensional normalized vectors and pre-computed bitemporal change artifacts.
+- **No Heavy ML Dependencies:** Completely excludes PyTorch, Transformers, and FAISS from serverless bundles, ensuring 100% uptime and zero out-of-memory crashes.
+- **Run Command Locally:**
+  ```bash
+  cd web
+  npm install
+  npm run dev
+  ```
+- **Deployment Guide:** See [VERCEL_DEPLOYMENT.md](file:///c:/Users/pavan/OneDrive/Pictures/Desktop/TerraLens%20AI/VERCEL_DEPLOYMENT.md) for full configuration.
+
+---
+
+## 9. Evaluation & Benchmark Summary
 
 Results from automated benchmark run (`scripts/run_evaluation.py`):
 

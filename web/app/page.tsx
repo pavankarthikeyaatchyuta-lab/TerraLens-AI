@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
+import { HeroBanner } from "@/components/HeroBanner";
 import { SearchBar } from "@/components/SearchBar";
 import { TacticalMap } from "@/components/TacticalMap";
 import { SceneCatalog } from "@/components/SceneCatalog";
@@ -120,12 +121,23 @@ export default function HomePage() {
 
       {/* Main Tactical Interface */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-4 space-y-4">
-        {/* Natural Language Query Bar */}
-        <SearchBar
-          onSearch={handleSearch}
-          isLoading={isSearching}
-          activeQuery={activeQuery}
+        {/* Landing Hero Banner */}
+        <HeroBanner
+          onOpenEvaluation={() => setIsEvaluationOpen(true)}
+          onLaunchConsole={() => {
+            const el = document.getElementById("console");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+          }}
         />
+
+        {/* Natural Language Query Bar */}
+        <div id="console">
+          <SearchBar
+            onSearch={handleSearch}
+            isLoading={isSearching}
+            activeQuery={activeQuery}
+          />
+        </div>
 
         {/* Tactical HUD 2-Column Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">

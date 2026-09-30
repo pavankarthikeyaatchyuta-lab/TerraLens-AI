@@ -37,25 +37,16 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
         }),
       });
 
-      if (!res.ok) throw new Error("Export failed");
-
-      if (format === "markdown") {
-        const text = await res.text();
-        const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `terralens_dossier_${location.location_id}.md`;
-        a.click();
-      } else {
-        const data = await res.json();
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `terralens_dossier_${location.location_id}.json`;
-        a.click();
-      }
+      const data = await res.json();
+      const contentStr = typeof data.content === "string" ? data.content : JSON.stringify(data.content, null, 2);
+      const mimeType = format === "markdown" ? "text/markdown;charset=utf-8" : "application/json";
+      const blob = new Blob([contentStr], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = data.filename || `terralens_dossier_${location.location_id}.${format === "markdown" ? "md" : "json"}`;
+      a.click();
+      URL.revokeObjectURL(url);
     } catch (err) {
       alert("Failed to export dossier");
     } finally {

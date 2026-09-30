@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         ...cached,
+        analysis_mode: "precomputed_benchmark",
         mask_path: sanitizePath(cached.mask_path),
         heatmap_path: sanitizePath(cached.heatmap_path),
         overlay_path: sanitizePath(cached.overlay_path),

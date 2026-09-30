@@ -92,6 +92,15 @@ export function SearchBar({ onSearch, isLoading, activeQuery }: SearchBarProps) 
           </button>
         ))}
       </div>
+
+      {/* Controlled Benchmark Notice */}
+      <div className="mt-3 pt-2.5 border-t border-tactical-750 flex items-center justify-between text-[11px] font-mono text-slate-400">
+        <div className="flex items-center gap-1.5 text-cyan-300/80">
+          <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+          <span>Controlled Benchmark Mode: Evaluates queries against pre-indexed 512-dim normalized vectors.</span>
+        </div>
+        <span className="text-slate-500 hidden sm:inline">Research Prototype: Full PyTorch/CLIP Pipeline</span>
+      </div>
     </div>
   );
 }
