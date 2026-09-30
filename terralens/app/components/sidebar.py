@@ -40,6 +40,7 @@ def render_sidebar(
             "Interactive Map",
             "Temporal Comparison",
             "Evidence & Lineage",
+            "Evaluation & Benchmarks",
             "System Diagnostics",
         ]
 
@@ -132,8 +133,8 @@ def render_sidebar(
             """
             <div style="margin-bottom: 8px;">
                 <div style="font-size: 0.8rem; color: #94a3b8;">Temporal Engine</div>
-                <div style="font-size: 0.85rem; font-weight: 600; color: #38bdf8;">
-                    ● Prototype (Display & Inspect)
+                <div style="font-size: 0.85rem; font-weight: 600; color: #4ade80;">
+                    ● Active (Bi-Temporal Detector)
                 </div>
             </div>
             """,

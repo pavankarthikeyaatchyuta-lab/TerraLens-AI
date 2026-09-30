@@ -31,6 +31,7 @@ from terralens.app.components.search import render_search_panel
 from terralens.app.components.map_view import render_map_view
 from terralens.app.components.temporal_view import render_temporal_view
 from terralens.app.components.evidence_panel import render_evidence_panel
+from terralens.app.components.evaluation_view import render_evaluation_view
 
 # Configure Logging
 logging.basicConfig(
@@ -251,6 +252,14 @@ def main():
             embedding_model=getattr(embed_model, "model_label", "CLIP baseline") if embed_model else "Metadata Fallback",
             index_name="satellite_embeddings.index",
             change_result=change_res,
+        )
+
+    elif active_nav == "Evaluation & Benchmarks":
+        render_evaluation_view(
+            retrieval_service=retrieval_service,
+            temporal_service=temporal_service,
+            metadata_service=meta_service,
+            index_service=index_service,
         )
 
     elif active_nav == "System Diagnostics":

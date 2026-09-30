@@ -1,4 +1,4 @@
-"""Evidence panel component for intelligence verification, audit lineage, and analyst adjudication."""
+"""Evidence panel component for intelligence verification, audit lineage, analyst adjudication, and dossier export."""
 
 from typing import Optional, Any
 import streamlit as st
@@ -9,6 +9,7 @@ from terralens.app.models.scene import Scene
 from terralens.app.models.change import ChangeDetectionResult
 from terralens.app.services.provenance_service import ProvenanceService
 from terralens.app.services.metadata_service import MetadataService
+from terralens.app.utils.export_utils import export_evidence_json, export_evidence_markdown
 
 
 def render_evidence_panel(
@@ -22,11 +23,11 @@ def render_evidence_panel(
     index_name: str = "satellite_embeddings.index",
     change_result: Optional[ChangeDetectionResult] = None,
 ) -> None:
-    """Renders the intelligence verification evidence dossier, lineage trace, and analyst review."""
+    """Renders the intelligence verification evidence dossier, lineage trace, analyst review, and export."""
     st.markdown("## Evidence & Intelligence Verification")
     st.markdown(
         "<p style='color: #94a3b8; font-size: 0.95rem; margin-top: -8px;'>"
-        "Auditable chain of custody, sensor provenance, and human-in-the-loop analyst adjudication."
+        "Auditable chain of custody, sensor provenance, human-in-the-loop analyst adjudication, and dossier export."
         "</p>",
         unsafe_allow_html=True,
     )
@@ -164,11 +165,11 @@ def render_evidence_panel(
             st.markdown(
                 f"""
                 <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;">
-                    <div style="font-size: 0.78rem; color: #94a3b8;">Statistical Confidence</div>
+                    <div style="font-size: 0.78rem; color: #94a3b8;">Model-Derived Change Confidence</div>
                     <div style="font-size: 1.05rem; font-weight: 700; color: #a855f7; margin-top: 4px;">
                         {evidence.change_confidence * 100:.1f}%
                     </div>
-                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Measurable signal + spatial coherence</div>
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Analytical confidence score (not probability)</div>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -180,7 +181,7 @@ def render_evidence_panel(
             st.markdown(
                 f"""
                 <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;">
-                    <div style="font-size: 0.78rem; color: #94a3b8;">Raster Change Mask</div>
+                    <div style="font-size: 0.78rem; color: #94a3b8;">Raster Change Mask Extent</div>
                     <div style="font-size: 1.05rem; font-weight: 700; color: #38bdf8; margin-top: 4px;">
                         {px_count} px ({ratio_pct})
                     </div>
@@ -189,6 +190,10 @@ def render_evidence_panel(
                 """,
                 unsafe_allow_html=True,
             )
+
+        st.caption(
+            "ℹ️ **Confidence Terminology:** Confidence is an analytical heuristic derived from signal contrast, spatial coherence, and image dynamic range. It is not an uncalibrated Bayesian probability."
+        )
 
         if evidence.warnings:
             for w in evidence.warnings:
@@ -231,7 +236,7 @@ def render_evidence_panel(
             st.markdown(
                 """
                 <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;">
-                    <div style="font-size: 0.78rem; color: #94a3b8;">Statistical Confidence</div>
+                    <div style="font-size: 0.78rem; color: #94a3b8;">Change Confidence</div>
                     <div style="font-size: 1rem; font-weight: 600; color: #94a3b8; margin-top: 4px;">
                         Pending Execution
                     </div>
@@ -330,3 +335,30 @@ def render_evidence_panel(
             notes=analyst_notes
         )
         st.success(f"Adjudication recorded for Dossier {evidence.evidence_id}. Audit trail updated.")
+
+    st.markdown("---")
+
+    # Export Dossier & Intelligence Package
+    st.markdown("### 📥 Export Intelligence Package")
+    st.caption("Download auditable machine-readable JSON or human-readable Markdown intelligence report.")
+
+    exp_col1, exp_col2 = st.columns(2)
+    with exp_col1:
+        json_data = export_evidence_json(evidence)
+        st.download_button(
+            label="📄 Download Evidence Dossier (JSON)",
+            data=json_data,
+            file_name=f"{evidence.evidence_id}.json",
+            mime="application/json",
+            use_container_width=True,
+        )
+
+    with exp_col2:
+        md_data = export_evidence_markdown(evidence, change_result)
+        st.download_button(
+            label="📑 Download Intelligence Report (Markdown)",
+            data=md_data,
+            file_name=f"{evidence.evidence_id}_report.md",
+            mime="text/markdown",
+            use_container_width=True,
+        )

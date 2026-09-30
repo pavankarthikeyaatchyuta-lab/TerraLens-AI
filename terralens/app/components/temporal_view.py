@@ -291,7 +291,7 @@ def render_temporal_view(
                     <div style="font-size: 1.05rem; font-weight: 700; color: #a855f7; margin-top: 4px;">
                         {conf_val * 100:.1f}%
                     </div>
-                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Contrast + Coherence + Dynamic Range</div>
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Model-derived analytical score (not probability)</div>
                 </div>
                 """,
                 unsafe_allow_html=True,

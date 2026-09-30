@@ -1,0 +1,61 @@
+{
+  "description": "Benchmark query set for evaluating semantic retrieval against the TerraLens prototype satellite archive.",
+  "version": "1.0.0",
+  "queries": [
+    {
+      "query_id": "QUERY_001",
+      "query_text": "urban expansion and new construction near river",
+      "target_location_ids": ["LOC_001_HYDERABAD_URBAN"],
+      "relevant_scene_ids": [
+        "SCENE_LOC_001_HYDERABAD_URBAN_2023",
+        "SCENE_LOC_001_HYDERABAD_URBAN_2025"
+      ],
+      "domain": "urban_growth",
+      "rationale": "Queries peri-urban building construction and roads adjacent to a seasonal waterway."
+    },
+    {
+      "query_id": "QUERY_002",
+      "query_text": "water reservoir shoreline drying and lake shrinkage",
+      "target_location_ids": ["LOC_002_GODAVARI_RESERVOIR"],
+      "relevant_scene_ids": [
+        "SCENE_LOC_002_GODAVARI_RESERVOIR_2023",
+        "SCENE_LOC_002_GODAVARI_RESERVOIR_2025"
+      ],
+      "domain": "hydrology",
+      "rationale": "Queries reservoir basin surface water fluctuations and drying shoreline dynamics."
+    },
+    {
+      "query_id": "QUERY_003",
+      "query_text": "forest road clearing corridor and tree removal",
+      "target_location_ids": ["LOC_003_WESTERN_GHATS_FOREST"],
+      "relevant_scene_ids": [
+        "SCENE_LOC_003_WESTERN_GHATS_FOREST_2023",
+        "SCENE_LOC_003_WESTERN_GHATS_FOREST_2025"
+      ],
+      "domain": "forestry",
+      "rationale": "Queries linear infrastructure cut through dense forest canopy."
+    },
+    {
+      "query_id": "QUERY_004",
+      "query_text": "coastal port reclamation and ocean harbor pier",
+      "target_location_ids": ["LOC_004_CHENNAI_COASTAL"],
+      "relevant_scene_ids": [
+        "SCENE_LOC_004_CHENNAI_COASTAL_2023",
+        "SCENE_LOC_004_CHENNAI_COASTAL_2025"
+      ],
+      "domain": "coastal",
+      "rationale": "Queries industrial land reclamation into coastal mudflats and port waterways."
+    },
+    {
+      "query_id": "QUERY_005",
+      "query_text": "solar panel farm photovoltaic arrays in desert terrain",
+      "target_location_ids": ["LOC_005_THAR_SOLAR_PARK"],
+      "relevant_scene_ids": [
+        "SCENE_LOC_005_THAR_SOLAR_PARK_2023",
+        "SCENE_LOC_005_THAR_SOLAR_PARK_2025"
+      ],
+      "domain": "energy_infrastructure",
+      "rationale": "Queries high-density photovoltaic solar array fields installed over arid sands."
+    }
+  ]
+}

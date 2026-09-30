@@ -1,0 +1,46 @@
+{
+  "description": "Benchmark pairs for multi-temporal change detection evaluation. Distinguishes annotated benchmark pairs from unannotated catalog pairs.",
+  "version": "1.0.0",
+  "benchmark_pairs": [
+    {
+      "pair_id": "PAIR_SYNTHETIC_CHANGE",
+      "name": "Controlled Synthetic Structural Change",
+      "before_image_path": "data/evaluation/change_ground_truth/synthetic_change_before.png",
+      "after_image_path": "data/evaluation/change_ground_truth/synthetic_change_after.png",
+      "ground_truth_mask_path": "data/evaluation/change_ground_truth/synthetic_change_gt.png",
+      "has_ground_truth": true,
+      "expected_status": "CHANGE_DETECTED",
+      "notes": "Exact 40x40 pixel block change (1600 pixels) on smooth terrain gradient."
+    },
+    {
+      "pair_id": "PAIR_SYNTHETIC_NO_CHANGE",
+      "name": "Controlled Synthetic Invariant Scene",
+      "before_image_path": "data/evaluation/change_ground_truth/synthetic_nochange_before.png",
+      "after_image_path": "data/evaluation/change_ground_truth/synthetic_nochange_after.png",
+      "ground_truth_mask_path": "data/evaluation/change_ground_truth/synthetic_nochange_gt.png",
+      "has_ground_truth": true,
+      "expected_status": "NO_SIGNIFICANT_CHANGE",
+      "notes": "Identical baseline and monitoring scenes; ground truth mask is all zeroes."
+    },
+    {
+      "pair_id": "PAIR_LOC_001_HYDERABAD",
+      "name": "Hyderabad Peri-Urban Growth Zone (2023 vs 2025)",
+      "before_image_path": "data/samples/LOC_001_HYDERABAD_URBAN/before_2023.jpg",
+      "after_image_path": "data/samples/LOC_001_HYDERABAD_URBAN/after_2025.jpg",
+      "ground_truth_mask_path": null,
+      "has_ground_truth": false,
+      "expected_status": "CHANGE_DETECTED",
+      "notes": "Pixel-level ground truth unavailable for prototype archive; metric not computed."
+    },
+    {
+      "pair_id": "PAIR_LOC_002_GODAVARI",
+      "name": "Sriram Sagar Reservoir Catchment (2023 vs 2025)",
+      "before_image_path": "data/samples/LOC_002_GODAVARI_RESERVOIR/before_2023.jpg",
+      "after_image_path": "data/samples/LOC_002_GODAVARI_RESERVOIR/after_2025.jpg",
+      "ground_truth_mask_path": null,
+      "has_ground_truth": false,
+      "expected_status": "CHANGE_DETECTED",
+      "notes": "Pixel-level ground truth unavailable for prototype archive; metric not computed."
+    }
+  ]
+}

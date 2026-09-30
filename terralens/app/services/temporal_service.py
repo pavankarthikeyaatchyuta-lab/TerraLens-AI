@@ -60,6 +60,7 @@ class TemporalAnalysisService:
         self.dataset_service = dataset_service
         self.alignment_service = ImageAlignmentService()
         self.detector = change_detector or DeterministicBiTemporalChangeDetector()
+        self.change_detector = self.detector
         self.service_status = "Phase 3 Operational (Deterministic Bi-Temporal Baseline)"
 
     def load_temporal_pair(self, location: Location) -> TemporalPair:
@@ -119,6 +120,9 @@ class TemporalAnalysisService:
         pair: TemporalPair,
         change_threshold: Optional[float] = None,
         min_change_area: Optional[int] = None,
+        difference_threshold: Optional[float] = None,
+        min_region_size_pixels: Optional[int] = None,
+        **kwargs,
     ) -> ChangeDetectionResult:
         """Executes real multi-temporal change detection on a TemporalPair using the configured detector."""
         if not pair.is_complete:
@@ -127,6 +131,9 @@ class TemporalAnalysisService:
                 change_type="None",
                 warnings=["Cannot perform temporal analysis: missing one or both temporal imagery scenes."],
             )
+
+        thresh = change_threshold if change_threshold is not None else difference_threshold
+        min_area = min_change_area if min_change_area is not None else min_region_size_pixels
 
         before_date = pair.before_scene.acquisition_date if pair.before_scene else "2023"
         after_date = pair.after_scene.acquisition_date if pair.after_scene else "2025"
@@ -141,8 +148,9 @@ class TemporalAnalysisService:
             after_date=after_date,
             before_sensor=before_sensor,
             after_sensor=after_sensor,
-            change_threshold=change_threshold,
-            min_change_area=min_change_area,
+            change_threshold=thresh,
+            min_change_area=min_area,
+            **kwargs,
         )
 
     def detect_change(

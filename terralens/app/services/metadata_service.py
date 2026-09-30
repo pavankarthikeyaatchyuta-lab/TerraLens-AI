@@ -74,6 +74,10 @@ class MetadataService:
         """Returns all registered locations."""
         return list(self.locations.values())
 
+    def get_all_scenes(self) -> List[Scene]:
+        """Returns all registered satellite scenes."""
+        return list(self.scenes.values())
+
     def get_location_by_id(self, location_id: str) -> Optional[Location]:
         """Retrieves a single location by its unique ID."""
         return self.locations.get(location_id)
