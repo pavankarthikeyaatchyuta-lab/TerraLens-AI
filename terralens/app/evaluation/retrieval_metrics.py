@@ -82,8 +82,11 @@ def evaluate_single_query(
     }
 
 
-def aggregate_retrieval_metrics(query_results: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Computes mean Recall@K, Precision@K, MRR, and latency across a query benchmark suite."""
+def aggregate_retrieval_metrics(
+    query_results: List[Dict[str, Any]],
+    cold_start_model_init_ms: Optional[float] = None,
+) -> Dict[str, Any]:
+    """Computes mean Recall@K, Precision@K, MRR, and explicitly separates cold-start and warm retrieval latencies."""
     if not query_results:
         return {}
 
@@ -100,12 +103,29 @@ def aggregate_retrieval_metrics(query_results: List[Dict[str, Any]]) -> Dict[str
         for k in keys_precisions
     }
     mean_mrr = round(float(np.mean([qr["mrr"] for qr in query_results])), 4)
-    mean_latency = round(float(np.mean([qr["latency_ms"] for qr in query_results])), 2)
+
+    # Latency decomposition: distinguish cold-start first query from subsequent warm retrieval
+    first_query_lat = round(float(query_results[0]["latency_ms"]), 2)
+    if n > 1:
+        warm_lats = [float(qr["latency_ms"]) for qr in query_results[1:]]
+        warm_mean_lat = round(float(np.mean(warm_lats)), 2)
+        warm_min_lat = round(float(np.min(warm_lats)), 2)
+        warm_max_lat = round(float(np.max(warm_lats)), 2)
+    else:
+        warm_mean_lat = first_query_lat
+        warm_min_lat = first_query_lat
+        warm_max_lat = first_query_lat
+
     loc_accuracy_at_1 = round(float(np.mean([1.0 if qr["location_hit_at_1"] else 0.0 for qr in query_results])), 4)
 
     return {
         "total_queries_evaluated": n,
-        "mean_latency_ms": mean_latency,
+        "cold_start_model_init_ms": round(cold_start_model_init_ms, 2) if cold_start_model_init_ms is not None else None,
+        "first_query_latency_ms": first_query_lat,
+        "warm_retrieval_mean_latency_ms": warm_mean_lat,
+        "warm_retrieval_min_latency_ms": warm_min_lat,
+        "warm_retrieval_max_latency_ms": warm_max_lat,
+        "mean_latency_ms": warm_mean_lat,  # Default mean latency represents steady-state warm retrieval
         "mean_recalls": mean_recalls,
         "mean_precisions": mean_precisions,
         "mean_mrr": mean_mrr,

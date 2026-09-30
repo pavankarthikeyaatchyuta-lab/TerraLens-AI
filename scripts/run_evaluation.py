@@ -72,9 +72,14 @@ def main():
     rob = results.get("robustness", {})
     perf = results.get("system_performance", {})
 
+    cold_ms = ret.get('cold_start_model_init_ms')
+    cold_str = f"{cold_ms:.1f} ms (~{cold_ms / 1000.0:.2f} s)" if cold_ms is not None else f"{ret.get('first_query_latency_ms', 'N/A')} ms"
+    warm_lat = ret.get('warm_retrieval_mean_latency_ms', ret.get('mean_latency_ms', 'N/A'))
+
     print(f"   - Retrieval Mean Recall@1:         {ret.get('mean_recalls', {}).get('recall@1', 'N/A')}")
     print(f"   - Retrieval Mean Recall@3:         {ret.get('mean_recalls', {}).get('recall@3', 'N/A')}")
-    print(f"   - Retrieval Mean Latency:          {ret.get('mean_latency_ms', 'N/A')} ms")
+    print(f"   - Cold-Start Model Initialization: {cold_str}")
+    print(f"   - Warm Semantic Retrieval Latency: {warm_lat} ms")
     
     cd_metrics = cd.get("mean_metrics_on_annotated_benchmark", {})
     if isinstance(cd_metrics, dict):

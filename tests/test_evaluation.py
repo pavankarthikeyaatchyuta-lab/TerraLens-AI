@@ -119,3 +119,36 @@ def test_aggregate_metrics():
     assert agg["pairs_with_ground_truth"] == 1
     assert agg["pairs_without_ground_truth"] == 1
     assert agg["mean_metrics_on_annotated_benchmark"]["mean_precision"] == 1.0
+
+
+def test_aggregate_retrieval_metrics_latency_decomposition():
+    """Tests that aggregate_retrieval_metrics decomposes cold-start and warm retrieval latencies."""
+    qr1 = {
+        "recalls": {"recall@1": 1.0, "recall@3": 1.0, "recall@5": 1.0},
+        "precisions": {"precision@1": 1.0, "precision@3": 0.333, "precision@5": 0.2},
+        "mrr": 1.0,
+        "latency_ms": 2500.0,
+        "location_hit_at_1": True,
+    }
+    qr2 = {
+        "recalls": {"recall@1": 0.0, "recall@3": 0.5, "recall@5": 0.5},
+        "precisions": {"precision@1": 0.0, "precision@3": 0.333, "precision@5": 0.2},
+        "mrr": 0.5,
+        "latency_ms": 16.0,
+        "location_hit_at_1": True,
+    }
+    qr3 = {
+        "recalls": {"recall@1": 1.0, "recall@3": 1.0, "recall@5": 1.0},
+        "precisions": {"precision@1": 1.0, "precision@3": 0.333, "precision@5": 0.2},
+        "mrr": 1.0,
+        "latency_ms": 18.0,
+        "location_hit_at_1": True,
+    }
+
+    res = aggregate_retrieval_metrics([qr1, qr2, qr3], cold_start_model_init_ms=2450.0)
+    assert res["total_queries_evaluated"] == 3
+    assert res["cold_start_model_init_ms"] == 2450.0
+    assert res["first_query_latency_ms"] == 2500.0
+    assert res["warm_retrieval_mean_latency_ms"] == 17.0
+    assert res["mean_latency_ms"] == 17.0
+

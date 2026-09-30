@@ -285,14 +285,17 @@ def render_temporal_view(
 
         with m4:
             conf_val = active_result.confidence_score or 0.0
+            is_no_change = (active_result.status == "NO_SIGNIFICANT_CHANGE" or active_result.changed_pixels == 0)
+            conf_title = "Analytical Confidence (Invariance)" if is_no_change else "Measurable Change Confidence"
+            conf_sub = "Confidence in no-change finding (not probability of change)" if is_no_change else "Model-derived analytical score (not probability)"
             st.markdown(
                 f"""
                 <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;">
-                    <div style="font-size: 0.78rem; color: #94a3b8;">Measurable Confidence</div>
+                    <div style="font-size: 0.78rem; color: #94a3b8;">{conf_title}</div>
                     <div style="font-size: 1.05rem; font-weight: 700; color: #a855f7; margin-top: 4px;">
                         {conf_val * 100:.1f}%
                     </div>
-                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Model-derived analytical score (not probability)</div>
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">{conf_sub}</div>
                 </div>
                 """,
                 unsafe_allow_html=True,

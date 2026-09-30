@@ -279,7 +279,8 @@ Results from automated benchmark run (`scripts/run_evaluation.py`):
 | **Semantic Retrieval** | Mean Recall@3 | **0.50** | Fraction of relevant benchmark items retrieved in top 3 results |
 | **Semantic Retrieval** | Mean Recall@5 | **0.50** | Fraction of relevant benchmark items retrieved in top 5 results |
 | **Semantic Retrieval** | Mean Reciprocal Rank (MRR) | **0.667** | Mean Reciprocal Rank over benchmark queries |
-| **Semantic Retrieval** | Mean Query Latency | **16.36 ms** | Sub-50ms interactive threshold |
+| **Semantic Retrieval** | Warm Mean Query Latency | **16.36 ms** | Steady-state search latency over FAISS index |
+| **Semantic Retrieval** | Cold-Start Model Initialization | **~2.5 s** | One-time CLIP model weight loading into memory |
 | **Change Detection (Controlled Synthetic GT)** | Precision | **1.0000** | Zero false alarm rate on controlled synthetic GT |
 | **Change Detection (Controlled Synthetic GT)** | Recall | **0.9985** | Complete change boundary capture |
 | **Change Detection (Controlled Synthetic GT)** | F1-Score | **0.9992** | Balanced change segmentation |

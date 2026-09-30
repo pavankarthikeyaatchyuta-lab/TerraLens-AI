@@ -18,6 +18,13 @@ def generate_markdown_report(results: Dict[str, Any]) -> str:
     recalls = ret.get("mean_recalls", {})
     precisions = ret.get("mean_precisions", {})
 
+    cold_ms = ret.get("cold_start_model_init_ms")
+    first_q_lat = ret.get("first_query_latency_ms")
+    warm_lat = ret.get("warm_retrieval_mean_latency_ms", ret.get("mean_latency_ms", "N/A"))
+
+    cold_str = f"{cold_ms:.1f} ms (~{cold_ms / 1000.0:.2f} s)" if cold_ms is not None else "N/A (model pre-loaded)"
+    first_q_str = f"{first_q_lat:.1f} ms" if first_q_lat is not None else "N/A"
+
     retrieval_lines = [
         f"- **Recall@1:** {recalls.get('recall@1', 'N/A')} *(Fraction of relevant benchmark items retrieved in top 1 result)*",
         f"- **Recall@3:** {recalls.get('recall@3', 'N/A')} *(Fraction of relevant benchmark items retrieved in top 3 results)*",
@@ -25,7 +32,9 @@ def generate_markdown_report(results: Dict[str, Any]) -> str:
         f"- **Precision@1:** {precisions.get('precision@1', 'N/A')} *(Fraction of top 1 retrieved items that are relevant)*",
         f"- **Mean Reciprocal Rank (MRR):** {ret.get('mean_mrr', 'N/A')} *(Mean Reciprocal Rank over benchmark queries)*",
         f"- **Target Location Hit@1:** {ret.get('location_accuracy_at_1', 'N/A')} *(Top-1 candidate location match rate)*",
-        f"- **Mean Query Latency:** {ret.get('mean_latency_ms', 'N/A')} ms",
+        f"- **Cold-Start Model Initialization Latency:** {cold_str} *(One-time CLIP model loading into memory)*",
+        f"- **First-Query Total Latency:** {first_q_str} *(Cold-start execution including pipeline initialization)*",
+        f"- **Warm Semantic Retrieval Latency (Mean):** {warm_lat} ms *(Steady-state query execution over FAISS vector index)*",
     ]
 
     # Change Detection section
@@ -150,7 +159,7 @@ Actual measured execution times using `time.perf_counter()`:
 
 - **FAISS Index File Size:** {idx_storage.get('index_file_kb', 0.0)} KB ({idx_storage.get('total_vectors', 0)} vectors, dim={idx_storage.get('dimension', 512)})
 - **FAISS Metadata File Size:** {idx_storage.get('metadata_file_kb', 0.0)} KB
-- **Semantic Retrieval Latency (Mean):** {ret_timing.get('mean_latency_ms', 0.0)} ms (Min: {ret_timing.get('min_latency_ms', 0.0)} ms, Max: {ret_timing.get('max_latency_ms', 0.0)} ms)
+- **Semantic Retrieval Latency (Warm Mean):** {ret_timing.get('mean_latency_ms', 0.0)} ms (Min: {ret_timing.get('min_latency_ms', 0.0)} ms, Max: {ret_timing.get('max_latency_ms', 0.0)} ms)
 - **Temporal Analysis Latency (Mean):** {cd_timing.get('mean_latency_ms', 0.0)} ms (Shape: {cd_timing.get('scene_dimensions', 'N/A')}, Min: {cd_timing.get('min_latency_ms', 0.0)} ms, Max: {cd_timing.get('max_latency_ms', 0.0)} ms)
 
 ---

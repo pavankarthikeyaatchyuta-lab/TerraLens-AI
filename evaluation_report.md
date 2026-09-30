@@ -31,16 +31,18 @@ Cross-modal semantic search using normalized 512-dimensional CLIP baseline embed
 - **Precision@1:** 0.4 *(Fraction of top 1 retrieved items that are relevant)*
 - **Mean Reciprocal Rank (MRR):** 0.6667 *(Mean Reciprocal Rank over benchmark queries)*
 - **Target Location Hit@1:** 0.4 *(Top-1 candidate location match rate)*
-- **Mean Query Latency:** 2519.0 ms
+- **Cold-Start Model Initialization Latency:** 477.4 ms (~0.48 s) *(One-time CLIP model loading into memory)*
+- **First-Query Total Latency:** 10280.8 ms *(Cold-start execution including pipeline initialization)*
+- **Warm Semantic Retrieval Latency (Mean):** 21.47 ms *(Steady-state query execution over FAISS vector index)*
 
 ### Individual Query Performance
 | Query ID / Text | Relevant Scenes | Retrieved @ 1 | Latency | R@1 | R@3 | R@5 | MRR |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| *"urban expansion and new construction near river"* | 2 | `SCENE_LOC_001_HYDERABAD_URBAN_2025` | 12512.6ms | 0.50 | 0.50 | 0.50 | 1.00 |
-| *"water reservoir shoreline drying and lake shrinkage"* | 2 | `SCENE_LOC_001_HYDERABAD_URBAN_2023` | 23.0ms | 0.00 | 0.50 | 0.50 | 0.50 |
-| *"forest road clearing corridor and tree removal"* | 2 | `SCENE_LOC_001_HYDERABAD_URBAN_2025` | 17.6ms | 0.00 | 0.50 | 0.50 | 0.50 |
-| *"coastal port reclamation and ocean harbor pier"* | 2 | `SCENE_LOC_001_HYDERABAD_URBAN_2025` | 21.1ms | 0.00 | 0.50 | 0.50 | 0.33 |
-| *"solar panel farm photovoltaic arrays in desert terrain"* | 2 | `SCENE_LOC_005_THAR_SOLAR_PARK_2025` | 20.6ms | 0.50 | 0.50 | 0.50 | 1.00 |
+| *"urban expansion and new construction near river"* | 2 | `SCENE_LOC_001_HYDERABAD_URBAN_2025` | 10280.8ms | 0.50 | 0.50 | 0.50 | 1.00 |
+| *"water reservoir shoreline drying and lake shrinkage"* | 2 | `SCENE_LOC_001_HYDERABAD_URBAN_2023` | 16.6ms | 0.00 | 0.50 | 0.50 | 0.50 |
+| *"forest road clearing corridor and tree removal"* | 2 | `SCENE_LOC_001_HYDERABAD_URBAN_2025` | 22.7ms | 0.00 | 0.50 | 0.50 | 0.50 |
+| *"coastal port reclamation and ocean harbor pier"* | 2 | `SCENE_LOC_001_HYDERABAD_URBAN_2025` | 18.4ms | 0.00 | 0.50 | 0.50 | 0.33 |
+| *"solar panel farm photovoltaic arrays in desert terrain"* | 2 | `SCENE_LOC_005_THAR_SOLAR_PARK_2025` | 28.2ms | 0.50 | 0.50 | 0.50 | 1.00 |
 
 ---
 
@@ -91,8 +93,8 @@ Actual measured execution times using `time.perf_counter()`:
 
 - **FAISS Index File Size:** 20.04 KB (10 vectors, dim=512)
 - **FAISS Metadata File Size:** 5.35 KB
-- **Semantic Retrieval Latency (Mean):** 12.12 ms (Min: 11.19 ms, Max: 12.99 ms)
-- **Temporal Analysis Latency (Mean):** 34.19 ms (Shape: (512, 512), Min: 31.99 ms, Max: 36.07 ms)
+- **Semantic Retrieval Latency (Warm Mean):** 13.54 ms (Min: 12.55 ms, Max: 15.96 ms)
+- **Temporal Analysis Latency (Mean):** 33.29 ms (Shape: (512, 512), Min: 32.12 ms, Max: 34.43 ms)
 
 ---
 

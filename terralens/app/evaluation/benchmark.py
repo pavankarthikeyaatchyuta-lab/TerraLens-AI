@@ -89,7 +89,10 @@ class BenchmarkRunner:
             rec["rationale"] = q.get("rationale", "")
             eval_records.append(rec)
 
-        return aggregate_retrieval_metrics(eval_records)
+        embed_model = getattr(self.retrieval_service, "embedding_model", None)
+        cold_start_ms = getattr(embed_model, "cold_start_time_ms", None)
+
+        return aggregate_retrieval_metrics(eval_records, cold_start_model_init_ms=cold_start_ms)
 
     def evaluate_change_detection(self, pairs_path: Path) -> Dict[str, Any]:
         """Evaluates multi-temporal change detection against ground truth where available."""

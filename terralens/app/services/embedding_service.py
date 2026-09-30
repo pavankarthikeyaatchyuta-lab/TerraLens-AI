@@ -69,15 +69,18 @@ class CLIPEmbeddingModel(BaseEmbeddingModel):
         self._image_processor = None
         self._dim = 512
         self._initialized = False
+        self.cold_start_time_ms: Optional[float] = None
 
     def _ensure_loaded(self) -> None:
         """Lazily loads weights, tokenizer, and image processor into memory."""
         if self._initialized:
             return
 
+        import time
         import torch
         from transformers import CLIPModel, CLIPTokenizer, CLIPImageProcessor
 
+        t0 = time.perf_counter()
         logger.info(f"Loading {self.model_label} ({self.model_name}) on device '{self.device}'...")
         try:
             # Try loading with local_files_only first for maximum speed
@@ -94,8 +97,9 @@ class CLIPEmbeddingModel(BaseEmbeddingModel):
             self._model.to(self.device)
             self._model.eval()
             self._dim = getattr(self._model, "projection_dim", 512)
+            self.cold_start_time_ms = round((time.perf_counter() - t0) * 1000.0, 2)
             self._initialized = True
-            logger.info(f"Successfully loaded {self.model_label} with dimension {self._dim}.")
+            logger.info(f"Successfully loaded {self.model_label} with dimension {self._dim} in {self.cold_start_time_ms:.1f}ms.")
         except Exception as e:
             logger.error(f"Failed to load CLIP embedding model {self.model_name}: {e}")
             raise RuntimeError(

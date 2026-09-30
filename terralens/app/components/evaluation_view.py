@@ -65,8 +65,11 @@ def render_evaluation_view(
     # Pillar 1 & 2 Metrics Grid
     st.markdown("### 1. Semantic Retrieval Performance (Stage 1: DISCOVER)")
     st.caption("ℹ️ *Small manually defined benchmark (5 queries); results indicate prototype behavior and are not a production-scale accuracy estimate.*")
-    r1, r2, r3, r4, r5 = st.columns(5)
+    r1, r2, r3, r4, r5, r6 = st.columns(6)
     recalls = ret.get("mean_recalls", {})
+    warm_lat = ret.get("warm_retrieval_mean_latency_ms", ret.get("mean_latency_ms", 0.0))
+    cold_ms = ret.get("cold_start_model_init_ms") or ret.get("first_query_latency_ms", 0.0)
+
     with r1:
         st.metric(
             "Recall @ 1",
@@ -93,9 +96,15 @@ def render_evaluation_view(
         )
     with r5:
         st.metric(
-            "Mean Latency",
-            f"{ret.get('mean_latency_ms', 0.0):.1f} ms",
-            help="Average search latency across query execution."
+            "Warm Latency",
+            f"{warm_lat:.1f} ms",
+            help="Steady-state warm retrieval execution latency per query over FAISS vector index."
+        )
+    with r6:
+        st.metric(
+            "Cold Start",
+            f"{cold_ms / 1000.0:.2f} s" if cold_ms >= 1000 else f"{cold_ms:.1f} ms",
+            help="One-time model initialization and weight loading latency into memory."
         )
 
     st.markdown("---")
