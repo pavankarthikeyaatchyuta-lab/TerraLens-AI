@@ -29,15 +29,33 @@ def render_map_view(
         center_lon = sum(l.longitude for l in locations) / len(locations)
         zoom_start = 5
 
-    # Initialize Folium Map defaulting to Esri Satellite Mode
+    # Initialize Folium Map defaulting to Google Satellite Hybrid Mode
     m = folium.Map(
         location=[center_lat, center_lon],
         zoom_start=zoom_start,
+        tiles="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+        attr="&copy; Google Maps",
+        name="Google Satellite Hybrid",
+        control_scale=True,
+    )
+
+    # Add Google Maps standard street view
+    folium.TileLayer(
+        tiles="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+        attr="&copy; Google Maps",
+        name="Google Maps (Streets)",
+        overlay=False,
+        control=True,
+    ).add_to(m)
+
+    # Add Esri Satellite Imagery
+    folium.TileLayer(
         tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         attr="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
         name="Satellite Imagery (Esri)",
-        control_scale=True,
-    )
+        overlay=False,
+        control=True,
+    ).add_to(m)
 
     # Add CARTO Tactical Dark as an alternative layer option
     import os
