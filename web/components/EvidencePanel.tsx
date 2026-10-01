@@ -19,7 +19,7 @@ interface EvidencePanelProps {
 }
 
 export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
-  const [verdict, setVerdict] = useState<"VERIFIED_TRUE_CHANGE" | "FALSE_ALARM" | "INCONCLUSIVE">("VERIFIED_TRUE_CHANGE");
+  const [verdict, setVerdict] = useState<"TRUE_CHANGE" | "FALSE_ALARM" | "UNCERTAIN" | null>(null);
   const [analystNotes, setAnalystNotes] = useState<string>("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
 
@@ -33,7 +33,7 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
           location_id: location.location_id,
           format,
           analyst_notes: analystNotes,
-          verdict,
+          verdict: verdict || "UNREVIEWED",
         }),
       });
 
@@ -143,19 +143,34 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
         {/* Right: Analyst Adjudication & Dossier Export */}
         <div className="bg-tactical-900/60 p-3.5 rounded-lg border border-tactical-750 flex flex-col justify-between">
           <div>
-            <h4 className="text-xs font-mono font-bold text-slate-300 uppercase mb-2 flex items-center gap-1.5">
-              <FileText className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Analyst Adjudication Verdict</span>
-            </h4>
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-xs font-mono font-bold text-slate-300 uppercase flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Analyst Adjudication</span>
+              </h4>
+              <span
+                className={`text-[10px] font-mono px-2 py-0.5 rounded border transition-colors ${
+                  verdict === "TRUE_CHANGE"
+                    ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
+                    : verdict === "FALSE_ALARM"
+                    ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
+                    : verdict === "UNCERTAIN"
+                    ? "bg-slate-500/20 text-slate-300 border-slate-500/40"
+                    : "bg-tactical-800 text-slate-400 border-tactical-700"
+                }`}
+              >
+                {verdict ? `ANALYST VERDICT: ${verdict.replace("_", " ")}` : "STATUS: UNREVIEWED"}
+              </span>
+            </div>
 
             {/* Verdict Selector */}
             <div className="grid grid-cols-3 gap-2 mb-3">
               <button
                 type="button"
-                onClick={() => setVerdict("VERIFIED_TRUE_CHANGE")}
+                onClick={() => setVerdict("TRUE_CHANGE")}
                 className={`py-1.5 px-2 rounded text-[11px] font-mono font-bold border transition-all flex flex-col items-center gap-1 ${
-                  verdict === "VERIFIED_TRUE_CHANGE"
-                    ? "bg-rose-500/20 text-rose-300 border-rose-500 shadow-sm"
+                  verdict === "TRUE_CHANGE"
+                    ? "bg-rose-500/25 text-rose-300 border-rose-500 shadow-sm ring-1 ring-rose-500/50"
                     : "bg-tactical-800 text-slate-400 border-tactical-700 hover:text-slate-200"
                 }`}
               >
@@ -168,7 +183,7 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
                 onClick={() => setVerdict("FALSE_ALARM")}
                 className={`py-1.5 px-2 rounded text-[11px] font-mono font-bold border transition-all flex flex-col items-center gap-1 ${
                   verdict === "FALSE_ALARM"
-                    ? "bg-amber-500/20 text-amber-300 border-amber-500 shadow-sm"
+                    ? "bg-amber-500/25 text-amber-300 border-amber-500 shadow-sm ring-1 ring-amber-500/50"
                     : "bg-tactical-800 text-slate-400 border-tactical-700 hover:text-slate-200"
                 }`}
               >
@@ -178,10 +193,10 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
 
               <button
                 type="button"
-                onClick={() => setVerdict("INCONCLUSIVE")}
+                onClick={() => setVerdict("UNCERTAIN")}
                 className={`py-1.5 px-2 rounded text-[11px] font-mono font-bold border transition-all flex flex-col items-center gap-1 ${
-                  verdict === "INCONCLUSIVE"
-                    ? "bg-slate-600/30 text-slate-300 border-slate-500 shadow-sm"
+                  verdict === "UNCERTAIN"
+                    ? "bg-slate-600/30 text-slate-300 border-slate-500 shadow-sm ring-1 ring-slate-500/50"
                     : "bg-tactical-800 text-slate-400 border-tactical-700 hover:text-slate-200"
                 }`}
               >

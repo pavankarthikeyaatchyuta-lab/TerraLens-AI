@@ -176,7 +176,18 @@ export function searchScenes(query: string, topK: number = 5): SearchOutcome {
   // Sort descending by exact cosine score
   scored.sort((a, b) => b.score - a.score);
 
-  const topResults = scored.slice(0, topK);
+  // Deduplicate by canonical location_id, retaining the highest-scoring scene per location
+  const seenLocations = new Set<string>();
+  const uniqueLocationResults: Array<{ sceneRecord: SceneEmbeddingRecord; score: number }> = [];
+
+  for (const item of scored) {
+    if (!seenLocations.has(item.sceneRecord.location_id)) {
+      seenLocations.add(item.sceneRecord.location_id);
+      uniqueLocationResults.push(item);
+    }
+  }
+
+  const topResults = uniqueLocationResults.slice(0, topK);
   const latency = Math.round((performance.now() - start) * 100) / 100;
 
   const results: SearchResult[] = topResults.map((item, idx) => {

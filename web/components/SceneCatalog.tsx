@@ -48,7 +48,7 @@ export function SceneCatalog({
             {results.length > 0 ? `Semantic Matches (${results.length})` : "Candidate Locations Archive"}
           </h2>
         </div>
-        <span className="text-[11px] font-mono text-slate-400">FAISS Normalized Cosine</span>
+        <span className="text-[11px] font-mono text-slate-400">OFFLINE INDEX: FAISS • NORMALIZED COSINE</span>
       </div>
 
       {searchOutcome && searchOutcome.supported === false && (

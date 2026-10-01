@@ -47,7 +47,11 @@ export function Header({ onOpenEvaluation, latencyMs, totalScenes = 10 }: Header
 
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-tactical-850 border border-tactical-700 text-slate-300 font-mono">
             <Activity className="w-3.5 h-3.5 text-amber-400" />
-            <span>LATENCY: {latencyMs !== undefined ? `${latencyMs}ms` : "16.4ms"}</span>
+            <span>
+              {latencyMs !== undefined
+                ? `LOCAL RETRIEVAL: ${latencyMs.toFixed(2)}ms`
+                : "WARM RETRIEVAL BENCHMARK: 21.47ms"}
+            </span>
           </div>
 
           <button

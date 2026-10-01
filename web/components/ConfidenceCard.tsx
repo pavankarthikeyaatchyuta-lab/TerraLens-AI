@@ -38,7 +38,7 @@ export function ConfidenceCard({ analysis }: ConfidenceCardProps) {
           {isChangeDetected ? (
             <>
               <AlertTriangle className="w-3 h-3 text-rose-400" />
-              <span>CHANGE CONFIRMED</span>
+              <span>CHANGE DETECTED</span>
             </>
           ) : (
             <>

@@ -27,10 +27,21 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
       });
   }, [isOpen]);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-[99999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
       <div className="relative w-full max-w-4xl bg-tactical-900 border border-tactical-700 rounded-2xl shadow-2xl overflow-hidden my-8">
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-tactical-700 bg-tactical-850">
@@ -78,10 +89,12 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
                       Warm Retrieval
                     </span>
                     <span className="text-2xl font-bold font-mono text-cyan-400">
-                      ~{evalData?.retrieval?.warm_retrieval_mean_latency_ms?.toFixed(2) ?? "21.47"} ms
+                      {evalData?.retrieval?.warm_retrieval_mean_latency_ms !== undefined
+                        ? `~${evalData.retrieval.warm_retrieval_mean_latency_ms.toFixed(2)} ms`
+                        : "—"}
                     </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">
-                      Min: {evalData?.retrieval?.warm_retrieval_min_latency_ms?.toFixed(2) ?? "16.59"} ms | Max: {evalData?.retrieval?.warm_retrieval_max_latency_ms?.toFixed(2) ?? "28.22"} ms
+                      Min: {evalData?.retrieval?.warm_retrieval_min_latency_ms?.toFixed(2) ?? "—"} ms | Max: {evalData?.retrieval?.warm_retrieval_max_latency_ms?.toFixed(2) ?? "—"} ms
                     </span>
                   </div>
 
@@ -90,7 +103,9 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
                       CLIP Model Init
                     </span>
                     <span className="text-2xl font-bold font-mono text-amber-400">
-                      ~{evalData?.retrieval?.cold_start_model_init_ms?.toFixed(1) ?? "477.4"} ms
+                      {evalData?.retrieval?.cold_start_model_init_ms !== undefined
+                        ? `~${evalData.retrieval.cold_start_model_init_ms.toFixed(1)} ms`
+                        : "—"}
                     </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">
                       PyTorch weights load (not total cold start)
@@ -102,7 +117,9 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
                       First-Query Pipeline
                     </span>
                     <span className="text-2xl font-bold font-mono text-slate-200">
-                      ~{evalData?.retrieval?.first_query_latency_ms ? (evalData.retrieval.first_query_latency_ms / 1000).toFixed(2) : "10.28"} s
+                      {evalData?.retrieval?.first_query_latency_ms !== undefined
+                        ? `~${(evalData.retrieval.first_query_latency_ms / 1000).toFixed(2)} s`
+                        : "—"}
                     </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">
                       Cold initialization + initial vector search
@@ -114,7 +131,9 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
                       Change Detection
                     </span>
                     <span className="text-2xl font-bold font-mono text-emerald-400">
-                      ~{evalData?.system_performance?.change_detection_timing?.mean_latency_ms?.toFixed(2) ?? "33.29"} ms
+                      {evalData?.system_performance?.change_detection_timing?.mean_latency_ms !== undefined
+                        ? `~${evalData.system_performance.change_detection_timing.mean_latency_ms.toFixed(2)} ms`
+                        : "—"}
                     </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">
                       512x512 bitemporal pipeline
@@ -129,37 +148,63 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
                   <Layers className="w-4 h-4" />
                   <span>2. Semantic Retrieval Accuracy (CLIP ViT-B/32 + FAISS IndexFlatIP)</span>
                 </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-6 gap-2.5">
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
-                    <span className="text-[10px] font-mono text-slate-400 block uppercase">Mean Reciprocal Rank</span>
-                    <span className="text-xl font-bold font-mono text-slate-100">
-                      {evalData?.retrieval?.mean_mrr?.toFixed(4) ?? "0.6667"}
+                    <span className="text-[10px] font-mono text-slate-400 block uppercase">MRR</span>
+                    <span className="text-lg font-bold font-mono text-slate-100">
+                      {evalData?.retrieval?.mean_mrr !== undefined ? evalData.retrieval.mean_mrr.toFixed(4) : "—"}
                     </span>
-                    <span className="text-[10px] text-slate-500 font-mono block mt-1">MRR Benchmark</span>
+                    <span className="text-[9px] text-slate-500 font-mono block mt-1">Mean Reciprocal Rank</span>
                   </div>
 
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
-                    <span className="text-[10px] font-mono text-slate-400 block uppercase">Location Acc@1</span>
-                    <span className="text-xl font-bold font-mono text-slate-100">
-                      {evalData?.retrieval?.location_accuracy_at_1 ? (evalData.retrieval.location_accuracy_at_1 * 100).toFixed(1) + "%" : "40.0%"}
+                    <span className="text-[10px] font-mono text-slate-400 block uppercase">Target Location Hit@1</span>
+                    <span className="text-lg font-bold font-mono text-slate-100">
+                      {evalData?.retrieval?.location_accuracy_at_1 !== undefined
+                        ? `${(evalData.retrieval.location_accuracy_at_1 * 100).toFixed(1)}%`
+                        : "—"}
                     </span>
-                    <span className="text-[10px] text-slate-500 font-mono block mt-1">Top-1 Target Loc</span>
+                    <span className="text-[9px] text-slate-500 font-mono block mt-1">Top-1 Target Loc</span>
+                  </div>
+
+                  <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
+                    <span className="text-[10px] font-mono text-slate-400 block uppercase">Recall@1</span>
+                    <span className="text-lg font-bold font-mono text-slate-100">
+                      {evalData?.retrieval?.mean_recalls?.["recall@1"] !== undefined
+                        ? `${(evalData.retrieval.mean_recalls["recall@1"] * 100).toFixed(1)}%`
+                        : "—"}
+                    </span>
+                    <span className="text-[9px] text-slate-500 font-mono block mt-1">Top-1 Recall</span>
                   </div>
 
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Recall@3</span>
-                    <span className="text-xl font-bold font-mono text-slate-100">
-                      {evalData?.retrieval?.mean_recalls?.["recall@3"] ? (evalData.retrieval.mean_recalls["recall@3"] * 100).toFixed(1) + "%" : "50.0%"}
+                    <span className="text-lg font-bold font-mono text-slate-100">
+                      {evalData?.retrieval?.mean_recalls?.["recall@3"] !== undefined
+                        ? `${(evalData.retrieval.mean_recalls["recall@3"] * 100).toFixed(1)}%`
+                        : "—"}
                     </span>
-                    <span className="text-[10px] text-slate-500 font-mono block mt-1">Relevant scenes</span>
+                    <span className="text-[9px] text-slate-500 font-mono block mt-1">Top-3 Recall</span>
+                  </div>
+
+                  <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
+                    <span className="text-[10px] font-mono text-slate-400 block uppercase">Recall@5</span>
+                    <span className="text-lg font-bold font-mono text-slate-100">
+                      {evalData?.retrieval?.mean_recalls?.["recall@5"] !== undefined
+                        ? `${(evalData.retrieval.mean_recalls["recall@5"] * 100).toFixed(1)}%`
+                        : "—"}
+                    </span>
+                    <span className="text-[9px] text-slate-500 font-mono block mt-1">Top-5 Recall</span>
                   </div>
 
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Precision@1</span>
-                    <span className="text-xl font-bold font-mono text-slate-100">
-                      {evalData?.retrieval?.mean_precisions?.["precision@1"] ? (evalData.retrieval.mean_precisions["precision@1"] * 100).toFixed(1) + "%" : "40.0%"}
+                    <span className="text-lg font-bold font-mono text-slate-100">
+                      {evalData?.retrieval?.mean_precisions?.["precision@1"] !== undefined
+                        ? `${(evalData.retrieval.mean_precisions["precision@1"] * 100).toFixed(1)}%`
+                        : "—"}
                     </span>
-                    <span className="text-[10px] text-slate-500 font-mono block mt-1">Exact match</span>
+                    <span className="text-[9px] text-slate-500 font-mono block mt-1">Top-1 Precision</span>
                   </div>
                 </div>
               </div>
@@ -174,7 +219,9 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Intersection over Union</span>
                     <span className="text-xl font-bold font-mono text-emerald-400">
-                      {evalData?.change_detection?.mean_metrics_on_annotated_benchmark?.mean_iou?.toFixed(4) ?? "0.9985"}
+                      {evalData?.change_detection?.mean_metrics_on_annotated_benchmark?.mean_iou !== undefined
+                        ? evalData.change_detection.mean_metrics_on_annotated_benchmark.mean_iou.toFixed(4)
+                        : "—"}
                     </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">Mean IoU (Controlled)</span>
                   </div>
@@ -182,7 +229,9 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Pixel Precision</span>
                     <span className="text-xl font-bold font-mono text-slate-100">
-                      {evalData?.change_detection?.mean_metrics_on_annotated_benchmark?.mean_precision?.toFixed(4) ?? "1.0000"}
+                      {evalData?.change_detection?.mean_metrics_on_annotated_benchmark?.mean_precision !== undefined
+                        ? evalData.change_detection.mean_metrics_on_annotated_benchmark.mean_precision.toFixed(4)
+                        : "—"}
                     </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">Controlled Pairs</span>
                   </div>
@@ -190,7 +239,9 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Pixel Recall</span>
                     <span className="text-xl font-bold font-mono text-slate-100">
-                      {evalData?.change_detection?.mean_metrics_on_annotated_benchmark?.mean_recall?.toFixed(4) ?? "0.9985"}
+                      {evalData?.change_detection?.mean_metrics_on_annotated_benchmark?.mean_recall !== undefined
+                        ? evalData.change_detection.mean_metrics_on_annotated_benchmark.mean_recall.toFixed(4)
+                        : "—"}
                     </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">Controlled Pairs</span>
                   </div>
@@ -198,7 +249,9 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
                   <div className="bg-tactical-850 p-3 rounded-lg border border-tactical-700">
                     <span className="text-[10px] font-mono text-slate-400 block uppercase">Pixel F1-Score</span>
                     <span className="text-xl font-bold font-mono text-slate-100">
-                      {evalData?.change_detection?.mean_metrics_on_annotated_benchmark?.mean_f1?.toFixed(4) ?? "0.9992"}
+                      {evalData?.change_detection?.mean_metrics_on_annotated_benchmark?.mean_f1 !== undefined
+                        ? evalData.change_detection.mean_metrics_on_annotated_benchmark.mean_f1.toFixed(4)
+                        : "—"}
                     </span>
                     <span className="text-[10px] text-slate-500 font-mono block mt-1">Harmonic mean</span>
                   </div>

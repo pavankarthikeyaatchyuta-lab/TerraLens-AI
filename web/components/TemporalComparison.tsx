@@ -44,14 +44,17 @@ export function TemporalComparison({
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-3 border-b border-tactical-700/60">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Satellite className="w-4 h-4 text-cyan-400" />
             <h3 className="text-sm font-bold font-mono text-slate-100 uppercase">
               Temporal Imagery Pair: {location.name}
             </h3>
+            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">
+              SYNTHETIC BENCHMARK • {location.primary_sensor} PROFILE
+            </span>
           </div>
           <p className="text-[11px] text-slate-400 font-mono mt-0.5">
-            Sensor: {location.primary_sensor} | Multi-temporal Bi-temporal Epoch
+            Sensor Profile: {location.primary_sensor} | Data: Controlled Synthetic Benchmark Scene (Analysis Imagery)
           </p>
         </div>
 

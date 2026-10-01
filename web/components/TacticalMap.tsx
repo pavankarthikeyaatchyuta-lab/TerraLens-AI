@@ -44,7 +44,7 @@ export function TacticalMap({
       });
       L.Marker.prototype.options.icon = DefaultIcon;
 
-      const cartoKey = process.env.NEXT_PUBLIC_CARTO_API_KEY || "cb1_45sy_1_7b1356d3210f8c48e5b015d3";
+      const cartoKey = process.env.NEXT_PUBLIC_CARTO_API_KEY?.trim() || "";
 
       if (!mapInstanceRef.current) {
         // Initialize map centered on India
@@ -73,16 +73,25 @@ export function TacticalMap({
           }
         );
 
-        // 3. Carto Tactical Basemap with Authenticated API Key
-        const tacticalBase = L.tileLayer(
-          `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${cartoKey}`,
-          {
-            maxZoom: 19,
-            subdomains: "abcd",
-            attribution:
-              '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
-          }
-        );
+        // 3. Tactical Basemap: CARTO Voyager if key configured, otherwise graceful OSM fallback
+        const tacticalBase = cartoKey
+          ? L.tileLayer(
+              `https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${cartoKey}`,
+              {
+                maxZoom: 19,
+                subdomains: "abcd",
+                attribution:
+                  '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
+              }
+            )
+          : L.tileLayer(
+              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+              {
+                maxZoom: 19,
+                attribution:
+                  '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+              }
+            );
 
         layersRef.current = {
           satelliteLayers: [satelliteBase, satelliteLabels],
@@ -208,12 +217,14 @@ export function TacticalMap({
     }
   };
 
+  const hasCartoKey = Boolean(process.env.NEXT_PUBLIC_CARTO_API_KEY?.trim());
+
   return (
     <div className="relative w-full h-[330px] rounded-xl overflow-hidden border border-tactical-700 shadow-xl bg-tactical-900">
       <div ref={mapContainerRef} className="w-full h-full" />
 
       {/* Layer Mode Switcher Controls */}
-      <div className="absolute top-2.5 left-2.5 z-[1000] flex items-center bg-tactical-900/90 backdrop-blur-md rounded-lg p-0.5 border border-tactical-700 shadow-lg text-[11px] font-mono">
+      <div className="absolute top-2.5 left-2.5 z-[25] flex items-center bg-tactical-900/90 backdrop-blur-md rounded-lg p-0.5 border border-tactical-700 shadow-lg text-[11px] font-mono">
         <button
           type="button"
           onClick={() => toggleMapMode("satellite")}
@@ -235,7 +246,7 @@ export function TacticalMap({
               ? "bg-cyan-500 text-slate-950 font-bold shadow-sm"
               : "text-slate-300 hover:text-white hover:bg-tactical-800"
           }`}
-          title="CartoDB Tactical Vector / Raster Basemap"
+          title={hasCartoKey ? "CartoDB Tactical Basemap" : "Tactical Basemap (OpenStreetMap Fallback)"}
         >
           <MapIcon className="w-3.5 h-3.5" />
           <span>TACTICAL</span>
@@ -243,14 +254,23 @@ export function TacticalMap({
       </div>
 
       {/* Telemetry Badge */}
-      <div className="absolute top-2.5 right-2.5 bg-tactical-900/85 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-[10px] font-mono text-cyan-300 z-[1000] pointer-events-none flex items-center gap-1.5 shadow-md">
+      <div className="absolute top-2.5 right-2.5 bg-tactical-900/85 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-[10px] font-mono text-cyan-300 z-[25] pointer-events-none flex items-center gap-1.5 shadow-md">
         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
         <span>
           {mapMode === "satellite"
-            ? "ORBITAL TELEMETRY: ESRI-WORLD-IMAGERY / SATELLITE"
-            : "MAP TELEMETRY: CARTO-VOYAGER / EPSG:4326"}
+            ? "CONTEXT MAP: ESRI WORLD IMAGERY • EPSG:4326"
+            : hasCartoKey
+            ? "CONTEXT MAP: CARTO VOYAGER • EPSG:4326"
+            : "CONTEXT MAP: OPENSTREETMAP (FALLBACK) • EPSG:4326"}
         </span>
       </div>
+
+      {/* Non-blocking notice if tactical active without CARTO key */}
+      {mapMode === "tactical" && !hasCartoKey && (
+        <div className="absolute bottom-2.5 left-2.5 z-[25] bg-tactical-950/90 border border-tactical-700 text-slate-400 px-2.5 py-1 rounded text-[10px] font-mono shadow pointer-events-none">
+          Tactical Mode (OSM Fallback — CARTO API key not configured)
+        </div>
+      )}
     </div>
   );
 }

@@ -38,11 +38,21 @@ body {
     linear-gradient(to bottom, rgba(30, 41, 59, 0.25) 1px, transparent 1px);
 }
 
-/* Leaflet styles */
+/* Leaflet styles and Stacking Isolation */
 @import "leaflet/dist/leaflet.css";
 
 .leaflet-container {
   width: 100%;
   height: 100%;
   background-color: #0d1322 !important;
+  z-index: 10 !important;
+}
+
+.leaflet-pane {
+  z-index: 10 !important;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 20 !important;
 }
