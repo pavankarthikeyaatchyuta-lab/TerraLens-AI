@@ -29,11 +29,13 @@ def render_map_view(
         center_lon = sum(l.longitude for l in locations) / len(locations)
         zoom_start = 5
 
-    # Initialize Folium Map
+    # Initialize Folium Map with authenticated CARTO tiles
+    carto_key = "cb1_45sy_1_7b1356d3210f8c48e5b015d3"
     m = folium.Map(
         location=[center_lat, center_lon],
         zoom_start=zoom_start,
-        tiles="CartoDB dark_matter",
+        tiles=f"https://{{s}}.basemaps.cartocdn.com/rastertiles/dark_all/{{z}}/{{x}}/{{y}}.png?key={carto_key}",
+        attr='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank">CARTO</a>',
         control_scale=True,
     )
 
