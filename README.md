@@ -4,7 +4,8 @@
 **Problem Statement ID:** SIH26227  
 **Operational Status:** Phase 5 Complete (Full Research Prototype + Production Vercel Deployment)  
 **Live Public Demo:** [https://terra-lens-ai.vercel.app/](https://terra-lens-ai.vercel.app/)  
-**Automated Tests:** 45/45 Passing (100% Pass Rate)
+**Automated Tests:** 45/45 Passing (100% Pass Rate)  
+**Official SIH Submission:** [SUBMISSION.md](SUBMISSION.md)
 
 ---
 
@@ -146,6 +147,7 @@ terralens/
 │       └── samples/                # Benchmark scenes and verified change masks
 ├── evaluation_report.md            # Benchmark report artifact
 ├── evaluation_results.json         # Raw benchmark metrics JSON artifact
+├── SUBMISSION.md                   # Official SIH 2026 Submission Document (Sections 2.1-2.5)
 ├── VERCEL_DEPLOYMENT.md            # Production deployment runbook
 ├── requirements.txt
 ├── .env.example
