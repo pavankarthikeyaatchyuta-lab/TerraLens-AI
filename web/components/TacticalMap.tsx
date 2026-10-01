@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Location } from "@/types";
+import { Satellite, Map as MapIcon } from "lucide-react";
 
 interface TacticalMapProps {
   locations: Location[];
@@ -17,6 +18,11 @@ export function TacticalMap({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<{ [key: string]: any }>({});
+  const layersRef = useRef<{
+    satelliteLayers?: any[];
+    tacticalLayer?: any;
+  }>({});
+  const [mapMode, setMapMode] = useState<"satellite" | "tactical">("satellite");
 
   useEffect(() => {
     if (typeof window === "undefined" || !mapContainerRef.current) return;
@@ -49,8 +55,26 @@ export function TacticalMap({
           attributionControl: true,
         });
 
-        // Dark tactical CartoDB basemap with authenticated API key
-        L.tileLayer(
+        // 1. High-resolution Satellite Imagery (Esri World Imagery)
+        const satelliteBase = L.tileLayer(
+          "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+          {
+            maxZoom: 19,
+            attribution:
+              'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+          }
+        );
+
+        // 2. High-contrast Place & Boundary Reference Labels
+        const satelliteLabels = L.tileLayer(
+          "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+          {
+            maxZoom: 19,
+          }
+        );
+
+        // 3. Carto Tactical Basemap with Authenticated API Key
+        const tacticalBase = L.tileLayer(
           `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${cartoKey}`,
           {
             maxZoom: 19,
@@ -58,7 +82,16 @@ export function TacticalMap({
             attribution:
               '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
           }
-        ).addTo(map);
+        );
+
+        layersRef.current = {
+          satelliteLayers: [satelliteBase, satelliteLabels],
+          tacticalLayer: tacticalBase,
+        };
+
+        // Add default layer (Satellite Mode)
+        satelliteBase.addTo(map);
+        satelliteLabels.addTo(map);
 
         mapInstanceRef.current = map;
       }
@@ -78,15 +111,15 @@ export function TacticalMap({
             display: flex;
             align-items: center;
             justify-content: center;
-            width: ${isSelected ? "32px" : "24px"};
-            height: ${isSelected ? "32px" : "24px"};
+            width: ${isSelected ? "34px" : "26px"};
+            height: ${isSelected ? "34px" : "26px"};
             border-radius: 50%;
-            background: ${isSelected ? "#00e5ff" : "#1e293b"};
+            background: ${isSelected ? "#00e5ff" : "rgba(15, 23, 42, 0.85)"};
             border: 2px solid ${isSelected ? "#ffffff" : "#00e5ff"};
             color: ${isSelected ? "#090d16" : "#00e5ff"};
             font-size: 11px;
             font-weight: bold;
-            box-shadow: 0 0 14px ${isSelected ? "rgba(0,229,255,0.8)" : "rgba(0,0,0,0.5)"};
+            box-shadow: 0 0 16px ${isSelected ? "rgba(0,229,255,0.9)" : "rgba(0,0,0,0.7)"};
             cursor: pointer;
             transition: all 0.2s ease;
           ">
@@ -97,8 +130,8 @@ export function TacticalMap({
         const divIcon = L.divIcon({
           html: customMarkerHtml,
           className: "tactical-marker",
-          iconSize: isSelected ? [32, 32] : [24, 24],
-          iconAnchor: isSelected ? [16, 16] : [12, 12],
+          iconSize: isSelected ? [34, 34] : [26, 26],
+          iconAnchor: isSelected ? [17, 17] : [13, 13],
         });
 
         const marker = L.marker([loc.latitude, loc.longitude], { icon: divIcon }).addTo(map);
@@ -119,10 +152,10 @@ export function TacticalMap({
             [loc.bounding_box.max_lat, loc.bounding_box.max_lon],
           ];
           const rect = L.rectangle(bounds, {
-            color: isSelected ? "#00e5ff" : "#475569",
-            weight: isSelected ? 2 : 1,
-            fillColor: isSelected ? "#00e5ff" : "#334155",
-            fillOpacity: isSelected ? 0.25 : 0.08,
+            color: isSelected ? "#00e5ff" : "#38bdf8",
+            weight: isSelected ? 2.5 : 1.2,
+            fillColor: isSelected ? "#00e5ff" : "#0284c7",
+            fillOpacity: isSelected ? 0.3 : 0.12,
             dashArray: isSelected ? undefined : "4, 4",
           }).addTo(map);
 
@@ -146,11 +179,77 @@ export function TacticalMap({
     };
   }, [locations, selectedLocationId, onSelectLocation]);
 
+  // Handle map mode toggling
+  const toggleMapMode = (mode: "satellite" | "tactical") => {
+    setMapMode(mode);
+    const map = mapInstanceRef.current;
+    if (!map || !layersRef.current) return;
+
+    const { satelliteLayers, tacticalLayer } = layersRef.current;
+
+    if (mode === "satellite") {
+      if (tacticalLayer && map.hasLayer(tacticalLayer)) {
+        map.removeLayer(tacticalLayer);
+      }
+      if (satelliteLayers) {
+        satelliteLayers.forEach((l) => {
+          if (!map.hasLayer(l)) l.addTo(map);
+        });
+      }
+    } else {
+      if (satelliteLayers) {
+        satelliteLayers.forEach((l) => {
+          if (map.hasLayer(l)) map.removeLayer(l);
+        });
+      }
+      if (tacticalLayer && !map.hasLayer(tacticalLayer)) {
+        tacticalLayer.addTo(map);
+      }
+    }
+  };
+
   return (
-    <div className="relative w-full h-[320px] rounded-xl overflow-hidden border border-tactical-700 shadow-xl bg-tactical-900">
+    <div className="relative w-full h-[330px] rounded-xl overflow-hidden border border-tactical-700 shadow-xl bg-tactical-900">
       <div ref={mapContainerRef} className="w-full h-full" />
-      <div className="absolute top-2 right-2 bg-tactical-900/85 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-[10px] font-mono text-cyan-300 z-[1000] pointer-events-none">
-        MAP TELEMETRY: CARTO-VOYAGER / EPSG:4326
+
+      {/* Layer Mode Switcher Controls */}
+      <div className="absolute top-2.5 left-2.5 z-[1000] flex items-center bg-tactical-900/90 backdrop-blur-md rounded-lg p-0.5 border border-tactical-700 shadow-lg text-[11px] font-mono">
+        <button
+          type="button"
+          onClick={() => toggleMapMode("satellite")}
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
+            mapMode === "satellite"
+              ? "bg-cyan-500 text-slate-950 font-bold shadow-sm"
+              : "text-slate-300 hover:text-white hover:bg-tactical-800"
+          }`}
+          title="High-Resolution Orbital Satellite Imagery"
+        >
+          <Satellite className="w-3.5 h-3.5" />
+          <span>SATELLITE</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => toggleMapMode("tactical")}
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
+            mapMode === "tactical"
+              ? "bg-cyan-500 text-slate-950 font-bold shadow-sm"
+              : "text-slate-300 hover:text-white hover:bg-tactical-800"
+          }`}
+          title="CartoDB Tactical Vector / Raster Basemap"
+        >
+          <MapIcon className="w-3.5 h-3.5" />
+          <span>TACTICAL</span>
+        </button>
+      </div>
+
+      {/* Telemetry Badge */}
+      <div className="absolute top-2.5 right-2.5 bg-tactical-900/85 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-[10px] font-mono text-cyan-300 z-[1000] pointer-events-none flex items-center gap-1.5 shadow-md">
+        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        <span>
+          {mapMode === "satellite"
+            ? "ORBITAL TELEMETRY: ESRI-WORLD-IMAGERY / SATELLITE"
+            : "MAP TELEMETRY: CARTO-VOYAGER / EPSG:4326"}
+        </span>
       </div>
     </div>
   );
