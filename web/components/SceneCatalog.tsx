@@ -2,7 +2,7 @@
 
 import React from "react";
 import { SearchResult, Location } from "@/types";
-import { Layers, Calendar, Compass, ArrowRight, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Layers, Calendar, Compass, ArrowRight, CheckCircle2, AlertTriangle, Crosshair } from "lucide-react";
 
 interface SceneCatalogProps {
   results: SearchResult[];
@@ -11,6 +11,7 @@ interface SceneCatalogProps {
   onSelectLocation: (locationId: string) => void;
   searchOutcome?: any;
   onSelectBenchmarkQuery?: (query: string) => void;
+  onHandoffToLive?: (location: Location) => void;
 }
 
 export function SceneCatalog({
@@ -20,6 +21,7 @@ export function SceneCatalog({
   onSelectLocation,
   searchOutcome,
   onSelectBenchmarkQuery,
+  onHandoffToLive,
 }: SceneCatalogProps) {
   // If no search results, show all locations
   const items = results.length > 0
@@ -149,6 +151,20 @@ export function SceneCatalog({
                   </span>
                 )}
               </div>
+
+              {onHandoffToLive && isSelected && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onHandoffToLive(item.location);
+                  }}
+                  className="w-full mt-1 py-1.5 px-2.5 rounded bg-cyan-600/30 hover:bg-cyan-600/40 text-cyan-200 border border-cyan-500/40 text-[10px] font-mono font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm"
+                >
+                  <Crosshair className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>LAUNCH IN LIVE SENTINEL-2 WORKFLOW &rarr;</span>
+                </button>
+              )}
             </div>
           );
         })}

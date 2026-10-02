@@ -39,6 +39,7 @@ export default function HomePage() {
   const [selectedAfterScene, setSelectedAfterScene] = useState<SatelliteScene | null>(null);
   const [selectedPair, setSelectedPair] = useState<TemporalPairCandidate | null>(null);
   const [liveAnalysisResult, setLiveAnalysisResult] = useState<any | null>(null);
+  const [selectedClusterId, setSelectedClusterId] = useState<string | null>(null);
 
   // Temporal & Change State
   const [temporalPair, setTemporalPair] = useState<any>(null);
@@ -173,6 +174,8 @@ export default function HomePage() {
                   selectedScene={selectedAfterScene || selectedBeforeScene}
                   selectedPair={selectedPair}
                   liveAnalysisResult={liveAnalysisResult}
+                  selectedClusterId={selectedClusterId}
+                  onSelectCluster={setSelectedClusterId}
                 />
 
                 {/* Live Mode Map Helper / AOI Status Card */}
@@ -182,7 +185,7 @@ export default function HomePage() {
                     <span>Map AOI Navigation</span>
                   </div>
                   <p className="text-slate-300 text-[11px] leading-relaxed">
-                    Use the map layer switcher (bottom-left) to toggle between Google Satellite, Google Maps Streets, Esri World Imagery, or CARTO Voyager.
+                    Use the map layer switcher (bottom-left) to toggle between Google Satellite, Google Maps Streets, Esri World Imagery, or CARTO Voyager. Click any detected change cluster polygon on the map to inspect its evidence and adjudicate.
                   </p>
                   <div className="pt-2 border-t border-tactical-750 flex items-center justify-between text-[11px]">
                     <span className="text-slate-400">Map Drawing:</span>
@@ -224,6 +227,8 @@ export default function HomePage() {
                   }}
                   analysisResult={liveAnalysisResult}
                   onAnalysisComplete={setLiveAnalysisResult}
+                  selectedClusterId={selectedClusterId}
+                  onSelectCluster={setSelectedClusterId}
                 />
               </div>
             </div>
@@ -261,6 +266,19 @@ export default function HomePage() {
                   onSelectLocation={(id) => setSelectedLocationId(id)}
                   searchOutcome={searchOutcome}
                   onSelectBenchmarkQuery={handleSearch}
+                  onHandoffToLive={(loc) => {
+                    if (loc.bounding_box) {
+                      setLiveAoi({
+                        min_lat: loc.bounding_box.min_lat,
+                        min_lon: loc.bounding_box.min_lon,
+                        max_lat: loc.bounding_box.max_lat,
+                        max_lon: loc.bounding_box.max_lon,
+                      });
+                    }
+                    setOperatingMode("LIVE_PUBLIC_DATA");
+                    const el = document.getElementById("console");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }}
                 />
               </div>
 

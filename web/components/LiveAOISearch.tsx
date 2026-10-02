@@ -34,6 +34,10 @@ import {
   HelpCircle,
   Activity,
   Sliders,
+  Download,
+  FileText,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 
 interface LiveAOISearchProps {
@@ -49,6 +53,8 @@ interface LiveAOISearchProps {
   onFocusSceneOnMap?: (scene: SatelliteScene) => void;
   analysisResult?: any;
   onAnalysisComplete?: (result: any) => void;
+  selectedClusterId?: string | null;
+  onSelectCluster?: (clusterId: string | null) => void;
 }
 
 const PRESET_AOIS: { name: string; desc: string; bbox: BoundingBox }[] = [
@@ -87,12 +93,28 @@ export function LiveAOISearch({
   onFocusSceneOnMap,
   analysisResult,
   onAnalysisComplete,
+  selectedClusterId,
+  onSelectCluster,
 }: LiveAOISearchProps) {
   // Search Form State
   const [startDate, setStartDate] = useState<string>("2024-01-01");
   const [endDate, setEndDate] = useState<string>("2024-06-30");
   const [maxCloudCover, setMaxCloudCover] = useState<number>(20);
   const [limit, setLimit] = useState<number>(10);
+
+  // Phase 5A: End-to-End Analyst Workflow & Adjudication State
+  const [internalSelectedClusterId, setInternalSelectedClusterId] = useState<string | null>(null);
+  const activeClusterId = selectedClusterId !== undefined && selectedClusterId !== null ? selectedClusterId : internalSelectedClusterId;
+  const [analystReviews, setAnalystReviews] = useState<Record<string, { decision: "CONFIRMED" | "REJECTED" | "UNREVIEWED"; notes: string; timestamp: string }>>({});
+  const [currentAnalystNote, setCurrentAnalystNote] = useState<string>("");
+  const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [exportNotice, setExportNotice] = useState<string | null>(null);
+
+  // Semantic Query Handoff State
+  const [semanticQuery, setSemanticQuery] = useState<string>("");
+  const [isSemanticSearching, setIsSemanticSearching] = useState<boolean>(false);
+  const [semanticResults, setSemanticResults] = useState<any[]>([]);
+  const [semanticSearchError, setSemanticSearchError] = useState<string | null>(null);
 
   // Manual Coordinates State
   const [aoiMode, setAoiMode] = useState<"draw" | "manual">("draw");
@@ -173,8 +195,12 @@ export function LiveAOISearch({
   };
 
   // Execute Scene Search
-  const handleSearchScenes = async () => {
-    if (!aoi) {
+  const handleSearchScenes = async (overrideAoi?: BoundingBox | any) => {
+    const targetAoi = (overrideAoi && typeof overrideAoi === "object" && "min_lat" in overrideAoi)
+      ? (overrideAoi as BoundingBox)
+      : aoi;
+
+    if (!targetAoi) {
       setSearchError("Please select or draw an Area of Interest (AOI) on the map first.");
       return;
     }
@@ -195,7 +221,7 @@ export function LiveAOISearch({
 
     try {
       const response = await satelliteClient.searchScenes({
-        aoi,
+        aoi: targetAoi,
         startDate,
         endDate,
         maxCloudCover,
@@ -337,6 +363,137 @@ export function LiveAOISearch({
     }
   };
 
+  // Phase 5A: Semantic Query Handoff to Sentinel-2 Discovery
+  const handleSemanticSearch = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!semanticQuery.trim()) return;
+
+    setIsSemanticSearching(true);
+    setSemanticSearchError(null);
+
+    try {
+      const res = await fetch("/api/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: semanticQuery.trim(), top_k: 4 }),
+      });
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        setSemanticResults(data.results);
+      } else {
+        setSemanticResults([]);
+        setSemanticSearchError(data.message || "No matching catalog locations found for this query.");
+      }
+    } catch (err: unknown) {
+      setSemanticSearchError("Semantic search failed. You can still define AOI manually or select a preset.");
+    } finally {
+      setIsSemanticSearching(false);
+    }
+  };
+
+  const handleSelectSemanticLocation = (location: any) => {
+    if (!location || !location.bounding_box) {
+      setSemanticSearchError("Selected location lacks valid geographic bounding coordinates.");
+      return;
+    }
+    const bbox: BoundingBox = {
+      min_lat: location.bounding_box.min_lat,
+      min_lon: location.bounding_box.min_lon,
+      max_lat: location.bounding_box.max_lat,
+      max_lon: location.bounding_box.max_lon,
+    };
+    onAoiChange(bbox);
+    setManualMinLat(bbox.min_lat.toString());
+    setManualMinLon(bbox.min_lon.toString());
+    setManualMaxLat(bbox.max_lat.toString());
+    setManualMaxLon(bbox.max_lon.toString());
+    setManualError(null);
+    setSemanticResults([]);
+    // Immediately execute satellite scene search for the target AOI
+    handleSearchScenes(bbox);
+  };
+
+  // Phase 5A: Cluster Selection & Adjudication Handlers
+  const handleSelectCluster = (clusterId: string) => {
+    setInternalSelectedClusterId(clusterId);
+    if (onSelectCluster) {
+      onSelectCluster(clusterId);
+    }
+    const existing = analystReviews[clusterId];
+    setCurrentAnalystNote(existing?.notes || "");
+  };
+
+  const handleAdjudicate = (clusterId: string, decision: "CONFIRMED" | "REJECTED" | "UNREVIEWED") => {
+    setAnalystReviews((prev) => ({
+      ...prev,
+      [clusterId]: {
+        decision,
+        notes: currentAnalystNote,
+        timestamp: new Date().toISOString(),
+      },
+    }));
+  };
+
+  const handleSaveNotes = (clusterId: string) => {
+    setAnalystReviews((prev) => {
+      const current = prev[clusterId] || { decision: "UNREVIEWED", notes: "", timestamp: new Date().toISOString() };
+      return {
+        ...prev,
+        [clusterId]: {
+          ...current,
+          notes: currentAnalystNote,
+          timestamp: new Date().toISOString(),
+        },
+      };
+    });
+  };
+
+  // Phase 5A: Evidence Report Export
+  const handleExportEvidence = async (format: "markdown" | "json") => {
+    if (!activeAnalysis) return;
+    setIsExporting(true);
+    setExportNotice(null);
+
+    try {
+      const res = await fetch("/api/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          format,
+          live_analysis: activeAnalysis,
+          aoi,
+          before_scene: selectedBeforeScene,
+          after_scene: selectedAfterScene,
+          analyst_reviews: analystReviews,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Export endpoint returned HTTP " + res.status);
+      const data = await res.json();
+
+      const contentStr = typeof data.content === "string" ? data.content : JSON.stringify(data.content, null, 2);
+      const mimeType = format === "markdown" ? "text/markdown;charset=utf-8" : "application/json;charset=utf-8";
+      const blob = new Blob([contentStr], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = data.filename || `terralens_live_evidence.${format === "markdown" ? "md" : "json"}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setExportNotice(`Exported evidence dossier: ${a.download}`);
+      setTimeout(() => setExportNotice(null), 5000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setExportNotice(`Export failed: ${msg}`);
+      setTimeout(() => setExportNotice(null), 5000);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* 1. Mode Status Header Banner */}
@@ -348,6 +505,92 @@ export function LiveAOISearch({
         <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-900/60 border border-emerald-500/30">
           COPERNICUS SENTINEL-2 L2A
         </span>
+      </div>
+
+      {/* Phase 5A: Semantic Target Discovery Handoff Card */}
+      <div className="p-4 rounded-xl bg-tactical-850 border border-tactical-700 shadow-md space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-cyan-400 font-mono font-semibold text-xs uppercase tracking-wider">
+            <Search className="w-4 h-4" />
+            <span>Semantic Target Retrieval Handoff (CLIP ViT-B/32)</span>
+          </div>
+          <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30">
+            NATURAL LANGUAGE QUERY → AOI
+          </span>
+        </div>
+
+        <p className="text-[11px] text-slate-300 font-mono leading-relaxed">
+          Type a natural language description to match candidate catalog locations, extract spatial coordinates, and seed the live Sentinel-2 acquisition pipeline.
+        </p>
+
+        <form onSubmit={handleSemanticSearch} className="flex gap-2">
+          <input
+            type="text"
+            value={semanticQuery}
+            onChange={(e) => setSemanticQuery(e.target.value)}
+            placeholder='e.g. "new construction near Hyderabad", "solar park in desert", "reservoir shrinkage"'
+            className="flex-1 bg-tactical-900 border border-tactical-700 rounded-lg px-3 py-2 text-xs font-mono text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500"
+          />
+          <button
+            type="submit"
+            disabled={isSemanticSearching || !semanticQuery.trim()}
+            className="px-4 py-2 rounded-lg bg-cyan-600/30 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/40 text-xs font-mono font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+          >
+            {isSemanticSearching ? (
+              <>
+                <Search className="w-3.5 h-3.5 animate-spin" />
+                <span>SEARCHING...</span>
+              </>
+            ) : (
+              <>
+                <Search className="w-3.5 h-3.5" />
+                <span>RETRIEVE</span>
+              </>
+            )}
+          </button>
+        </form>
+
+        {semanticSearchError && (
+          <p className="text-xs text-amber-400 font-mono p-2 rounded bg-amber-950/30 border border-amber-500/30">
+            {semanticSearchError}
+          </p>
+        )}
+
+        {semanticResults.length > 0 && (
+          <div className="space-y-2 pt-1 border-t border-tactical-750">
+            <span className="text-[10px] font-mono uppercase text-slate-400 block">
+              Retrieved Target Candidates ({semanticResults.length}) — Click to Seed AOI & Discover Scenes:
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1">
+              {semanticResults.map((item: any, idx: number) => {
+                const loc = item.location;
+                if (!loc) return null;
+                return (
+                  <div
+                    key={loc.location_id || idx}
+                    className="p-2.5 rounded bg-tactical-900 border border-tactical-750 hover:border-cyan-500/60 transition-all space-y-1.5 text-xs font-mono"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-200 truncate">{loc.name}</span>
+                      <span className="text-[10px] text-cyan-300 font-bold">
+                        Sim: {(item.similarity_score ?? 0.25).toFixed(3)}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-400 line-clamp-2">{loc.description}</p>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectSemanticLocation(loc)}
+                      className="w-full mt-1 py-1 px-2 rounded bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/30 text-[10px] font-bold flex items-center justify-center gap-1 transition-colors"
+                    >
+                      <Crosshair className="w-3 h-3" />
+                      <span>LOAD AOI & DISCOVER SCENES</span>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 2. Area of Interest (AOI) Definition Card */}
@@ -1033,53 +1276,329 @@ export function LiveAOISearch({
                           </div>
                         </div>
 
-                        {/* Top Detected Clusters List */}
+                        {/* Phase 5A: Interactive Detected Clusters List */}
                         {activeAnalysis.clusters && activeAnalysis.clusters.length > 0 && (
                           <div className="space-y-2 font-mono">
-                            <span className="text-[10px] uppercase tracking-wider text-slate-400 block">
-                              Detected Spatial Change Clusters ({activeAnalysis.clusters.length})
-                            </span>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] uppercase tracking-wider text-slate-400 block font-bold">
+                                Detected Spatial Change Clusters ({activeAnalysis.clusters.length})
+                              </span>
+                              <span className="text-[9px] text-cyan-400">
+                                Click cluster to inspect & adjudicate
+                              </span>
+                            </div>
+
                             <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
-                              {activeAnalysis.clusters.slice(0, 10).map((clust: any) => (
-                                <div
-                                  key={clust.clusterId}
-                                  className="p-2 rounded bg-tactical-900 border border-tactical-800 text-[11px] space-y-1"
-                                >
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                      <span className="font-bold text-cyan-300">{clust.clusterId}</span>
-                                      <span className="text-slate-300 font-semibold">{clust.changeClass}</span>
+                              {activeAnalysis.clusters.map((clust: any) => {
+                                const isSelected = activeClusterId === clust.clusterId;
+                                const review = analystReviews[clust.clusterId] || { decision: "UNREVIEWED", notes: "" };
+
+                                return (
+                                  <div
+                                    key={clust.clusterId}
+                                    onClick={() => handleSelectCluster(clust.clusterId)}
+                                    className={`p-2.5 rounded border transition-all cursor-pointer text-[11px] space-y-1.5 ${
+                                      isSelected
+                                        ? "bg-cyan-950/40 border-cyan-400 ring-1 ring-cyan-400 shadow-md"
+                                        : "bg-tactical-900 border-tactical-800 hover:border-slate-500"
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-2">
+                                        <span className={`font-bold ${isSelected ? "text-cyan-300" : "text-slate-200"}`}>
+                                          {clust.clusterId}
+                                        </span>
+                                        <span className="text-slate-300 font-semibold">{clust.changeClass}</span>
+                                      </div>
+                                      <div className="flex items-center gap-1.5">
+                                        {/* Analyst Status Badge */}
+                                        <span
+                                          className={`text-[9px] px-1.5 py-0.5 rounded font-bold border ${
+                                            review.decision === "CONFIRMED"
+                                              ? "bg-emerald-950 text-emerald-300 border-emerald-500/50"
+                                              : review.decision === "REJECTED"
+                                              ? "bg-rose-950 text-rose-300 border-rose-500/50"
+                                              : "bg-tactical-800 text-slate-400 border-tactical-700"
+                                          }`}
+                                        >
+                                          {review.decision}
+                                        </span>
+                                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-tactical-800 text-slate-300 border border-tactical-700">
+                                          Conf: {typeof clust.confidenceScore === "number" ? clust.confidenceScore.toFixed(2) : clust.confidenceScore}
+                                        </span>
+                                      </div>
                                     </div>
-                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-tactical-800 text-slate-300 border border-tactical-700">
-                                      Conf: {clust.confidenceScore}
-                                    </span>
+
+                                    <div className="text-[10px] text-slate-400 flex items-center justify-between">
+                                      <span>Area: {clust.areaHa} ha ({clust.pixelCount} px)</span>
+                                      <span>Centroid: [{clust.centroid[0].toFixed(4)}, {clust.centroid[1].toFixed(4)}]</span>
+                                    </div>
+                                    <p className="text-[10px] text-slate-400 leading-tight italic">
+                                      {clust.classificationRationale}
+                                    </p>
                                   </div>
-                                  <div className="text-[10px] text-slate-400 flex items-center justify-between">
-                                    <span>Area: {clust.areaHa} ha ({clust.pixelCount} px)</span>
-                                    <span>Centroid: [{clust.centroid[0].toFixed(4)}, {clust.centroid[1].toFixed(4)}]</span>
-                                  </div>
-                                  <p className="text-[10px] text-slate-500 leading-tight italic">
-                                    {clust.classificationRationale}
-                                  </p>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           </div>
                         )}
 
-                        {/* Provenance and Evidence Chain */}
+                        {/* Phase 5A: Selected Cluster Evidence & Analyst Adjudication Station */}
+                        {activeClusterId && (() => {
+                          const cluster = activeAnalysis.clusters?.find((c: any) => c.clusterId === activeClusterId);
+                          if (!cluster) return null;
+                          const currentReview = analystReviews[cluster.clusterId] || { decision: "UNREVIEWED", notes: "" };
+
+                          return (
+                            <div className="p-3.5 rounded-lg bg-tactical-900 border border-cyan-500/50 space-y-3 font-mono">
+                              <div className="flex items-center justify-between pb-2 border-b border-tactical-800">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-bold text-cyan-300 uppercase">
+                                    CLUSTER EVIDENCE: #{cluster.clusterId}
+                                  </span>
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-tactical-800 text-slate-200 border border-tactical-700">
+                                    {cluster.changeClass}
+                                  </span>
+                                </div>
+                                <span
+                                  className={`text-[10px] px-2 py-0.5 rounded font-bold border ${
+                                    currentReview.decision === "CONFIRMED"
+                                      ? "bg-emerald-950 text-emerald-300 border-emerald-500"
+                                      : currentReview.decision === "REJECTED"
+                                      ? "bg-rose-950 text-rose-300 border-rose-500"
+                                      : "bg-tactical-800 text-amber-300 border-amber-500/40"
+                                  }`}
+                                >
+                                  {currentReview.decision}
+                                </span>
+                              </div>
+
+                              {/* Cluster Detailed Metrics */}
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px]">
+                                <div className="p-2 rounded bg-tactical-950 border border-tactical-800">
+                                  <span className="text-slate-400 block uppercase">Area</span>
+                                  <span className="text-slate-200 font-bold block">{cluster.areaHa} ha</span>
+                                  <span className="text-slate-500">{(cluster.pixelCount * 100).toLocaleString()} m²</span>
+                                </div>
+                                <div className="p-2 rounded bg-tactical-950 border border-tactical-800">
+                                  <span className="text-slate-400 block uppercase">Confidence Score</span>
+                                  <span className="text-cyan-300 font-bold block">
+                                    {typeof cluster.confidenceScore === "number" ? cluster.confidenceScore.toFixed(2) : cluster.confidenceScore}
+                                  </span>
+                                  <span className="text-slate-500">Heuristic metric</span>
+                                </div>
+                                <div className="p-2 rounded bg-tactical-950 border border-tactical-800">
+                                  <span className="text-slate-400 block uppercase">Centroid [Lat, Lon]</span>
+                                  <span className="text-slate-200 font-bold block">
+                                    {cluster.centroid[0].toFixed(4)}, {cluster.centroid[1].toFixed(4)}
+                                  </span>
+                                  <span className="text-slate-500">WGS84 EPSG:4326</span>
+                                </div>
+                                <div className="p-2 rounded bg-tactical-950 border border-tactical-800">
+                                  <span className="text-slate-400 block uppercase">Change Score</span>
+                                  <span className="text-amber-300 font-bold block">
+                                    {cluster.meanChangeScore ?? cluster.confidenceScore}
+                                  </span>
+                                  <span className="text-slate-500">Spectral difference</span>
+                                </div>
+                              </div>
+
+                              {/* Explainable Rationale */}
+                              <div className="p-2 rounded bg-tactical-950 border border-tactical-800 text-[11px] space-y-1">
+                                <span className="text-[10px] text-slate-400 uppercase block font-bold">
+                                  Classification Rationale (Explainable Spectral Heuristic):
+                                </span>
+                                <p className="text-slate-300 italic">{cluster.classificationRationale}</p>
+                              </div>
+
+                              {/* Multi-Temporal Evidence Chips */}
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px]">
+                                <div className="p-2 rounded bg-tactical-950 border border-blue-500/30 flex items-center justify-between">
+                                  <div>
+                                    <span className="text-blue-400 font-bold block">BEFORE ACQUISITION (T1)</span>
+                                    <span className="text-slate-300 truncate block max-w-[180px]">
+                                      {selectedBeforeScene?.sceneId || "T1 Scene"}
+                                    </span>
+                                    <span className="text-slate-500">
+                                      Date: {selectedBeforeScene?.acquisitionDate?.split("T")[0] || "N/A"}
+                                    </span>
+                                  </div>
+                                  <span className="px-1.5 py-0.5 rounded bg-blue-950 text-blue-300 text-[9px] border border-blue-500/30">
+                                    PREVIEW
+                                  </span>
+                                </div>
+                                <div className="p-2 rounded bg-tactical-950 border border-amber-500/30 flex items-center justify-between">
+                                  <div>
+                                    <span className="text-amber-400 font-bold block">AFTER ACQUISITION (T2)</span>
+                                    <span className="text-slate-300 truncate block max-w-[180px]">
+                                      {selectedAfterScene?.sceneId || "T2 Scene"}
+                                    </span>
+                                    <span className="text-slate-500">
+                                      Date: {selectedAfterScene?.acquisitionDate?.split("T")[0] || "N/A"}
+                                    </span>
+                                  </div>
+                                  <span className="px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 text-[9px] border border-amber-500/30">
+                                    PREVIEW
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Analyst Adjudication Station (Confirm / Reject / Notes) */}
+                              <div className="p-3 rounded bg-tactical-950 border border-tactical-800 space-y-2.5">
+                                <div className="flex items-center justify-between text-[11px]">
+                                  <span className="font-bold text-slate-300 uppercase">
+                                    Analyst Adjudication Station
+                                  </span>
+                                  <span className="text-[10px] text-slate-500">
+                                    Default: UNREVIEWED
+                                  </span>
+                                </div>
+
+                                <div className="flex flex-wrap gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleAdjudicate(cluster.clusterId, "CONFIRMED")}
+                                    className={`flex-1 py-1.5 px-3 rounded text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                                      currentReview.decision === "CONFIRMED"
+                                        ? "bg-emerald-600 text-white shadow-md shadow-emerald-950"
+                                        : "bg-emerald-950/40 hover:bg-emerald-900/40 text-emerald-300 border border-emerald-500/40"
+                                    }`}
+                                  >
+                                    <CheckCircle className="w-3.5 h-3.5" />
+                                    <span>CONFIRM CHANGE</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => handleAdjudicate(cluster.clusterId, "REJECTED")}
+                                    className={`flex-1 py-1.5 px-3 rounded text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                                      currentReview.decision === "REJECTED"
+                                        ? "bg-rose-600 text-white shadow-md shadow-rose-950"
+                                        : "bg-rose-950/40 hover:bg-rose-900/40 text-rose-300 border border-rose-500/40"
+                                    }`}
+                                  >
+                                    <XCircle className="w-3.5 h-3.5" />
+                                    <span>REJECT CHANGE</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => handleAdjudicate(cluster.clusterId, "UNREVIEWED")}
+                                    className={`py-1.5 px-3 rounded text-xs transition-all ${
+                                      currentReview.decision === "UNREVIEWED"
+                                        ? "bg-tactical-800 text-slate-300 border border-tactical-700"
+                                        : "bg-tactical-900 hover:bg-tactical-850 text-slate-400 border border-tactical-800"
+                                    }`}
+                                  >
+                                    RESET
+                                  </button>
+                                </div>
+
+                                <div className="space-y-1">
+                                  <label className="text-[10px] text-slate-400 uppercase block">
+                                    Analyst Inspection Notes:
+                                  </label>
+                                  <div className="flex gap-2">
+                                    <input
+                                      type="text"
+                                      value={currentAnalystNote}
+                                      onChange={(e) => setCurrentAnalystNote(e.target.value)}
+                                      placeholder="e.g., Construction confirmed via road expansion; reflectance jump aligns with satellite foundation work."
+                                      className="flex-1 bg-tactical-900 border border-tactical-750 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSaveNotes(cluster.clusterId)}
+                                      className="px-3 py-1.5 rounded bg-cyan-600/30 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/30 text-xs font-bold transition-colors"
+                                    >
+                                      SAVE
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {currentReview.timestamp && (
+                                  <div className="text-[9px] text-slate-500 flex items-center justify-between pt-1">
+                                    <span>Adjudicated: {currentReview.decision}</span>
+                                    <span>Timestamp: {currentReview.timestamp}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {/* Phase 5A: Processing Provenance Chain Drawer */}
                         {activeAnalysis.provenance && (
-                          <div className="p-2.5 rounded bg-tactical-900 border border-tactical-800 font-mono text-[10px] text-slate-400 space-y-1">
+                          <div className="p-3 rounded bg-tactical-900 border border-tactical-800 font-mono text-[10px] text-slate-400 space-y-1.5">
                             <div className="flex items-center justify-between text-cyan-300">
-                              <span className="font-bold">ANALYSIS PROVENANCE:</span>
-                              <span className="bg-cyan-950 px-1 rounded border border-cyan-500/30">
+                              <span className="font-bold flex items-center gap-1.5">
+                                <Binary className="w-3.5 h-3.5" />
+                                <span>PROCESSING PROVENANCE RECORD:</span>
+                              </span>
+                              <span className="bg-cyan-950 px-1.5 py-0.5 rounded border border-cyan-500/30 font-bold">
                                 {activeAnalysis.provenance.provenanceId}
                               </span>
                             </div>
-                            <div><span className="text-slate-500">Method:</span> {activeAnalysis.change?.thresholdMethod}</div>
-                            <div><span className="text-slate-500">Chain:</span> {activeAnalysis.provenance.processingChain?.join(" → ")}</div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-slate-400">
+                              <div><span className="text-slate-500">Sensor:</span> Sentinel-2 MSI Level-2A BOA</div>
+                              <div><span className="text-slate-500">Execution:</span> {activeAnalysis.provenance.timestamp}</div>
+                              <div><span className="text-slate-500">Analysis Assets:</span> B04 (Red 10m), B08 (NIR 10m), SCL Quality (20m)</div>
+                              <div><span className="text-slate-500">Cutoff:</span> {activeAnalysis.change?.thresholdMethod} ({activeAnalysis.change?.threshold})</div>
+                            </div>
+                            <div>
+                              <span className="text-slate-500">Processing Chain:</span>{" "}
+                              {activeAnalysis.provenance.processingChain?.join(" → ")}
+                            </div>
                           </div>
                         )}
+
+                        {/* Phase 5A: Export Evidence Report Action Bar */}
+                        <div className="pt-2 border-t border-tactical-800 space-y-2">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span className="text-xs font-mono font-bold text-slate-300 uppercase flex items-center gap-1.5">
+                              <FileText className="w-4 h-4 text-cyan-400" />
+                              <span>Analyst Evidence Dossier Export</span>
+                            </span>
+
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleExportEvidence("markdown")}
+                                disabled={isExporting}
+                                className="py-1.5 px-3 rounded bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/40 text-xs font-mono font-bold transition-all flex items-center gap-1.5 disabled:opacity-50"
+                              >
+                                <Download className="w-3.5 h-3.5" />
+                                <span>EXPORT DOSSIER (.MD)</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleExportEvidence("json")}
+                                disabled={isExporting}
+                                className="py-1.5 px-3 rounded bg-tactical-800 hover:bg-tactical-750 text-slate-300 border border-tactical-700 text-xs font-mono font-bold transition-all flex items-center gap-1.5 disabled:opacity-50"
+                              >
+                                <FileCheck className="w-3.5 h-3.5" />
+                                <span>EXPORT JSON</span>
+                              </button>
+                            </div>
+                          </div>
+
+                          {exportNotice && (
+                            <p className="text-xs font-mono text-emerald-300 bg-emerald-950/40 p-2 rounded border border-emerald-500/30">
+                              {exportNotice}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Phase 5A: Scientific Disclosure Notice */}
+                        <div className="p-2.5 rounded bg-tactical-950 border border-tactical-800 text-[10px] font-mono text-slate-400 space-y-1">
+                          <span className="text-cyan-400 font-bold block uppercase">
+                            Scientific & Analytical Disclosure:
+                          </span>
+                          <p className="leading-relaxed text-slate-400">
+                            Live change classifications are explainable spectral heuristics derived from Sentinel-2 multispectral observations. Confidence scores are heuristic confidence indicators and are not calibrated probabilities. Analyst decisions are separate from automated detection.
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>

@@ -31,6 +31,8 @@ interface TacticalMapProps {
   selectedPair?: TemporalPairCandidate | null;
   // Phase 4B Live Bi-Temporal Analysis Result
   liveAnalysisResult?: any | null;
+  selectedClusterId?: string | null;
+  onSelectCluster?: (clusterId: string) => void;
 }
 
 type MapMode = "google-hybrid" | "google-streets" | "esri-satellite" | "tactical";
@@ -55,6 +57,8 @@ export function TacticalMap({
   selectedScene = null,
   selectedPair = null,
   liveAnalysisResult = null,
+  selectedClusterId = null,
+  onSelectCluster,
 }: TacticalMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
@@ -529,23 +533,32 @@ export function TacticalMap({
 
         // Leaflet expects [lat, lon] pairs
         const latLngs: [number, number][] = coords.map((c: any) => [c[1], c[0]]);
+        const isSelected = props.cluster_id && props.cluster_id === selectedClusterId;
         const color = getColorForClass(props.classification);
 
         const polygon = (L as any).polygon(latLngs, {
-          color: color,
-          weight: 2,
-          fillColor: color,
-          fillOpacity: 0.45,
+          color: isSelected ? "#00f0ff" : color,
+          weight: isSelected ? 4 : 2,
+          fillColor: isSelected ? "#00f0ff" : color,
+          fillOpacity: isSelected ? 0.70 : 0.45,
         });
 
         polygon.bindTooltip(
-          `<strong>CLUSTER ${props.cluster_id}</strong><br/>` +
+          `<strong>CLUSTER ${props.cluster_id}</strong>${isSelected ? " (ACTIVE)" : ""}<br/>` +
           `Class: <span style="font-weight:bold;color:${color}">${props.classification}</span><br/>` +
           `Area: ${props.area_m2 ? props.area_m2.toLocaleString() : 0} m² (${((props.area_m2 || 0) / 10000).toFixed(2)} ha)<br/>` +
           `Confidence: ${props.confidence ? (props.confidence * 100).toFixed(1) : 0}%<br/>` +
-          `<span style="font-size:10px;color:#94a3b8">${props.rationale || ""}</span>`,
+          `<span style="font-size:10px;color:#94a3b8">${props.rationale || ""}</span><br/>` +
+          `<span style="font-size:9px;color:#38bdf8;font-weight:bold">Click polygon to view evidence</span>`,
           { permanent: false, direction: "top", className: "tactical-tooltip" }
         );
+
+        polygon.on("click", (e: any) => {
+          L.DomEvent.stopPropagation(e);
+          if (onSelectCluster && props.cluster_id) {
+            onSelectCluster(props.cluster_id);
+          }
+        });
 
         polygon.addTo(clusterGroup);
       });
@@ -566,7 +579,7 @@ export function TacticalMap({
     return () => {
       isMounted = false;
     };
-  }, [liveAnalysisResult]);
+  }, [liveAnalysisResult, selectedClusterId, onSelectCluster]);
 
   // Handle layer switching
   const switchLayer = (newMode: MapMode) => {
