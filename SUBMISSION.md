@@ -5,7 +5,13 @@
 **Team / Project Name:** TerraLens AI  
 **Live Production Demo:** [https://terra-lens-ai.vercel.app/](https://terra-lens-ai.vercel.app/)  
 **Repository:** [https://github.com/pavankarthikeyaatchyuta-lab/TerraLens-AI](https://github.com/pavankarthikeyaatchyuta-lab/TerraLens-AI)  
-**Verification Status:** 45/45 Automated Tests Passing | Next.js 11/11 Routes Compiled  
+**Verification Status:** 71/71 Automated Tests Passing | Next.js 14/14 Routes Compiled  
+
+### Team Members & Contributors
+- **Pavan Karthikeya Atchyuta** ([@pavankarthikeyaatychuta-lab](https://github.com/pavankarthikeyaatychuta-lab)) — Team Lead & System Architecture
+- **Leela Krishna Baddireddy** ([@leelakrishna18](https://github.com/leelakrishna18)) — Semantic Retrieval & Embedding Pipeline
+- **Hemanth Maddula** ([@hemanthmaddula146-sudo](https://github.com/hemanthmaddula146-sudo)) — Multi-Temporal Change & Geospatial Engine
+- **Divija Jangam** ([@divijajangam](https://github.com/divijajangam)) — Web Application & Analyst Interface
 
 ---
 
