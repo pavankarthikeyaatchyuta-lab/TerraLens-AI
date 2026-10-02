@@ -19,11 +19,113 @@ export interface SatelliteSearchQuery {
   collections?: string[];
 }
 
+export interface RasterBandInfo {
+  name?: string;
+  commonName?: string;
+  description?: string;
+  nodata?: number | string;
+  spatialResolution?: number; // meters e.g. 10, 20, 60
+  dataType?: string;
+}
+
 export interface SatelliteAsset {
   href: string;
   type?: string;
   title?: string;
   roles?: string[];
+  projEpsg?: number;
+  projShape?: [number, number];
+  projTransform?: number[];
+  rasterBands?: RasterBandInfo[];
+}
+
+/**
+ * Georeferenced raster asset suitable for scientific analysis (e.g. 10m/20m COGs).
+ * Explicitly distinguished from preview / thumbnail assets.
+ */
+export interface AnalysisAsset {
+  assetKey: string;           // e.g. "B02", "B03", "B04", "B08", "visual"
+  href: string;
+  signedHref?: string;        // SAS-signed or direct HTTP URL
+  mediaType: string;          // e.g. "image/tiff; application=geotiff; profile=cloud-optimized"
+  roles: string[];            // e.g. ["data"]
+  title: string;
+  resolution: number;         // spatial resolution in meters (e.g. 10, 20)
+  bandName?: string;
+  crs: string;                // e.g. "EPSG:32644"
+  shape?: [number, number];   // [height, width] e.g. [10980, 10980]
+  transform?: number[];       // Affine transform [10, 0, x0, 0, -10, y0]
+  isAnalysisCapable: boolean; // true for georeferenced COG bands
+  isCog: boolean;
+  requiresSigning: boolean;
+}
+
+export interface RasterWindow {
+  colOff: number;
+  rowOff: number;
+  width: number;
+  height: number;
+  aoiBbox: [number, number, number, number];
+  pixelResolution: number;
+  estimatedSizeBytes: number;
+  rangeHeaderSupported: boolean;
+}
+
+export interface SpatialAlignmentInfo {
+  status: "ALIGNED" | "RECONCILED" | "MISMATCH";
+  beforeCrs: string;
+  afterCrs: string;
+  crsMatch: boolean;
+  targetCrs: string;
+  beforeResolution: number;
+  afterResolution: number;
+  targetResolution: number;
+  aoiIntersectionPercentage: number;
+  intersectionBbox: [number, number, number, number];
+  dimensionReconciliation: {
+    beforeShape: [number, number];
+    afterShape: [number, number];
+    reconciledShape: [number, number];
+    method: string;
+  };
+}
+
+export interface ProvenanceRecord {
+  provenanceId: string;
+  timestamp: string;
+  provider: string;
+  collection: string;
+  beforeSceneId: string;
+  afterSceneId: string;
+  platform: {
+    before: string;
+    after: string;
+  };
+  instrument: {
+    before: string;
+    after: string;
+  };
+  processingLevel: string;
+  selectedAssets: string[];
+  crs: string;
+  resolutionMeters: number;
+  aoi: [number, number, number, number];
+  processingChain: string[];
+}
+
+export interface AnalysisPreparationResult {
+  status: "READY_FOR_ANALYSIS" | "NOT_READY";
+  beforeScene: SatelliteScene;
+  afterScene: SatelliteScene;
+  aoi: BoundingBox;
+  analysisAssets: {
+    before: AnalysisAsset[];
+    after: AnalysisAsset[];
+  };
+  alignment: SpatialAlignmentInfo;
+  temporalSeparationDays: number;
+  provenance: ProvenanceRecord;
+  issues: string[];
 }
 
 export interface SatelliteScene {
@@ -73,6 +175,8 @@ export interface SatelliteDataProvider {
   getThumbnailUrl(sceneId: string): string | null;
   getTemporalPairs(aoi: BoundingBox, constraints?: TemporalConstraints): Promise<TemporalPairCandidate[]>;
   getMetadata(sceneId: string): Promise<Record<string, unknown>>;
+  getSceneAssets(sceneId: string): Promise<Record<string, SatelliteAsset>>;
+  getAnalysisAssets(sceneId: string, aoi?: BoundingBox): Promise<AnalysisAsset[]>;
 }
 
 /**

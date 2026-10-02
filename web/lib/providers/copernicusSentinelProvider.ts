@@ -228,6 +228,185 @@ export class CopernicusSentinelProvider implements SatelliteDataProvider {
     };
   }
 
+  /**
+   * Retrieves all asset records for a given scene.
+   */
+  async getSceneAssets(sceneId: string): Promise<Record<string, SatelliteAsset>> {
+    const item = await this.fetchRawStacItem(sceneId);
+    if (!item) {
+      throw new Error(`Scene "${sceneId}" not found in STAC archives.`);
+    }
+
+    const itemProps = item.properties || {};
+    const itemEpsg = typeof itemProps["proj:epsg"] === "number" ? itemProps["proj:epsg"] : undefined;
+    const assets = item.assets || {};
+    const result: Record<string, SatelliteAsset> = {};
+
+    for (const [key, asset] of Object.entries<any>(assets)) {
+      if (!asset || !asset.href) continue;
+
+      const projEpsg = typeof asset["proj:epsg"] === "number" ? asset["proj:epsg"] : itemEpsg;
+      const projShape = Array.isArray(asset["proj:shape"]) && asset["proj:shape"].length === 2
+        ? [Number(asset["proj:shape"][0]), Number(asset["proj:shape"][1])] as [number, number]
+        : undefined;
+      const projTransform = Array.isArray(asset["proj:transform"]) && asset["proj:transform"].length >= 6
+        ? asset["proj:transform"].map(Number)
+        : undefined;
+
+      result[key] = {
+        href: asset.href,
+        type: asset.type,
+        title: asset.title,
+        roles: Array.isArray(asset.roles) ? asset.roles : [],
+        projEpsg,
+        projShape,
+        projTransform,
+      };
+    }
+
+    return result;
+  }
+
+  /**
+   * Retrieves scientifically valid, georeferenced raster analysis assets (e.g. 10m/20m COGs).
+   * Explicitly separates them from preview/thumbnail images.
+   */
+  async getAnalysisAssets(sceneId: string, aoi?: BoundingBox): Promise<import("./satelliteProvider").AnalysisAsset[]> {
+    const item = await this.fetchRawStacItem(sceneId);
+    if (!item) {
+      throw new Error(`Scene "${sceneId}" not found in STAC archives.`);
+    }
+
+    const itemProps = item.properties || {};
+    const itemEpsg = typeof itemProps["proj:epsg"] === "number" ? itemProps["proj:epsg"] : undefined;
+    const defaultCrs = itemEpsg ? `EPSG:${itemEpsg}` : "EPSG:32644";
+    const assets = item.assets || {};
+
+    // Standard Sentinel-2 L2A Band Resolution mapping (meters)
+    const bandResolutionMap: Record<string, number> = {
+      visual: 10,
+      B02: 10,
+      B03: 10,
+      B04: 10,
+      B08: 10,
+      B05: 20,
+      B06: 20,
+      B07: 20,
+      B8A: 20,
+      B11: 20,
+      B12: 20,
+      SCL: 20,
+      AOT: 10,
+      WVP: 10,
+      B01: 60,
+      B09: 60,
+    };
+
+    const analysisAssets: import("./satelliteProvider").AnalysisAsset[] = [];
+
+    for (const [key, asset] of Object.entries<any>(assets)) {
+      if (!asset || !asset.href) continue;
+
+      const mediaType = asset.type || "";
+      const roles = Array.isArray(asset.roles) ? asset.roles : [];
+
+      // Critical Scientific Guard: Reject non-raster or overview/thumbnail previews
+      const isPreview =
+        key === "rendered_preview" ||
+        key === "thumbnail" ||
+        key === "preview" ||
+        roles.includes("overview") ||
+        roles.includes("thumbnail") ||
+        mediaType === "image/png" ||
+        mediaType === "image/jpeg";
+
+      if (isPreview) {
+        continue;
+      }
+
+      // Check for georeferenced TIFF / COG
+      const isTiff =
+        mediaType.includes("tiff") ||
+        mediaType.includes("geotiff") ||
+        asset.href.toLowerCase().endsWith(".tif") ||
+        asset.href.toLowerCase().endsWith(".tiff") ||
+        key in bandResolutionMap;
+
+      if (!isTiff) {
+        continue;
+      }
+
+      const resolution = bandResolutionMap[key] || 10;
+      const projEpsg = typeof asset["proj:epsg"] === "number" ? asset["proj:epsg"] : itemEpsg;
+      const crs = projEpsg ? `EPSG:${projEpsg}` : defaultCrs;
+
+      const shape = Array.isArray(asset["proj:shape"]) && asset["proj:shape"].length === 2
+        ? [Number(asset["proj:shape"][0]), Number(asset["proj:shape"][1])] as [number, number]
+        : [10980, 10980] as [number, number];
+
+      const transform = Array.isArray(asset["proj:transform"]) && asset["proj:transform"].length >= 6
+        ? asset["proj:transform"].map(Number)
+        : undefined;
+
+      const isCog = mediaType.includes("cloud-optimized") || asset.href.includes(".blob.core.windows.net");
+      const requiresSigning = asset.href.includes(".blob.core.windows.net");
+
+      analysisAssets.push({
+        assetKey: key,
+        href: asset.href,
+        mediaType: mediaType || "image/tiff; application=geotiff; profile=cloud-optimized",
+        roles: roles.length > 0 ? roles : ["data"],
+        title: asset.title || `${key} (Sentinel-2 L2A ${resolution}m)`,
+        resolution,
+        bandName: key,
+        crs,
+        shape,
+        transform,
+        isAnalysisCapable: true,
+        isCog,
+        requiresSigning,
+      });
+    }
+
+    // Sort to prioritize primary scientific analysis bands: visual (RGB), B04 (Red), B08 (NIR)
+    const priorityOrder = ["visual", "B04", "B08", "B03", "B02", "B8A", "B11", "B12", "SCL"];
+    analysisAssets.sort((a, b) => {
+      const idxA = priorityOrder.indexOf(a.assetKey);
+      const idxB = priorityOrder.indexOf(b.assetKey);
+      const weightA = idxA !== -1 ? idxA : 100;
+      const weightB = idxB !== -1 ? idxB : 100;
+      return weightA - weightB;
+    });
+
+    return analysisAssets;
+  }
+
+  private async fetchRawStacItem(sceneId: string): Promise<any> {
+    if (!sceneId || typeof sceneId !== "string") {
+      throw new Error("Invalid sceneId provided.");
+    }
+
+    // Attempt primary lookup
+    const primaryItemUrl = `${this.primaryStacUrl}/collections/sentinel-2-l2a/items/${encodeURIComponent(sceneId)}`;
+    try {
+      const item = await this.fetchWithTimeout(primaryItemUrl);
+      if (item && item.id) return item;
+    } catch {
+      // Fall through to fallback
+    }
+
+    // Attempt fallback lookup
+    const fallbackItemUrl = `${this.fallbackStacUrl}/collections/sentinel-2-l2a/items/${encodeURIComponent(sceneId)}`;
+    try {
+      const item = await this.fetchWithTimeout(fallbackItemUrl);
+      if (item && item.id) return item;
+    } catch {
+      return null;
+    }
+
+    return null;
+  }
+
   // ---------------------------------------------------------------------------
   // Internal STAC Query & HTTP Engine
   // ---------------------------------------------------------------------------

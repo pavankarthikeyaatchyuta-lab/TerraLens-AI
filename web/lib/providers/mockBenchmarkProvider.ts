@@ -160,6 +160,103 @@ export class MockBenchmarkProvider implements SatelliteDataProvider {
     };
   }
 
+  async getSceneAssets(sceneId: string): Promise<Record<string, import("./satelliteProvider").SatelliteAsset>> {
+    const scene = await this.getScene(sceneId);
+    if (!scene) {
+      throw new Error(`Scene "${sceneId}" not found in benchmark archive.`);
+    }
+    return {
+      visual: {
+        href: scene.thumbnailUrl || "",
+        type: "image/tiff; application=geotiff; profile=cloud-optimized",
+        title: "Controlled Benchmark Visual (RGB) 10m",
+        roles: ["data", "visual"],
+        projEpsg: 32644,
+        projShape: [512, 512],
+        projTransform: [10, 0, 500000, 0, -10, 5000000],
+      },
+      B04: {
+        href: scene.thumbnailUrl || "",
+        type: "image/tiff; application=geotiff; profile=cloud-optimized",
+        title: "Controlled Benchmark Band 4 - Red - 10m",
+        roles: ["data"],
+        projEpsg: 32644,
+        projShape: [512, 512],
+        projTransform: [10, 0, 500000, 0, -10, 5000000],
+      },
+      B08: {
+        href: scene.thumbnailUrl || "",
+        type: "image/tiff; application=geotiff; profile=cloud-optimized",
+        title: "Controlled Benchmark Band 8 - NIR - 10m",
+        roles: ["data"],
+        projEpsg: 32644,
+        projShape: [512, 512],
+        projTransform: [10, 0, 500000, 0, -10, 5000000],
+      },
+      rendered_preview: {
+        href: scene.thumbnailUrl || "",
+        type: "image/png",
+        title: "Controlled Benchmark Preview (Overview)",
+        roles: ["overview", "thumbnail"],
+      },
+    };
+  }
+
+  async getAnalysisAssets(sceneId: string, aoi?: BoundingBox): Promise<import("./satelliteProvider").AnalysisAsset[]> {
+    const scene = await this.getScene(sceneId);
+    if (!scene) {
+      throw new Error(`Scene "${sceneId}" not found in benchmark archive.`);
+    }
+
+    return [
+      {
+        assetKey: "visual",
+        href: scene.thumbnailUrl || "",
+        mediaType: "image/tiff; application=geotiff; profile=cloud-optimized",
+        roles: ["data", "visual"],
+        title: "Controlled Benchmark Visual (RGB) 10m",
+        resolution: 10,
+        bandName: "visual",
+        crs: "EPSG:32644",
+        shape: [512, 512],
+        transform: [10, 0, 500000, 0, -10, 5000000],
+        isAnalysisCapable: true,
+        isCog: false,
+        requiresSigning: false,
+      },
+      {
+        assetKey: "B04",
+        href: scene.thumbnailUrl || "",
+        mediaType: "image/tiff; application=geotiff; profile=cloud-optimized",
+        roles: ["data"],
+        title: "Controlled Benchmark Band 4 - Red - 10m",
+        resolution: 10,
+        bandName: "B04",
+        crs: "EPSG:32644",
+        shape: [512, 512],
+        transform: [10, 0, 500000, 0, -10, 5000000],
+        isAnalysisCapable: true,
+        isCog: false,
+        requiresSigning: false,
+      },
+      {
+        assetKey: "B08",
+        href: scene.thumbnailUrl || "",
+        mediaType: "image/tiff; application=geotiff; profile=cloud-optimized",
+        roles: ["data"],
+        title: "Controlled Benchmark Band 8 - NIR - 10m",
+        resolution: 10,
+        bandName: "B08",
+        crs: "EPSG:32644",
+        shape: [512, 512],
+        transform: [10, 0, 500000, 0, -10, 5000000],
+        isAnalysisCapable: true,
+        isCog: false,
+        requiresSigning: false,
+      },
+    ];
+  }
+
   private mapToSatelliteScene(s: any, loc: any): SatelliteScene {
     const imagePath = s.image_path.startsWith("/") ? s.image_path : "/" + s.image_path;
 
