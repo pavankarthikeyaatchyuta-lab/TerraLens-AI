@@ -568,19 +568,19 @@ export function LiveAOISearch({
                 return (
                   <div
                     key={loc.location_id || idx}
-                    className="p-2.5 rounded bg-tactical-900 border border-tactical-750 hover:border-cyan-500/60 transition-all space-y-1.5 text-xs font-mono"
+                    className="p-2.5 rounded bg-tactical-900 border border-tactical-700 hover:border-sky-500/50 transition-all space-y-1.5 text-xs font-mono"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-slate-200 truncate">{loc.name}</span>
-                      <span className="text-[10px] text-cyan-300 font-bold">
+                      <span className="font-bold text-slate-800 dark:text-slate-200 truncate">{loc.name}</span>
+                      <span className="text-[10px] text-sky-600 dark:text-sky-400 font-bold">
                         Sim: {(item.similarity_score ?? 0.25).toFixed(3)}
                       </span>
                     </div>
-                    <p className="text-[10px] text-slate-400 line-clamp-2">{loc.description}</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2">{loc.description}</p>
                     <button
                       type="button"
                       onClick={() => handleSelectSemanticLocation(loc)}
-                      className="w-full mt-1 py-1 px-2 rounded bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/30 text-[10px] font-bold flex items-center justify-center gap-1 transition-colors"
+                      className="w-full mt-1 py-1 px-2 rounded bg-sky-500/15 hover:bg-sky-500/25 text-sky-700 dark:text-sky-300 border border-sky-500/30 text-[10px] font-bold flex items-center justify-center gap-1 transition-colors"
                     >
                       <Crosshair className="w-3 h-3" />
                       <span>LOAD AOI & DISCOVER SCENES</span>
@@ -649,7 +649,7 @@ export function LiveAOISearch({
               )}
             </div>
 
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
               {isDrawingAoi
                 ? "Click top-left corner on the map, move cursor, then click bottom-right corner to complete."
                 : "Click the button above to draw an AOI rectangle directly on the interactive map."}
@@ -660,53 +660,53 @@ export function LiveAOISearch({
           <div className="space-y-2">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <div>
-                <label className="text-[10px] font-mono text-slate-400 uppercase">Min Lat</label>
+                <label className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase">Min Lat</label>
                 <input
                   type="number"
                   step="0.0001"
                   placeholder="17.3600"
                   value={manualMinLat}
                   onChange={(e) => setManualMinLat(e.target.value)}
-                  className="w-full bg-tactical-900 border border-tactical-700 rounded px-2 py-1 text-xs font-mono text-slate-200 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-tactical-900 border border-tactical-700 rounded px-2 py-1 text-xs font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:border-sky-500"
                 />
               </div>
               <div>
-                <label className="text-[10px] font-mono text-slate-400 uppercase">Min Lon</label>
+                <label className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase">Min Lon</label>
                 <input
                   type="number"
                   step="0.0001"
                   placeholder="78.4000"
                   value={manualMinLon}
                   onChange={(e) => setManualMinLon(e.target.value)}
-                  className="w-full bg-tactical-900 border border-tactical-700 rounded px-2 py-1 text-xs font-mono text-slate-200 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-tactical-900 border border-tactical-700 rounded px-2 py-1 text-xs font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:border-sky-500"
                 />
               </div>
               <div>
-                <label className="text-[10px] font-mono text-slate-400 uppercase">Max Lat</label>
+                <label className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase">Max Lat</label>
                 <input
                   type="number"
                   step="0.0001"
                   placeholder="17.5200"
                   value={manualMaxLat}
                   onChange={(e) => setManualMaxLat(e.target.value)}
-                  className="w-full bg-tactical-900 border border-tactical-700 rounded px-2 py-1 text-xs font-mono text-slate-200 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-tactical-900 border border-tactical-700 rounded px-2 py-1 text-xs font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:border-sky-500"
                 />
               </div>
               <div>
-                <label className="text-[10px] font-mono text-slate-400 uppercase">Max Lon</label>
+                <label className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase">Max Lon</label>
                 <input
                   type="number"
                   step="0.0001"
                   placeholder="78.5600"
                   value={manualMaxLon}
                   onChange={(e) => setManualMaxLon(e.target.value)}
-                  className="w-full bg-tactical-900 border border-tactical-700 rounded px-2 py-1 text-xs font-mono text-slate-200 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-tactical-900 border border-tactical-700 rounded px-2 py-1 text-xs font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:border-sky-500"
                 />
               </div>
             </div>
 
             {manualError && (
-              <p className="text-[11px] text-rose-400 font-mono flex items-center gap-1">
+              <p className="text-[11px] text-rose-600 dark:text-rose-400 font-mono flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3 flex-shrink-0" />
                 <span>{manualError}</span>
               </p>
@@ -715,7 +715,7 @@ export function LiveAOISearch({
             <div className="flex gap-2">
               <button
                 onClick={handleApplyManualAoi}
-                className="flex-1 py-1.5 px-3 rounded bg-cyan-600/30 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/40 text-xs font-mono font-semibold transition-colors"
+                className="flex-1 py-1.5 px-3 rounded bg-sky-600 hover:bg-sky-500 text-white text-xs font-mono font-semibold transition-colors shadow-sm"
               >
                 APPLY BOUNDING BOX
               </button>
@@ -728,7 +728,7 @@ export function LiveAOISearch({
                     setManualMaxLat("");
                     setManualMaxLon("");
                   }}
-                  className="px-3 py-1.5 rounded bg-tactical-800 hover:bg-tactical-750 text-slate-400 text-xs font-mono"
+                  className="px-3 py-1.5 rounded bg-tactical-800 hover:bg-tactical-750 text-slate-500 dark:text-slate-400 text-xs font-mono"
                 >
                   Clear
                 </button>
@@ -738,9 +738,9 @@ export function LiveAOISearch({
         )}
 
         {/* Preset AOI Selector */}
-        <div className="pt-2 border-t border-tactical-750">
-          <div className="text-[10px] font-mono text-slate-400 uppercase mb-1.5 flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-cyan-400" />
+        <div className="pt-2 border-t border-tactical-700">
+          <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase mb-1.5 flex items-center gap-1">
+            <Sparkles className="w-3 h-3 text-sky-600 dark:text-sky-400" />
             <span>Preset Target Areas</span>
           </div>
           <div className="grid grid-cols-2 gap-1.5">
@@ -748,10 +748,10 @@ export function LiveAOISearch({
               <button
                 key={preset.name}
                 onClick={() => handleSelectPreset(preset)}
-                className="text-left px-2 py-1.5 rounded bg-tactical-900/90 hover:bg-tactical-800 border border-tactical-700/60 hover:border-cyan-500/40 transition-colors"
+                className="text-left px-2 py-1.5 rounded bg-tactical-900/90 hover:bg-tactical-800 border border-tactical-700/60 hover:border-sky-500/40 transition-colors"
               >
-                <div className="text-[11px] font-semibold text-slate-200 truncate">{preset.name}</div>
-                <div className="text-[9px] font-mono text-slate-400 truncate">{preset.desc}</div>
+                <div className="text-[11px] font-semibold text-slate-800 dark:text-slate-200 truncate">{preset.name}</div>
+                <div className="text-[9px] font-mono text-slate-500 dark:text-slate-400 truncate">{preset.desc}</div>
               </button>
             ))}
           </div>
@@ -759,17 +759,17 @@ export function LiveAOISearch({
 
         {/* Active AOI Coordinates Display */}
         {aoi ? (
-          <div className="p-2.5 rounded bg-tactical-900/80 border border-cyan-500/30 font-mono text-[11px] text-cyan-300 flex flex-wrap items-center justify-between gap-2">
+          <div className="p-2.5 rounded bg-tactical-900/80 border border-sky-500/30 font-mono text-[11px] text-sky-700 dark:text-sky-300 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
               <span>ACTIVE AOI:</span>
             </div>
-            <div className="text-slate-300">
+            <div className="text-slate-700 dark:text-slate-300">
               [{aoi.min_lat.toFixed(4)}, {aoi.min_lon.toFixed(4)}] to [{aoi.max_lat.toFixed(4)}, {aoi.max_lon.toFixed(4)}]
             </div>
           </div>
         ) : (
-          <div className="p-2 rounded bg-amber-500/10 border border-amber-500/30 font-mono text-[11px] text-amber-300 flex items-center gap-2">
+          <div className="p-2 rounded bg-amber-500/10 border border-amber-500/30 font-mono text-[11px] text-amber-700 dark:text-amber-300 flex items-center gap-2">
             <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
             <span>No AOI defined. Please draw or select a preset to search satellite archives.</span>
           </div>
@@ -777,42 +777,42 @@ export function LiveAOISearch({
       </div>
 
       {/* 3. Search Filters Form */}
-      <div className="p-4 rounded-xl bg-tactical-850 border border-tactical-700 shadow-md space-y-3">
-        <div className="flex items-center gap-2 text-cyan-400 font-mono font-semibold text-xs uppercase tracking-wider">
+      <div className="p-4 rounded-xl bg-tactical-850 border border-tactical-700 shadow-sm space-y-3">
+        <div className="flex items-center gap-2 text-sky-600 dark:text-sky-400 font-mono font-semibold text-xs uppercase tracking-wider">
           <Filter className="w-4 h-4" />
           <span>STAC Discovery Parameters</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           <div>
-            <label className="text-[10px] font-mono text-slate-400 uppercase flex items-center gap-1">
-              <Calendar className="w-3 h-3 text-cyan-400" />
+            <label className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase flex items-center gap-1">
+              <Calendar className="w-3 h-3 text-sky-600 dark:text-sky-400" />
               <span>Start Date</span>
             </label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full mt-1 bg-tactical-900 border border-tactical-700 rounded px-2 py-1.5 text-xs font-mono text-slate-200 focus:outline-none focus:border-cyan-500"
+              className="w-full mt-1 bg-tactical-900 border border-tactical-700 rounded px-2 py-1.5 text-xs font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:border-sky-500"
             />
           </div>
 
           <div>
-            <label className="text-[10px] font-mono text-slate-400 uppercase flex items-center gap-1">
-              <Calendar className="w-3 h-3 text-cyan-400" />
+            <label className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase flex items-center gap-1">
+              <Calendar className="w-3 h-3 text-sky-600 dark:text-sky-400" />
               <span>End Date</span>
             </label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full mt-1 bg-tactical-900 border border-tactical-700 rounded px-2 py-1.5 text-xs font-mono text-slate-200 focus:outline-none focus:border-cyan-500"
+              className="w-full mt-1 bg-tactical-900 border border-tactical-700 rounded px-2 py-1.5 text-xs font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:border-sky-500"
             />
           </div>
 
           <div>
-            <label className="text-[10px] font-mono text-slate-400 uppercase flex items-center gap-1">
-              <Cloud className="w-3 h-3 text-cyan-400" />
+            <label className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase flex items-center gap-1">
+              <Cloud className="w-3 h-3 text-sky-600 dark:text-sky-400" />
               <span>Max Cloud ({maxCloudCover}%)</span>
             </label>
             <input
@@ -822,19 +822,19 @@ export function LiveAOISearch({
               step="5"
               value={maxCloudCover}
               onChange={(e) => setMaxCloudCover(parseInt(e.target.value, 10))}
-              className="w-full mt-2 accent-cyan-400 cursor-pointer"
+              className="w-full mt-2 accent-sky-500 cursor-pointer"
             />
           </div>
 
           <div>
-            <label className="text-[10px] font-mono text-slate-400 uppercase flex items-center gap-1">
-              <Layers className="w-3 h-3 text-cyan-400" />
+            <label className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase flex items-center gap-1">
+              <Layers className="w-3 h-3 text-sky-600 dark:text-sky-400" />
               <span>Limit ({limit})</span>
             </label>
             <select
               value={limit}
               onChange={(e) => setLimit(parseInt(e.target.value, 10))}
-              className="w-full mt-1 bg-tactical-900 border border-tactical-700 rounded px-2 py-1.5 text-xs font-mono text-slate-200 focus:outline-none focus:border-cyan-500"
+              className="w-full mt-1 bg-tactical-900 border border-tactical-700 rounded px-2 py-1.5 text-xs font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:border-sky-500"
             >
               <option value="5">5 Scenes</option>
               <option value="10">10 Scenes</option>
@@ -890,7 +890,7 @@ export function LiveAOISearch({
       {/* 4. Active Scene Selection Overview (Before & After) */}
       <div className="p-4 rounded-xl bg-tactical-850 border border-tactical-700 shadow-md space-y-3">
         <div className="flex items-center justify-between text-xs font-mono uppercase tracking-wider">
-          <div className="text-cyan-400 font-semibold flex items-center gap-2">
+          <div className="text-sky-600 dark:text-sky-400 font-semibold flex items-center gap-2">
             <Layers className="w-4 h-4" />
             <span>Selected Temporal Pair For Analysis</span>
           </div>
@@ -1056,7 +1056,7 @@ export function LiveAOISearch({
 
                   <div className="bg-tactical-950 p-2 rounded border border-tactical-800">
                     <span className="text-slate-400 block text-[10px] uppercase">Resolution & CRS</span>
-                    <span className="text-cyan-300 font-semibold block">
+                    <span className="text-sky-700 dark:text-sky-300 font-semibold block">
                       {prepareResult.alignment.targetResolution} m • {prepareResult.alignment.targetCrs}
                     </span>
                     <span className="text-[10px] text-slate-500">
@@ -1101,10 +1101,10 @@ export function LiveAOISearch({
                 <div className="p-2.5 rounded bg-tactical-950 border border-tactical-800 space-y-1.5">
                   <div className="flex items-center justify-between text-[10px] text-slate-400">
                     <span className="flex items-center gap-1">
-                      <Binary className="w-3.5 h-3.5 text-cyan-400" />
+                      <Binary className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                       <span>PROVENANCE EVIDENCE RECORD:</span>
                     </span>
-                    <span className="font-mono text-cyan-300 bg-cyan-950/60 px-1.5 py-0.5 rounded border border-cyan-500/30">
+                    <span className="font-mono text-sky-700 dark:text-sky-300 bg-sky-500/10 px-1.5 py-0.5 rounded border border-sky-500/30 font-bold">
                       {prepareResult.provenance.provenanceId}
                     </span>
                   </div>
@@ -1193,7 +1193,7 @@ export function LiveAOISearch({
                           {/* Adaptive Threshold */}
                           <div className="bg-tactical-900 p-2.5 rounded border border-tactical-800">
                             <span className="text-slate-400 block text-[10px] uppercase">Change Threshold</span>
-                            <span className="text-cyan-300 text-sm font-bold block">
+                            <span className="text-sky-600 dark:text-sky-400 text-sm font-bold block">
                               {activeAnalysis.change?.threshold}
                             </span>
                             <span className="text-[10px] text-slate-500">
@@ -1280,10 +1280,10 @@ export function LiveAOISearch({
                         {activeAnalysis.clusters && activeAnalysis.clusters.length > 0 && (
                           <div className="space-y-2 font-mono">
                             <div className="flex items-center justify-between">
-                              <span className="text-[10px] uppercase tracking-wider text-slate-400 block font-bold">
+                              <span className="text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 block font-bold">
                                 Detected Spatial Change Clusters ({activeAnalysis.clusters.length})
                               </span>
-                              <span className="text-[9px] text-cyan-400">
+                              <span className="text-[9px] text-sky-600 dark:text-sky-400">
                                 Click cluster to inspect & adjudicate
                               </span>
                             </div>
@@ -1299,16 +1299,16 @@ export function LiveAOISearch({
                                     onClick={() => handleSelectCluster(clust.clusterId)}
                                     className={`p-2.5 rounded border transition-all cursor-pointer text-[11px] space-y-1.5 ${
                                       isSelected
-                                        ? "bg-cyan-950/40 border-cyan-400 ring-1 ring-cyan-400 shadow-md"
+                                        ? "bg-sky-500/15 border-sky-500 ring-1 ring-sky-500/40 shadow-sm"
                                         : "bg-tactical-900 border-tactical-800 hover:border-slate-500"
                                     }`}
                                   >
                                     <div className="flex items-center justify-between">
                                       <div className="flex items-center gap-2">
-                                        <span className={`font-bold ${isSelected ? "text-cyan-300" : "text-slate-200"}`}>
+                                        <span className={`font-bold ${isSelected ? "text-sky-700 dark:text-sky-300" : "text-slate-800 dark:text-slate-200"}`}>
                                           {clust.clusterId}
                                         </span>
-                                        <span className="text-slate-300 font-semibold">{clust.changeClass}</span>
+                                        <span className="text-slate-700 dark:text-slate-300 font-semibold">{clust.changeClass}</span>
                                       </div>
                                       <div className="flex items-center gap-1.5">
                                         {/* Analyst Status Badge */}
@@ -1350,10 +1350,10 @@ export function LiveAOISearch({
                           const currentReview = analystReviews[cluster.clusterId] || { decision: "UNREVIEWED", notes: "" };
 
                           return (
-                            <div className="p-3.5 rounded-lg bg-tactical-900 border border-cyan-500/50 space-y-3 font-mono">
+                            <div className="p-3.5 rounded-lg bg-tactical-900 border border-sky-500/40 space-y-3 font-mono">
                               <div className="flex items-center justify-between pb-2 border-b border-tactical-800">
                                 <div className="flex items-center gap-2">
-                                  <span className="text-xs font-bold text-cyan-300 uppercase">
+                                  <span className="text-xs font-bold text-sky-700 dark:text-sky-300 uppercase">
                                     CLUSTER EVIDENCE: #{cluster.clusterId}
                                   </span>
                                   <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-tactical-800 text-slate-200 border border-tactical-700">
@@ -1382,7 +1382,7 @@ export function LiveAOISearch({
                                 </div>
                                 <div className="p-2 rounded bg-tactical-950 border border-tactical-800">
                                   <span className="text-slate-400 block uppercase">Confidence Score</span>
-                                  <span className="text-cyan-300 font-bold block">
+                                  <span className="text-sky-600 dark:text-sky-400 font-bold block">
                                     {typeof cluster.confidenceScore === "number" ? cluster.confidenceScore.toFixed(2) : cluster.confidenceScore}
                                   </span>
                                   <span className="text-slate-500">Heuristic metric</span>
@@ -1504,12 +1504,12 @@ export function LiveAOISearch({
                                       value={currentAnalystNote}
                                       onChange={(e) => setCurrentAnalystNote(e.target.value)}
                                       placeholder="e.g., Construction confirmed via road expansion; reflectance jump aligns with satellite foundation work."
-                                      className="flex-1 bg-tactical-900 border border-tactical-750 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+                                      className="flex-1 bg-tactical-900 border border-tactical-750 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500"
                                     />
                                     <button
                                       type="button"
                                       onClick={() => handleSaveNotes(cluster.clusterId)}
-                                      className="px-3 py-1.5 rounded bg-cyan-600/30 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/30 text-xs font-bold transition-colors"
+                                      className="px-3 py-1.5 rounded bg-sky-600/20 hover:bg-sky-600/30 text-sky-700 dark:text-sky-300 border border-sky-500/30 text-xs font-bold transition-colors"
                                     >
                                       SAVE
                                     </button>
@@ -1530,12 +1530,12 @@ export function LiveAOISearch({
                         {/* Phase 5A: Processing Provenance Chain Drawer */}
                         {activeAnalysis.provenance && (
                           <div className="p-3 rounded bg-tactical-900 border border-tactical-800 font-mono text-[10px] text-slate-400 space-y-1.5">
-                            <div className="flex items-center justify-between text-cyan-300">
+                            <div className="flex items-center justify-between text-sky-700 dark:text-sky-300">
                               <span className="font-bold flex items-center gap-1.5">
                                 <Binary className="w-3.5 h-3.5" />
                                 <span>PROCESSING PROVENANCE RECORD:</span>
                               </span>
-                              <span className="bg-cyan-950 px-1.5 py-0.5 rounded border border-cyan-500/30 font-bold">
+                              <span className="bg-sky-100 dark:bg-sky-950/60 px-1.5 py-0.5 rounded border border-sky-500/30 text-sky-800 dark:text-sky-300 font-bold">
                                 {activeAnalysis.provenance.provenanceId}
                               </span>
                             </div>
@@ -1556,7 +1556,7 @@ export function LiveAOISearch({
                         <div className="pt-2 border-t border-tactical-800 space-y-2">
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             <span className="text-xs font-mono font-bold text-slate-300 uppercase flex items-center gap-1.5">
-                              <FileText className="w-4 h-4 text-cyan-400" />
+                              <FileText className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                               <span>Analyst Evidence Dossier Export</span>
                             </span>
 
@@ -1565,7 +1565,7 @@ export function LiveAOISearch({
                                 type="button"
                                 onClick={() => handleExportEvidence("markdown")}
                                 disabled={isExporting}
-                                className="py-1.5 px-3 rounded bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/40 text-xs font-mono font-bold transition-all flex items-center gap-1.5 disabled:opacity-50"
+                                className="py-1.5 px-3 rounded bg-sky-600/20 hover:bg-sky-600/30 text-sky-700 dark:text-sky-300 border border-sky-500/40 text-xs font-mono font-bold transition-all flex items-center gap-1.5 disabled:opacity-50"
                               >
                                 <Download className="w-3.5 h-3.5" />
                                 <span>EXPORT DOSSIER (.MD)</span>
@@ -1592,7 +1592,7 @@ export function LiveAOISearch({
 
                         {/* Phase 5A: Scientific Disclosure Notice */}
                         <div className="p-2.5 rounded bg-tactical-950 border border-tactical-800 text-[10px] font-mono text-slate-400 space-y-1">
-                          <span className="text-cyan-400 font-bold block uppercase">
+                          <span className="text-sky-600 dark:text-sky-400 font-bold block uppercase">
                             Scientific & Analytical Disclosure:
                           </span>
                           <p className="leading-relaxed text-slate-400">
@@ -1613,7 +1613,7 @@ export function LiveAOISearch({
       {hasSearchedPairs && (
         <div className="p-4 rounded-xl bg-tactical-850 border border-tactical-700 shadow-md space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-cyan-400 font-mono font-semibold text-xs uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-sky-600 dark:text-sky-400 font-mono font-semibold text-xs uppercase tracking-wider">
               <Clock className="w-4 h-4" />
               <span>Recommended Temporal Pairs ({temporalPairs.length})</span>
             </div>
@@ -1634,7 +1634,7 @@ export function LiveAOISearch({
                     key={`${pair.beforeScene.sceneId}_${pair.afterScene.sceneId}_${idx}`}
                     className={`p-3 rounded-lg border transition-all ${
                       isSelected
-                        ? "bg-cyan-950/30 border-cyan-400 shadow-md"
+                        ? "bg-sky-500/10 border-sky-500/50 shadow-md"
                         : "bg-tactical-900 border-tactical-750 hover:border-slate-500"
                     }`}
                   >
@@ -1654,8 +1654,8 @@ export function LiveAOISearch({
                         onClick={() => handleApplyPair(pair)}
                         className={`px-3 py-1 rounded text-xs font-mono font-semibold transition-colors ${
                           isSelected
-                            ? "bg-cyan-500 text-tactical-900"
-                            : "bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/40"
+                            ? "bg-sky-600 text-white"
+                            : "bg-sky-600/20 hover:bg-sky-600/30 text-sky-700 dark:text-sky-300 border border-sky-500/40"
                         }`}
                       >
                         {isSelected ? "PAIR SELECTED" : "SELECT PAIR"}
@@ -1690,22 +1690,22 @@ export function LiveAOISearch({
       {/* 6. Live STAC Scene Acquisitions List */}
       <div className="p-4 rounded-xl bg-tactical-850 border border-tactical-700 shadow-md space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-cyan-400 font-mono font-semibold text-xs uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-sky-600 dark:text-sky-400 font-mono font-semibold text-xs uppercase tracking-wider">
             <SatelliteSceneIcon className="w-4 h-4" />
             <span>Copernicus Sentinel-2 Acquisitions ({scenes.length})</span>
           </div>
 
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950/60 text-cyan-300 border border-cyan-500/30">
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-500/30">
             LIVE PUBLIC DATA
           </span>
         </div>
 
         {isSearching && (
           <div className="p-8 text-center space-y-2 bg-tactical-900/60 rounded-lg border border-tactical-750">
-            <div className="inline-block animate-spin text-cyan-400">
+            <div className="inline-block animate-spin text-sky-600 dark:text-sky-400">
               <Search className="w-6 h-6" />
             </div>
-            <div className="text-xs font-mono font-bold text-cyan-300 tracking-wider">
+            <div className="text-xs font-mono font-bold text-sky-700 dark:text-sky-300 tracking-wider">
               SEARCHING PUBLIC SENTINEL-2 ARCHIVE...
             </div>
             <p className="text-[11px] text-slate-400 font-mono">
@@ -1725,7 +1725,7 @@ export function LiveAOISearch({
                   key={scene.sceneId}
                   className={`p-3 rounded-lg border transition-all ${
                     isBefore || isAfter
-                      ? "bg-tactical-800/90 border-cyan-400 shadow-md"
+                      ? "bg-tactical-800/90 border-sky-500 shadow-md"
                       : "bg-tactical-900 border-tactical-750 hover:border-slate-500"
                   }`}
                 >

@@ -2,9 +2,9 @@
 
 **Problem Statement ID:** SIH26227  
 **Problem Statement Title:** Semantic Retrieval and Multi-Temporal Change Analysis of Satellite Imagery  
-**Team / Project Name:** TerraLens AI  
+**Team Name:** The Limit Breakers (Project: TerraLens AI)  
 **Repository:** [https://github.com/pavankarthikeyaatchyuta-lab/TerraLens-AI](https://github.com/pavankarthikeyaatchyuta-lab/TerraLens-AI)  
-**Verification Status:** 126/126 Automated Tests Passing | Next.js 17/17 Routes Compiled | Phase 5B Scientific Validation Complete  
+**Verification Status:** 126/126 Automated Tests Passing | Next.js 17/17 Routes Compiled | Phase 6 Final Hardening & Verification Complete  
 
 ### Team Roster & Domain Roles
 - **Baddireddy Leela Krishna** ([@leelakrishna18](https://github.com/leelakrishna18)) — Team Leader, Semantic Retrieval & Embedding Pipeline

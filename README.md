@@ -2,7 +2,8 @@
 
 **Smart India Hackathon 2026 (SIH 2026)**  
 **Problem Statement ID:** SIH26227  
-**Operational Status:** Phase 5A Complete (End-to-End Analyst Workflow Integration)  
+**Team Name:** The Limit Breakers  
+**Operational Status:** Phase 6 Complete (SIH 2026 Final Demo & Submission Hardening)  
 **Live Public Demo:** [https://terra-lens-ai.vercel.app/](https://terra-lens-ai.vercel.app/)  
 **Automated Tests:** 126/126 Passing (100% Pass Rate) | Next.js 17/17 Production Routes Compiled  
 **Official SIH Submission:** [SUBMISSION.md](SUBMISSION.md)
@@ -359,7 +360,7 @@ TerraLens AI supports two deployment targets tailored for research rigor and pub
 - **Analyst Adjudication Workflow:** Human-in-the-loop review station allowing defense and environmental analysts to record explicit verdicts (`TRUE CHANGE`, `FALSE ALARM`, `UNCERTAIN`) with an unreviewed default state.
 - **Candidate Deduplication:** Automatic grouping by canonical location ID (`LOC_001` through `LOC_005`), surfacing the most relevant spatial scene per site.
 - **Dossier & Report Exporter:** Direct client downloads of structured JSON evidence dossiers and executive Markdown intelligence reports via `/api/export`.
-- **Zero Heavy ML Bloat:** Completely excludes PyTorch, Transformers, and heavy C++ bindings from serverless bundles, ensuring 100% operational uptime and zero out-of-memory crashes.
+- **Zero Heavy ML Bloat:** Completely excludes PyTorch, Transformers, and heavy C++ bindings from serverless bundles, ensuring high operational reliability and preventing out-of-memory crashes on serverless edge runtimes.
 - **Deployment Guide:** See [VERCEL_DEPLOYMENT.md](file:///c:/Users/pavan/OneDrive/Pictures/Desktop/TerraLens%20AI/VERCEL_DEPLOYMENT.md) for full configuration.
 
 ---
@@ -503,9 +504,9 @@ The Phase 5B comprehensive audit verified the complete TerraLens AI workflow geo
 
 ---
 
-## 12. Team & Contributors (Smart India Hackathon 2026)
+## 12. Team: The Limit Breakers (Smart India Hackathon 2026)
 
-| Contributor | GitHub Profile | Role | Focus Areas |
+| Name | GitHub Profile | Role | Focus Areas |
 |:---|:---|:---|:---|
 | **Baddireddy Leela Krishna** | [@leelakrishna18](https://github.com/leelakrishna18) | Team Leader & Retrieval Pipeline | Overall team leadership, semantic retrieval pipeline, CLIP multimodal embeddings, FAISS indexing |
 | **Atchyuta Pavan Karthikeya** | [@pavankarthikeyaatychuta-lab](https://github.com/pavankarthikeyaatychuta-lab) | System Architecture & Cloud Infrastructure | System architecture, benchmark design, STAC provider abstraction, cloud deployment |
