@@ -132,6 +132,65 @@ export class SatelliteApiClient {
 
     return response.json();
   }
+
+  /**
+   * Discovers georeferenced raster analysis assets (e.g. 10m/20m COGs) and segregates them from previews.
+   */
+  async getAssets(sceneId: string, aoi?: BoundingBox, mode?: string): Promise<any> {
+    const response = await fetch(`${this.baseUrl}/api/satellite/assets`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        sceneId,
+        aoi,
+        mode,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.error || `Asset discovery failed with HTTP status ${response.status}`
+      );
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Prepares a temporal pair for analysis: verifies chronological order, CRS, resolution,
+   * performs spatial alignment and dimension reconciliation check, and generates provenance.
+   */
+  async prepareAnalysis(
+    beforeSceneId: string,
+    afterSceneId: string,
+    aoi: BoundingBox,
+    mode?: string
+  ): Promise<import("../providers/satelliteProvider").AnalysisPreparationResult> {
+    const response = await fetch(`${this.baseUrl}/api/satellite/prepare`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        beforeSceneId,
+        afterSceneId,
+        aoi,
+        mode,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.error || `Analysis preparation failed with HTTP status ${response.status}`
+      );
+    }
+
+    return response.json();
+  }
 }
 
 export const satelliteClient = new SatelliteApiClient();
