@@ -40,20 +40,20 @@ export function TemporalComparison({
   }, []);
 
   return (
-    <div className="bg-tactical-850 border border-tactical-700 rounded-xl p-4 shadow-xl">
+    <div className="bg-tactical-850 border border-tactical-700 rounded-xl p-4 shadow-sm transition-colors">
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-3 border-b border-tactical-700/60">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-3 border-b border-tactical-700">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <Satellite className="w-4 h-4 text-cyan-400" />
-            <h3 className="text-sm font-bold font-mono text-slate-100 uppercase">
+            <Satellite className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+            <h3 className="text-sm font-bold font-mono text-slate-900 dark:text-slate-100 uppercase">
               Temporal Imagery Pair: {location.name}
             </h3>
-            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">
+            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-600/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
               SYNTHETIC BENCHMARK • {location.primary_sensor} PROFILE
             </span>
           </div>
-          <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
             Sensor Profile: {location.primary_sensor} | Data: Controlled Synthetic Benchmark Scene (Analysis Imagery)
           </p>
         </div>
@@ -64,8 +64,8 @@ export function TemporalComparison({
             onClick={() => setViewMode("slider")}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
               viewMode === "slider"
-                ? "bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-400/40"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-sky-600/15 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300 font-bold border border-sky-500/40"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
             }`}
           >
             <SplitSquareVertical className="w-3.5 h-3.5" />
@@ -75,8 +75,8 @@ export function TemporalComparison({
             onClick={() => setViewMode("side-by-side")}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
               viewMode === "side-by-side"
-                ? "bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-400/40"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-sky-600/15 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300 font-bold border border-sky-500/40"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
             }`}
           >
             <Columns2 className="w-3.5 h-3.5" />
@@ -118,22 +118,22 @@ export function TemporalComparison({
               }}
             />
             {/* Badge T1 */}
-            <div className="absolute top-3 left-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-600 text-xs font-mono text-cyan-300">
-              <span className="font-bold">T1 (BASELINE):</span> {location.available_dates?.[0] || "2023-03"}
+            <div className="absolute top-3 left-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono text-sky-700 dark:text-sky-300 font-semibold shadow-sm">
+              <span>T1 (BASELINE):</span> {location.available_dates?.[0] || "2023-03"}
             </div>
           </div>
 
           {/* Badge T2 */}
-          <div className="absolute top-3 right-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-600 text-xs font-mono text-amber-300">
-            <span className="font-bold">T2 (MONITORING):</span> {location.available_dates?.[1] || "2025-02"}
+          <div className="absolute top-3 right-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono text-amber-700 dark:text-amber-300 font-semibold shadow-sm">
+            <span>T2 (MONITORING):</span> {location.available_dates?.[1] || "2025-02"}
           </div>
 
-          {/* Slider divider bar */}
+          {/* Slider divider bar (Clean, non-neon) */}
           <div
-            className="absolute top-0 bottom-0 w-1 bg-cyan-400 shadow-[0_0_12px_rgba(0,229,255,0.8)] pointer-events-none"
+            className="absolute top-0 bottom-0 w-0.5 bg-sky-500 shadow-sm pointer-events-none"
             style={{ left: `${sliderPos}%` }}
           >
-            <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-tactical-900 border-2 border-cyan-400 flex items-center justify-center text-cyan-300 shadow-lg">
+            <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-tactical-850 border border-sky-500 flex items-center justify-center text-sky-600 dark:text-sky-400 shadow-md">
               <SplitSquareVertical className="w-3.5 h-3.5" />
             </div>
           </div>
@@ -148,8 +148,8 @@ export function TemporalComparison({
               alt="T1 Baseline"
               className="w-full h-full object-cover"
             />
-            <div className="absolute top-3 left-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-600 text-xs font-mono text-cyan-300">
-              <span className="font-bold">T1 BASELINE:</span> {location.available_dates?.[0] || "2023"}
+            <div className="absolute top-3 left-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono text-sky-700 dark:text-sky-300 font-semibold shadow-sm">
+              <span>T1 BASELINE:</span> {location.available_dates?.[0] || "2023"}
             </div>
           </div>
 
@@ -161,8 +161,8 @@ export function TemporalComparison({
               alt="T2 Monitoring"
               className="w-full h-full object-cover"
             />
-            <div className="absolute top-3 right-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-600 text-xs font-mono text-amber-300">
-              <span className="font-bold">T2 MONITORING:</span> {location.available_dates?.[1] || "2025"}
+            <div className="absolute top-3 right-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono text-amber-700 dark:text-amber-300 font-semibold shadow-sm">
+              <span>T2 MONITORING:</span> {location.available_dates?.[1] || "2025"}
             </div>
           </div>
         </div>

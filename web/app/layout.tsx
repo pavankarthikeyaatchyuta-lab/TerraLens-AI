@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ThemeProvider } from "@/lib/themeContext";
 
 export const metadata: Metadata = {
   title: "TerraLens AI — Semantic Satellite Intelligence",
@@ -13,9 +14,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="min-h-screen bg-tactical-900 text-slate-200 antialiased selection:bg-cyan-500/30 selection:text-cyan-200">
-        {children}
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body className="min-h-screen bg-tactical-900 text-foreground antialiased selection:bg-sky-500/20 selection:text-sky-900 dark:selection:text-sky-200">
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

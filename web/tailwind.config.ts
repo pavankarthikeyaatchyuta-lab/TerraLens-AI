@@ -1,10 +1,12 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./lib/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -12,15 +14,17 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
         tactical: {
-          900: "#090d16",
-          850: "#0d1322",
-          800: "#131b2e",
-          700: "#1c2742",
-          600: "#27375c",
-          cyan: "#00e5ff",
-          emerald: "#10b981",
-          amber: "#f59e0b",
-          rose: "#f43f5e",
+          950: "var(--tactical-950)",
+          900: "var(--tactical-900)",
+          850: "var(--tactical-850)",
+          800: "var(--tactical-800)",
+          750: "var(--tactical-750)",
+          700: "var(--tactical-700)",
+          600: "var(--tactical-600)",
+          cyan: "#0284c7",
+          emerald: "#059669",
+          amber: "#d97706",
+          rose: "#e11d48",
         },
       },
       fontFamily: {

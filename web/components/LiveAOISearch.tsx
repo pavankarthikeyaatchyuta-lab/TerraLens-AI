@@ -497,29 +497,29 @@ export function LiveAOISearch({
   return (
     <div className="space-y-4">
       {/* 1. Mode Status Header Banner */}
-      <div className="p-3.5 rounded-lg bg-emerald-950/30 border border-emerald-500/40 text-emerald-300 text-xs flex items-center justify-between shadow-lg shadow-emerald-950/20">
+      <div className="p-3.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
           <span className="font-mono font-bold tracking-wider">LIVE PUBLIC DATA MODE ACTIVE</span>
         </div>
-        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-900/60 border border-emerald-500/30">
+        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300">
           COPERNICUS SENTINEL-2 L2A
         </span>
       </div>
 
       {/* Phase 5A: Semantic Target Discovery Handoff Card */}
-      <div className="p-4 rounded-xl bg-tactical-850 border border-tactical-700 shadow-md space-y-3">
+      <div className="p-4 rounded-xl bg-tactical-850 border border-tactical-700 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-cyan-400 font-mono font-semibold text-xs uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-sky-600 dark:text-sky-400 font-mono font-semibold text-xs uppercase tracking-wider">
             <Search className="w-4 h-4" />
             <span>Semantic Target Retrieval Handoff (CLIP ViT-B/32)</span>
           </div>
-          <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30">
+          <span className="text-[10px] font-mono text-sky-700 dark:text-sky-300 bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/30">
             NATURAL LANGUAGE QUERY → AOI
           </span>
         </div>
 
-        <p className="text-[11px] text-slate-300 font-mono leading-relaxed">
+        <p className="text-[11px] text-slate-600 dark:text-slate-300 font-mono leading-relaxed">
           Type a natural language description to match candidate catalog locations, extract spatial coordinates, and seed the live Sentinel-2 acquisition pipeline.
         </p>
 
@@ -529,12 +529,12 @@ export function LiveAOISearch({
             value={semanticQuery}
             onChange={(e) => setSemanticQuery(e.target.value)}
             placeholder='e.g. "new construction near Hyderabad", "solar park in desert", "reservoir shrinkage"'
-            className="flex-1 bg-tactical-900 border border-tactical-700 rounded-lg px-3 py-2 text-xs font-mono text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500"
+            className="flex-1 bg-tactical-900 border border-tactical-700 rounded-lg px-3 py-2 text-xs font-mono text-slate-800 dark:text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-sky-500"
           />
           <button
             type="submit"
             disabled={isSemanticSearching || !semanticQuery.trim()}
-            className="px-4 py-2 rounded-lg bg-cyan-600/30 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/40 text-xs font-mono font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+            className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white border border-sky-500/40 text-xs font-mono font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-sm"
           >
             {isSemanticSearching ? (
               <>
@@ -551,7 +551,7 @@ export function LiveAOISearch({
         </form>
 
         {semanticSearchError && (
-          <p className="text-xs text-amber-400 font-mono p-2 rounded bg-amber-950/30 border border-amber-500/30">
+          <p className="text-xs text-amber-600 dark:text-amber-400 font-mono p-2 rounded bg-amber-500/10 border border-amber-500/30">
             {semanticSearchError}
           </p>
         )}
@@ -594,19 +594,19 @@ export function LiveAOISearch({
       </div>
 
       {/* 2. Area of Interest (AOI) Definition Card */}
-      <div className="p-4 rounded-xl bg-tactical-850 border border-tactical-700 shadow-md space-y-3">
+      <div className="p-4 rounded-xl bg-tactical-850 border border-tactical-700 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-cyan-400 font-mono font-semibold text-xs uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-sky-600 dark:text-sky-400 font-mono font-semibold text-xs uppercase tracking-wider">
             <Crosshair className="w-4 h-4" />
             <span>Area of Interest (AOI)</span>
           </div>
 
           {/* Toggle Draw vs Manual */}
-          <div className="flex rounded-md bg-tactical-900 p-0.5 border border-tactical-750 text-[11px] font-mono">
+          <div className="flex rounded-md bg-tactical-900 p-0.5 border border-tactical-700 text-[11px] font-mono">
             <button
               onClick={() => setAoiMode("draw")}
               className={`px-2.5 py-1 rounded transition-colors ${
-                aoiMode === "draw" ? "bg-cyan-500/30 text-cyan-300 font-bold" : "text-slate-400 hover:text-slate-200"
+                aoiMode === "draw" ? "bg-sky-500/20 text-sky-700 dark:text-sky-300 font-bold" : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
               }`}
             >
               Map Draw
@@ -614,7 +614,7 @@ export function LiveAOISearch({
             <button
               onClick={() => setAoiMode("manual")}
               className={`px-2.5 py-1 rounded transition-colors ${
-                aoiMode === "manual" ? "bg-cyan-500/30 text-cyan-300 font-bold" : "text-slate-400 hover:text-slate-200"
+                aoiMode === "manual" ? "bg-sky-500/20 text-sky-700 dark:text-sky-300 font-bold" : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
               }`}
             >
               Manual Bounds
@@ -630,8 +630,8 @@ export function LiveAOISearch({
                 onClick={() => onToggleDrawingAoi(!isDrawingAoi)}
                 className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-mono font-semibold transition-all shadow-sm ${
                   isDrawingAoi
-                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/50 animate-pulse"
-                    : "bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/40"
+                    ? "bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/50"
+                    : "bg-sky-500/15 hover:bg-sky-500/25 text-sky-700 dark:text-sky-300 border border-sky-500/30"
                 }`}
               >
                 <Crosshair className="w-4 h-4" />
@@ -641,7 +641,7 @@ export function LiveAOISearch({
               {aoi && (
                 <button
                   onClick={() => onAoiChange(null)}
-                  className="px-3 py-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-mono transition-colors"
+                  className="px-3 py-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/30 text-xs font-mono transition-colors"
                   title="Clear current AOI"
                 >
                   Clear AOI
@@ -849,7 +849,7 @@ export function LiveAOISearch({
           <button
             onClick={handleSearchScenes}
             disabled={isSearching || !aoi}
-            className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-mono font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+            className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-mono font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
             <Search className="w-4 h-4" />
             <span>{isSearching ? "SEARCHING PUBLIC ARCHIVE..." : "SEARCH SATELLITE IMAGERY"}</span>
@@ -858,7 +858,7 @@ export function LiveAOISearch({
           <button
             onClick={handleFindPairs}
             disabled={isFindingPairs || !aoi}
-            className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-tactical-800 hover:bg-tactical-750 text-emerald-300 border border-emerald-500/40 hover:border-emerald-500/60 font-mono font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+            className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-tactical-800 hover:bg-tactical-750 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 hover:border-emerald-500/60 font-mono font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
             <Clock className="w-4 h-4" />
             <span>{isFindingPairs ? "DISCOVERING PAIRS..." : "FIND TEMPORAL PAIRS"}</span>
@@ -986,7 +986,7 @@ export function LiveAOISearch({
               <button
                 onClick={handlePrepareAnalysis}
                 disabled={isPreparing}
-                className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-mono font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center justify-center gap-2"
+                className="w-full py-2.5 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center justify-center gap-2"
               >
                 <Cpu className={`w-4 h-4 ${isPreparing ? "animate-spin" : ""}`} />
                 <span>
@@ -1119,8 +1119,8 @@ export function LiveAOISearch({
                 </div>
 
                 {/* Scientific Rule Notice */}
-                <div className="p-2 rounded bg-cyan-950/30 border border-cyan-500/30 text-[10px] text-cyan-300/90 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-cyan-400 flex-shrink-0 animate-pulse"></span>
+                <div className="p-2 rounded bg-sky-500/10 border border-sky-500/30 text-[10px] text-sky-700 dark:text-sky-300 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-sky-500 flex-shrink-0"></span>
                   <span>
                     Scientific Rule Enforced: True-color / NIR Cloud-Optimized GeoTIFFs selected. Preview JPEG/PNGs excluded from scientific processing. Staged for Phase 4B change detection.
                   </span>
@@ -1128,11 +1128,11 @@ export function LiveAOISearch({
 
                 {/* Phase 4B: Run Change Analysis Trigger */}
                 {prepareResult.status === "READY_FOR_ANALYSIS" && (
-                  <div className="pt-3 border-t border-tactical-800 space-y-3">
+                  <div className="pt-3 border-t border-tactical-700 space-y-3">
                     <button
                       onClick={handleRunAnalysis}
                       disabled={isAnalyzing}
-                      className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-mono font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center justify-center gap-2 animate-pulse"
+                      className="w-full py-3 px-4 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-mono font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center justify-center gap-2"
                     >
                       <Activity className={`w-4 h-4 ${isAnalyzing ? "animate-spin" : ""}`} />
                       <span>
@@ -1152,16 +1152,16 @@ export function LiveAOISearch({
 
                     {/* LIVE CHANGE ANALYSIS DASHBOARD */}
                     {activeAnalysis && activeAnalysis.status === "ANALYZED" && (
-                      <div className="p-3.5 rounded-lg bg-tactical-950 border border-cyan-500/40 space-y-3 shadow-xl">
+                      <div className="p-3.5 rounded-lg bg-tactical-950 border border-sky-500/40 space-y-3 shadow-sm">
                         {/* Status Header */}
-                        <div className="flex items-center justify-between pb-2 border-b border-tactical-800">
+                        <div className="flex items-center justify-between pb-2 border-b border-tactical-700">
                           <div className="flex items-center gap-2">
-                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            <span className="text-xs font-bold font-mono tracking-wider text-slate-100 uppercase">
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                            <span className="text-xs font-bold font-mono tracking-wider text-slate-800 dark:text-slate-100 uppercase">
                               LIVE SATELLITE CHANGE ANALYSIS RESULTS
                             </span>
                           </div>
-                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40">
                             {activeAnalysis.status}
                           </span>
                         </div>

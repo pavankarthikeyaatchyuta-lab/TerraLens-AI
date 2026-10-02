@@ -24,11 +24,11 @@ export function ChangeMaskViewer({
   if (isLoading) {
     return (
       <div className="bg-tactical-850 border border-tactical-700 rounded-xl p-8 flex flex-col items-center justify-center min-h-[360px] text-center">
-        <div className="w-10 h-10 border-4 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin mb-4" />
-        <h4 className="text-sm font-bold font-mono text-slate-200">
+        <div className="w-10 h-10 border-4 border-sky-500/20 border-t-sky-600 dark:border-sky-400/20 dark:border-t-sky-400 rounded-full animate-spin mb-4" />
+        <h4 className="text-sm font-bold font-mono text-slate-800 dark:text-slate-200">
           EXECUTING MULTI-TEMPORAL CHANGE DETECTION...
         </h4>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
           Normalizing illumination, evaluating absolute difference, and suppressing false alarms
         </p>
       </div>
@@ -37,7 +37,7 @@ export function ChangeMaskViewer({
 
   if (!analysis) {
     return (
-      <div className="bg-tactical-850 border border-tactical-700 rounded-xl p-8 text-center text-slate-400 font-mono text-xs">
+      <div className="bg-tactical-850 border border-tactical-700 rounded-xl p-8 text-center text-slate-500 dark:text-slate-400 font-mono text-xs">
         Select a location and trigger analysis to view raster change artifacts.
       </div>
     );
@@ -49,12 +49,12 @@ export function ChangeMaskViewer({
   const overlayImg = analysis.overlay_path || `/outputs/change_masks/${location.location_id}_2023_2025_overlay.png`;
 
   return (
-    <div className="bg-tactical-850 border border-tactical-700 rounded-xl p-4 shadow-xl">
+    <div className="bg-tactical-850 border border-tactical-700 rounded-xl p-4 shadow-sm">
       {/* Layer selector bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-3 border-b border-tactical-700/60">
         <div className="flex items-center gap-2">
-          <Layers className="w-4 h-4 text-cyan-400" />
-          <h3 className="text-sm font-bold font-mono text-slate-100 uppercase">
+          <Layers className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+          <h3 className="text-sm font-bold font-mono text-slate-800 dark:text-slate-100 uppercase">
             Change Detection Diagnostics & Raster Layers
           </h3>
         </div>
@@ -65,11 +65,11 @@ export function ChangeMaskViewer({
             onClick={() => setActiveLayer("overlay")}
             className={`flex items-center gap-1 px-2.5 py-1 rounded transition-all ${
               activeLayer === "overlay"
-                ? "bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-400/40"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-sky-500/15 text-sky-700 dark:text-sky-300 font-bold border border-sky-500/30"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
             }`}
           >
-            <ShieldAlert className="w-3.5 h-3.5 text-cyan-400" />
+            <ShieldAlert className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
             <span>OVERLAY</span>
           </button>
 
@@ -77,11 +77,11 @@ export function ChangeMaskViewer({
             onClick={() => setActiveLayer("heatmap")}
             className={`flex items-center gap-1 px-2.5 py-1 rounded transition-all ${
               activeLayer === "heatmap"
-                ? "bg-amber-500/20 text-amber-300 font-bold border border-amber-400/40"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold border border-amber-500/30"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
             }`}
           >
-            <Flame className="w-3.5 h-3.5 text-amber-400" />
+            <Flame className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
             <span>HEATMAP</span>
           </button>
 
@@ -89,11 +89,11 @@ export function ChangeMaskViewer({
             onClick={() => setActiveLayer("mask")}
             className={`flex items-center gap-1 px-2.5 py-1 rounded transition-all ${
               activeLayer === "mask"
-                ? "bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-400/40"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/30"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
             }`}
           >
-            <Eye className="w-3.5 h-3.5 text-emerald-400" />
+            <Eye className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>BINARY MASK</span>
           </button>
 
@@ -101,8 +101,8 @@ export function ChangeMaskViewer({
             onClick={() => setActiveLayer("raw")}
             className={`flex items-center gap-1 px-2.5 py-1 rounded transition-all ${
               activeLayer === "raw"
-                ? "bg-slate-700 text-slate-100 font-bold border border-slate-500"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-100 font-bold border border-slate-300 dark:border-slate-500"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
             }`}
           >
             <span>RAW T2</span>
@@ -157,7 +157,7 @@ export function ChangeMaskViewer({
             {analysis.change_regions.map((reg) => (
               <div
                 key={reg.region_id}
-                className="absolute border border-cyan-400/80 bg-cyan-400/10 shadow-sm"
+                className="absolute border border-sky-500/80 bg-sky-500/10 shadow-sm"
                 style={{
                   left: `${(reg.x / 512) * 100}%`,
                   top: `${(reg.y / 512) * 100}%`,
@@ -165,7 +165,7 @@ export function ChangeMaskViewer({
                   height: `${(reg.height / 512) * 100}%`,
                 }}
               >
-                <span className="absolute -top-4 left-0 bg-tactical-900/90 text-cyan-300 text-[9px] font-mono px-1 rounded border border-tactical-700">
+                <span className="absolute -top-4 left-0 bg-tactical-900/90 text-sky-700 dark:text-sky-300 text-[9px] font-mono px-1 rounded border border-tactical-700">
                   #{reg.region_id} ({reg.area_pixels}px)
                 </span>
               </div>
@@ -175,17 +175,17 @@ export function ChangeMaskViewer({
 
         {/* Layer indicator badge */}
         <div className="absolute bottom-3 left-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-600 text-xs font-mono flex items-center gap-1.5 z-10">
-          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-          <span className="text-slate-300 font-bold uppercase">{activeLayer} LAYER</span>
-          <span className="text-slate-500">|</span>
-          <span className="text-slate-400">{analysis.change_regions?.length || 0} CLUSTERS</span>
+          <span className="w-2 h-2 rounded-full bg-sky-500" />
+          <span className="text-slate-700 dark:text-slate-300 font-bold uppercase">{activeLayer} LAYER</span>
+          <span className="text-slate-400 dark:text-slate-500">|</span>
+          <span className="text-slate-500 dark:text-slate-400">{analysis.change_regions?.length || 0} CLUSTERS</span>
         </div>
       </div>
 
       {/* Opacity slider & box toggle controls */}
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-slate-300 bg-tactical-900 p-2.5 rounded-lg border border-tactical-700">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-slate-600 dark:text-slate-300 bg-tactical-900 p-2.5 rounded-lg border border-tactical-700">
         <div className="flex items-center gap-2">
-          <Sliders className="w-3.5 h-3.5 text-cyan-400" />
+          <Sliders className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
           <span>LAYER OPACITY:</span>
           <input
             type="range"
@@ -194,17 +194,17 @@ export function ChangeMaskViewer({
             step="0.05"
             value={opacity}
             onChange={(e) => setOpacity(parseFloat(e.target.value))}
-            className="w-28 accent-cyan-400 h-1 bg-tactical-700 rounded-lg cursor-pointer"
+            className="w-28 accent-sky-500 h-1 bg-tactical-700 rounded-lg cursor-pointer"
           />
-          <span className="text-cyan-400 font-bold">{Math.round(opacity * 100)}%</span>
+          <span className="text-sky-600 dark:text-sky-400 font-bold">{Math.round(opacity * 100)}%</span>
         </div>
 
         <button
           onClick={() => setShowBoxes(!showBoxes)}
           className={`flex items-center gap-1 px-2 py-1 rounded border transition-all ${
             showBoxes
-              ? "bg-cyan-500/20 text-cyan-300 border-cyan-400/40"
-              : "bg-tactical-800 text-slate-400 border-tactical-700"
+              ? "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30"
+              : "bg-tactical-800 text-slate-500 dark:text-slate-400 border-tactical-700"
           }`}
         >
           <BoxSelect className="w-3.5 h-3.5" />

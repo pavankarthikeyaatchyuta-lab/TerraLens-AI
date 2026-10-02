@@ -100,22 +100,22 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
   ];
 
   return (
-    <div className="bg-tactical-850 border border-tactical-700 rounded-xl p-4 shadow-xl">
+    <div className="bg-tactical-850 border border-tactical-700 rounded-xl p-4 shadow-sm">
       <div className="flex items-center justify-between pb-3 mb-3 border-b border-tactical-700/60">
         <div className="flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-cyan-400" />
-          <h3 className="text-sm font-bold font-mono text-slate-100 uppercase">
+          <ShieldCheck className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+          <h3 className="text-sm font-bold font-mono text-slate-800 dark:text-slate-100 uppercase">
             Evidence Provenance & Analyst Review
           </h3>
         </div>
-        <span className="text-[10px] font-mono text-slate-400">SIH26227 AUDIT TRAIL</span>
+        <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">SIH26227 AUDIT TRAIL</span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Left: Provenance Pipeline History */}
         <div>
-          <h4 className="text-xs font-mono font-bold text-slate-300 uppercase mb-2 flex items-center gap-1.5">
-            <History className="w-3.5 h-3.5 text-cyan-400" />
+          <h4 className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 uppercase mb-2 flex items-center gap-1.5">
+            <History className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
             <span>Processing Chain Provenance</span>
           </h4>
 
@@ -123,40 +123,40 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
             {provenanceSteps.map((step) => (
               <div
                 key={step.num}
-                className="bg-tactical-900/80 p-2.5 rounded-lg border border-tactical-750 text-xs font-mono"
+                className="bg-tactical-900/80 p-2.5 rounded-lg border border-tactical-700 text-xs font-mono"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-cyan-400 font-bold">
+                  <span className="text-sky-600 dark:text-sky-400 font-bold">
                     STEP {step.num}: {step.title}
                   </span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                     {step.status}
                   </span>
                 </div>
-                <div className="text-[11px] text-slate-300 mt-1 font-sans">{step.detail}</div>
-                <div className="text-[10px] text-slate-500 mt-0.5 font-mono">{step.engine}</div>
+                <div className="text-[11px] text-slate-600 dark:text-slate-300 mt-1 font-sans">{step.detail}</div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 font-mono">{step.engine}</div>
               </div>
             ))}
           </div>
         </div>
 
         {/* Right: Analyst Adjudication & Dossier Export */}
-        <div className="bg-tactical-900/60 p-3.5 rounded-lg border border-tactical-750 flex flex-col justify-between">
+        <div className="bg-tactical-900/60 p-3.5 rounded-lg border border-tactical-700 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-xs font-mono font-bold text-slate-300 uppercase flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-cyan-400" />
+              <h4 className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 uppercase flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                 <span>Analyst Adjudication</span>
               </h4>
               <span
                 className={`text-[10px] font-mono px-2 py-0.5 rounded border transition-colors ${
                   verdict === "TRUE_CHANGE"
-                    ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
+                    ? "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/40"
                     : verdict === "FALSE_ALARM"
-                    ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
+                    ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/40"
                     : verdict === "UNCERTAIN"
-                    ? "bg-slate-500/20 text-slate-300 border-slate-500/40"
-                    : "bg-tactical-800 text-slate-400 border-tactical-700"
+                    ? "bg-slate-500/15 text-slate-700 dark:text-slate-300 border-slate-500/40"
+                    : "bg-tactical-800 text-slate-500 dark:text-slate-400 border-tactical-700"
                 }`}
               >
                 {verdict ? `ANALYST VERDICT: ${verdict.replace("_", " ")}` : "STATUS: UNREVIEWED"}
@@ -170,11 +170,11 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
                 onClick={() => setVerdict("TRUE_CHANGE")}
                 className={`py-1.5 px-2 rounded text-[11px] font-mono font-bold border transition-all flex flex-col items-center gap-1 ${
                   verdict === "TRUE_CHANGE"
-                    ? "bg-rose-500/25 text-rose-300 border-rose-500 shadow-sm ring-1 ring-rose-500/50"
-                    : "bg-tactical-800 text-slate-400 border-tactical-700 hover:text-slate-200"
+                    ? "bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-500 shadow-sm ring-1 ring-rose-500/50"
+                    : "bg-tactical-800 text-slate-500 dark:text-slate-400 border-tactical-700 hover:text-slate-800 dark:hover:text-slate-200"
                 }`}
               >
-                <CheckCircle className="w-3.5 h-3.5 text-rose-400" />
+                <CheckCircle className="w-3.5 h-3.5 text-rose-500" />
                 <span>TRUE CHANGE</span>
               </button>
 
@@ -183,11 +183,11 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
                 onClick={() => setVerdict("FALSE_ALARM")}
                 className={`py-1.5 px-2 rounded text-[11px] font-mono font-bold border transition-all flex flex-col items-center gap-1 ${
                   verdict === "FALSE_ALARM"
-                    ? "bg-amber-500/25 text-amber-300 border-amber-500 shadow-sm ring-1 ring-amber-500/50"
-                    : "bg-tactical-800 text-slate-400 border-tactical-700 hover:text-slate-200"
+                    ? "bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500 shadow-sm ring-1 ring-amber-500/50"
+                    : "bg-tactical-800 text-slate-500 dark:text-slate-400 border-tactical-700 hover:text-slate-800 dark:hover:text-slate-200"
                 }`}
               >
-                <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+                <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
                 <span>FALSE ALARM</span>
               </button>
 
@@ -196,17 +196,17 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
                 onClick={() => setVerdict("UNCERTAIN")}
                 className={`py-1.5 px-2 rounded text-[11px] font-mono font-bold border transition-all flex flex-col items-center gap-1 ${
                   verdict === "UNCERTAIN"
-                    ? "bg-slate-600/30 text-slate-300 border-slate-500 shadow-sm ring-1 ring-slate-500/50"
-                    : "bg-tactical-800 text-slate-400 border-tactical-700 hover:text-slate-200"
+                    ? "bg-slate-500/20 text-slate-700 dark:text-slate-300 border-slate-500 shadow-sm ring-1 ring-slate-500/50"
+                    : "bg-tactical-800 text-slate-500 dark:text-slate-400 border-tactical-700 hover:text-slate-800 dark:hover:text-slate-200"
                 }`}
               >
-                <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
+                <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
                 <span>UNCERTAIN</span>
               </button>
             </div>
 
             {/* Notes textarea */}
-            <label className="block text-[11px] font-mono text-slate-400 mb-1">
+            <label className="block text-[11px] font-mono text-slate-500 dark:text-slate-400 mb-1">
               Analyst Verification Notes:
             </label>
             <textarea
@@ -214,7 +214,7 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
               value={analystNotes}
               onChange={(e) => setAnalystNotes(e.target.value)}
               placeholder="Enter domain interpretation notes for intelligence brief..."
-              className="w-full bg-tactical-950 border border-tactical-700 rounded-lg p-2 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-cyan-400 font-mono resize-none"
+              className="w-full bg-tactical-950 border border-tactical-700 rounded-lg p-2 text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-sky-500 font-mono resize-none"
             />
           </div>
 
@@ -223,16 +223,16 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
             <button
               onClick={() => handleExport("json")}
               disabled={isExporting}
-              className="px-3 py-1.5 rounded bg-tactical-800 hover:bg-tactical-700 text-slate-200 border border-tactical-600 text-xs font-mono font-semibold transition-all flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded bg-tactical-800 hover:bg-tactical-700 text-slate-700 dark:text-slate-200 border border-tactical-600 text-xs font-mono font-semibold transition-all flex items-center gap-1.5"
             >
-              <FileCode className="w-3.5 h-3.5 text-cyan-400" />
+              <FileCode className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
               <span>EXPORT JSON</span>
             </button>
 
             <button
               onClick={() => handleExport("markdown")}
               disabled={isExporting}
-              className="px-3.5 py-1.5 rounded bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow"
+              className="px-3.5 py-1.5 rounded bg-sky-600 hover:bg-sky-500 text-white text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-sm"
             >
               <Download className="w-3.5 h-3.5" />
               <span>DOWNLOAD DOSSIER (.MD)</span>

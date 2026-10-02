@@ -751,9 +751,9 @@ export function TacticalMap({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search any place or coords (e.g. Mumbai, Tokyo)..."
-              className="w-full pl-8 pr-16 py-1.5 bg-tactical-950/90 backdrop-blur-md border border-tactical-700 rounded-lg text-xs text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500 shadow-lg font-mono"
+              className="w-full pl-8 pr-16 py-1.5 bg-tactical-950/90 backdrop-blur-md border border-tactical-700 rounded-lg text-xs text-white placeholder-slate-400 focus:outline-none focus:border-sky-500 shadow-sm font-mono"
             />
-            <Search className="w-3.5 h-3.5 text-cyan-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-3.5 h-3.5 text-sky-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
 
             <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
               {searchQuery && (
@@ -769,7 +769,7 @@ export function TacticalMap({
               <button
                 type="submit"
                 disabled={isSearching}
-                className="px-2 py-0.5 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold rounded text-[10px] uppercase font-mono tracking-wider transition-all disabled:opacity-50"
+                className="px-2 py-0.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded text-[10px] uppercase font-mono tracking-wider transition-all disabled:opacity-50"
               >
                 {isSearching ? <Loader2 className="w-3 h-3 animate-spin" /> : "FIND"}
               </button>
@@ -779,7 +779,7 @@ export function TacticalMap({
 
         {/* Search Results Dropdown */}
         {isDropdownOpen && searchResults.length > 0 && (
-          <div className="absolute left-0 right-0 mt-1 bg-tactical-950/95 backdrop-blur-md border border-tactical-700 rounded-lg shadow-2xl overflow-hidden max-h-56 overflow-y-auto z-[30]">
+          <div className="absolute left-0 right-0 mt-1 bg-tactical-950/95 backdrop-blur-md border border-tactical-700 rounded-lg shadow-xl overflow-hidden max-h-56 overflow-y-auto z-[30]">
             <div className="p-1.5 border-b border-tactical-800 text-[10px] font-mono text-slate-400 uppercase tracking-wider flex justify-between items-center">
               <span>Matching Locations ({searchResults.length})</span>
               <button
@@ -797,7 +797,7 @@ export function TacticalMap({
                 onClick={() => selectPlace(item)}
                 className="w-full text-left px-2.5 py-1.5 hover:bg-tactical-800 transition-colors border-b border-tactical-800/50 last:border-b-0"
               >
-                <div className="text-xs font-semibold text-cyan-300 truncate">{item.name}</div>
+                <div className="text-xs font-semibold text-sky-300 truncate">{item.name}</div>
                 <div className="text-[10px] text-slate-400 truncate">{item.display_name}</div>
               </button>
             ))}
@@ -809,12 +809,12 @@ export function TacticalMap({
       {isLiveMode && (
         <div className="absolute top-12 left-2.5 z-[25] flex flex-wrap items-center gap-1.5 font-mono text-[10px] max-w-[calc(100%-20px)] pointer-events-auto">
           {isDrawingAoi ? (
-            <div className="bg-amber-500/90 text-slate-950 font-bold px-2.5 py-1 rounded shadow-md animate-pulse flex items-center gap-1.5">
+            <div className="bg-amber-500/90 text-slate-950 font-bold px-2.5 py-1 rounded shadow-sm flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-slate-950" />
               <span>DRAG TO DRAW AOI RECTANGLE ON MAP</span>
             </div>
           ) : aoi ? (
-            <div className="bg-tactical-950/95 border border-amber-500/50 text-amber-300 px-2 py-0.5 rounded shadow-md flex items-center gap-1.5">
+            <div className="bg-tactical-950/95 border border-amber-500/50 text-amber-300 px-2 py-0.5 rounded shadow-sm flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
               <span>
                 AOI: [{aoi.min_lat.toFixed(2)}, {aoi.min_lon.toFixed(2)}] to [{aoi.max_lat.toFixed(2)}, {aoi.max_lon.toFixed(2)}]
@@ -831,13 +831,13 @@ export function TacticalMap({
               )}
             </div>
           ) : (
-            <div className="bg-tactical-950/85 border border-slate-700 text-slate-400 px-2 py-0.5 rounded shadow-md">
+            <div className="bg-tactical-950/85 border border-slate-700 text-slate-400 px-2 py-0.5 rounded shadow-sm">
               LIVE SATELLITE DISCOVERY MODE
             </div>
           )}
 
           {selectedScene && (
-            <div className="bg-emerald-950/95 border border-emerald-500/50 text-emerald-300 px-2 py-0.5 rounded shadow-md flex items-center gap-1">
+            <div className="bg-emerald-950/95 border border-emerald-500/50 text-emerald-300 px-2 py-0.5 rounded shadow-sm flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               <span className="truncate max-w-[180px]">SCENE: {selectedScene.sceneId}</span>
             </div>
@@ -850,17 +850,17 @@ export function TacticalMap({
         <button
           type="button"
           onClick={resetToTargetAOIs}
-          className="p-1.5 bg-tactical-950/90 backdrop-blur-md rounded-lg border border-tactical-700 text-slate-300 hover:text-cyan-400 hover:bg-tactical-800 shadow-md text-xs transition-all flex items-center gap-1 font-mono"
+          className="p-1.5 bg-tactical-950/90 backdrop-blur-md rounded-lg border border-tactical-700 text-slate-300 hover:text-sky-400 hover:bg-tactical-800 shadow-sm text-xs transition-all flex items-center gap-1 font-mono"
           title="Reset to All Monitored AOIs"
         >
-          <Compass className="w-3.5 h-3.5 text-cyan-400" />
+          <Compass className="w-3.5 h-3.5 text-sky-400" />
           <span className="hidden sm:inline text-[10px]">AOIs</span>
         </button>
 
         <button
           type="button"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="p-1.5 bg-tactical-950/90 backdrop-blur-md rounded-lg border border-tactical-700 text-slate-300 hover:text-cyan-400 hover:bg-tactical-800 shadow-md transition-all"
+          className="p-1.5 bg-tactical-950/90 backdrop-blur-md rounded-lg border border-tactical-700 text-slate-300 hover:text-sky-400 hover:bg-tactical-800 shadow-sm transition-all"
           title={isExpanded ? "Collapse map" : "Expand map size"}
         >
           {isExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
@@ -868,13 +868,13 @@ export function TacticalMap({
       </div>
 
       {/* Layer Mode Switcher Controls (Bottom-Left) */}
-      <div className="absolute bottom-2.5 left-2.5 z-[25] flex items-center bg-tactical-950/95 backdrop-blur-md rounded-lg p-0.5 border border-tactical-700 shadow-xl text-[10px] font-mono">
+      <div className="absolute bottom-2.5 left-2.5 z-[25] flex items-center bg-tactical-950/95 backdrop-blur-md rounded-lg p-0.5 border border-tactical-700 shadow-sm text-[10px] font-mono">
         <button
           type="button"
           onClick={() => switchLayer("google-hybrid")}
           className={`flex items-center gap-1 px-2 py-1 rounded transition-all ${
             mapMode === "google-hybrid"
-              ? "bg-cyan-500 text-slate-950 font-bold shadow-sm"
+              ? "bg-sky-600 text-white font-bold shadow-sm"
               : "text-slate-300 hover:text-white hover:bg-tactical-800"
           }`}
           title="Google Satellite Hybrid (Satellite Imagery + Full Street & Place Labels)"
@@ -888,7 +888,7 @@ export function TacticalMap({
           onClick={() => switchLayer("google-streets")}
           className={`flex items-center gap-1 px-2 py-1 rounded transition-all ${
             mapMode === "google-streets"
-              ? "bg-cyan-500 text-slate-950 font-bold shadow-sm"
+              ? "bg-sky-600 text-white font-bold shadow-sm"
               : "text-slate-300 hover:text-white hover:bg-tactical-800"
           }`}
           title="Google Maps (Every place, street, and landmark worldwide)"
@@ -902,7 +902,7 @@ export function TacticalMap({
           onClick={() => switchLayer("esri-satellite")}
           className={`hidden sm:flex items-center gap-1 px-2 py-1 rounded transition-all ${
             mapMode === "esri-satellite"
-              ? "bg-cyan-500 text-slate-950 font-bold shadow-sm"
+              ? "bg-sky-600 text-white font-bold shadow-sm"
               : "text-slate-300 hover:text-white hover:bg-tactical-800"
           }`}
           title="Esri World Imagery (High-Resolution Orbital Satellite)"
@@ -916,7 +916,7 @@ export function TacticalMap({
           onClick={() => switchLayer("tactical")}
           className={`flex items-center gap-1 px-2 py-1 rounded transition-all ${
             mapMode === "tactical"
-              ? "bg-cyan-500 text-slate-950 font-bold shadow-sm"
+              ? "bg-sky-600 text-white font-bold shadow-sm"
               : "text-slate-300 hover:text-white hover:bg-tactical-800"
           }`}
           title={hasCartoKey ? "CARTO Voyager Tactical Basemap" : "Tactical Basemap (OpenStreetMap Fallback)"}
@@ -927,8 +927,8 @@ export function TacticalMap({
       </div>
 
       {/* Active Layer Telemetry Badge (Bottom-Right) */}
-      <div className="absolute bottom-2.5 right-2.5 bg-tactical-950/90 backdrop-blur-md px-2 py-1 rounded border border-tactical-700 text-[10px] font-mono text-cyan-300 z-[25] pointer-events-none flex items-center gap-1.5 shadow-md">
-        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+      <div className="absolute bottom-2.5 right-2.5 bg-tactical-950/90 backdrop-blur-md px-2 py-1 rounded border border-tactical-700 text-[10px] font-mono text-sky-400 z-[25] pointer-events-none flex items-center gap-1.5 shadow-sm">
+        <span className="w-2 h-2 rounded-full bg-emerald-500" />
         <span className="hidden sm:inline">
           {mapMode === "google-hybrid"
             ? "GOOGLE SATELLITE HYBRID • EPSG:3857"

@@ -179,23 +179,23 @@ export default function HomePage() {
                 />
 
                 {/* Live Mode Map Helper / AOI Status Card */}
-                <div className="p-4 rounded-xl bg-tactical-850 border border-tactical-700 shadow-md font-mono text-xs space-y-2">
-                  <div className="flex items-center gap-2 text-cyan-400 font-semibold uppercase tracking-wider">
+                <div className="p-4 rounded-xl bg-tactical-850 border border-tactical-700 shadow-sm font-mono text-xs space-y-2">
+                  <div className="flex items-center gap-2 text-sky-600 dark:text-sky-400 font-semibold uppercase tracking-wider">
                     <Compass className="w-4 h-4" />
                     <span>Map AOI Navigation</span>
                   </div>
-                  <p className="text-slate-300 text-[11px] leading-relaxed">
+                  <p className="text-slate-600 dark:text-slate-300 text-[11px] leading-relaxed">
                     Use the map layer switcher (bottom-left) to toggle between Google Satellite, Google Maps Streets, Esri World Imagery, or CARTO Voyager. Click any detected change cluster polygon on the map to inspect its evidence and adjudicate.
                   </p>
-                  <div className="pt-2 border-t border-tactical-750 flex items-center justify-between text-[11px]">
-                    <span className="text-slate-400">Map Drawing:</span>
+                  <div className="pt-2 border-t border-tactical-700 flex items-center justify-between text-[11px]">
+                    <span className="text-slate-500 dark:text-slate-400">Map Drawing:</span>
                     <button
                       type="button"
                       onClick={() => setIsDrawingAoi(!isDrawingAoi)}
                       className={`px-2 py-0.5 rounded font-bold transition-colors ${
                         isDrawingAoi
-                          ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
-                          : "bg-cyan-600/20 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-600/30"
+                          ? "bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40"
+                          : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-500/30 hover:bg-sky-500/25"
                       }`}
                     >
                       {isDrawingAoi ? "DRAWING ON (CANCEL)" : "CLICK TO DRAW AOI"}
@@ -332,9 +332,9 @@ export default function HomePage() {
                   </span>
                 </div>
 
-                <div className="space-y-2 text-xs text-slate-300 leading-relaxed">
+                <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                   <p>
-                    Offline Research Mode uses the local Python scientific pipeline (<code className="text-cyan-400">terralens.app.services</code>) with pre-indexed FAISS vectors, OpenAI CLIP ViT-B/32 multimodal embeddings, and automated scikit-image morphological filtering.
+                    Offline Research Mode uses the local Python scientific pipeline (<code className="text-sky-600 dark:text-sky-400">terralens.app.services</code>) with pre-indexed FAISS vectors, OpenAI CLIP ViT-B/32 multimodal embeddings, and automated scikit-image morphological filtering.
                   </p>
                   <p>
                     This mode guarantees exact bitwise reproducibility for conference benchmarks and hackathon evaluations without external internet dependencies.
@@ -342,15 +342,15 @@ export default function HomePage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                  <div className="p-3 rounded-lg bg-tactical-900 border border-tactical-750 space-y-1 text-xs">
-                    <span className="text-slate-400 text-[10px]">VECTOR INDEX</span>
-                    <div className="text-slate-200 font-bold">512-dim Normalized Cosine</div>
+                  <div className="p-3 rounded-lg bg-tactical-900 border border-tactical-700 space-y-1 text-xs">
+                    <span className="text-slate-500 dark:text-slate-400 text-[10px]">VECTOR INDEX</span>
+                    <div className="text-slate-800 dark:text-slate-200 font-bold">512-dim Normalized Cosine</div>
                     <div className="text-slate-500 text-[10px]">FAISS IndexFlatIP Baseline</div>
                   </div>
 
-                  <div className="p-3 rounded-lg bg-tactical-900 border border-tactical-750 space-y-1 text-xs">
-                    <span className="text-slate-400 text-[10px]">BENCHMARK LATENCY</span>
-                    <div className="text-amber-300 font-bold">21.47 ms Warm Baseline</div>
+                  <div className="p-3 rounded-lg bg-tactical-900 border border-tactical-700 space-y-1 text-xs">
+                    <span className="text-slate-500 dark:text-slate-400 text-[10px]">BENCHMARK LATENCY</span>
+                    <div className="text-amber-600 dark:text-amber-300 font-bold">21.47 ms Warm Baseline</div>
                     <div className="text-slate-500 text-[10px]">45/45 Python Tests Verified</div>
                   </div>
                 </div>
@@ -358,13 +358,13 @@ export default function HomePage() {
                 <div className="pt-2 flex items-center justify-between">
                   <button
                     onClick={() => setIsEvaluationOpen(true)}
-                    className="py-2 px-4 rounded-lg bg-cyan-600/30 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/40 text-xs font-bold transition-all"
+                    className="py-2 px-4 rounded-lg bg-sky-600 hover:bg-sky-500 text-white border border-sky-500/40 text-xs font-bold transition-all shadow-sm"
                   >
                     LAUNCH EVALUATION SUITE
                   </button>
                   <button
                     onClick={() => setOperatingMode("CONTROLLED_BENCHMARK")}
-                    className="py-2 px-3 text-slate-400 hover:text-white text-xs"
+                    className="py-2 px-3 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white text-xs"
                   >
                     Switch to Benchmark
                   </button>
