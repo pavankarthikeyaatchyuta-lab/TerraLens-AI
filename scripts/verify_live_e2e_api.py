@@ -22,7 +22,7 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 
-BASE_URL = "http://localhost:3005"
+BASE_URL = "http://127.0.0.1:3000"
 
 
 def post_json(path, data):
