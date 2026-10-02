@@ -27,6 +27,13 @@ import {
   Cpu,
   FileCheck,
   Binary,
+  Flame,
+  Droplets,
+  Trees,
+  Building,
+  HelpCircle,
+  Activity,
+  Sliders,
 } from "lucide-react";
 
 interface LiveAOISearchProps {
@@ -40,6 +47,8 @@ interface LiveAOISearchProps {
   onSelectPair: (pair: TemporalPairCandidate | null) => void;
   selectedPair: TemporalPairCandidate | null;
   onFocusSceneOnMap?: (scene: SatelliteScene) => void;
+  analysisResult?: any;
+  onAnalysisComplete?: (result: any) => void;
 }
 
 const PRESET_AOIS: { name: string; desc: string; bbox: BoundingBox }[] = [
@@ -76,6 +85,8 @@ export function LiveAOISearch({
   onSelectPair,
   selectedPair,
   onFocusSceneOnMap,
+  analysisResult,
+  onAnalysisComplete,
 }: LiveAOISearchProps) {
   // Search Form State
   const [startDate, setStartDate] = useState<string>("2024-01-01");
@@ -107,6 +118,12 @@ export function LiveAOISearch({
   const [isPreparing, setIsPreparing] = useState<boolean>(false);
   const [prepareResult, setPrepareResult] = useState<AnalysisPreparationResult | null>(null);
   const [prepareError, setPrepareError] = useState<string | null>(null);
+
+  // Phase 4B: Real Bi-Temporal Change Analysis State
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [localAnalysisResult, setLocalAnalysisResult] = useState<any>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const activeAnalysis = analysisResult || localAnalysisResult;
 
   // Handle Manual AOI Apply
   const handleApplyManualAoi = () => {
@@ -282,6 +299,41 @@ export function LiveAOISearch({
       setPrepareResult(null);
     } finally {
       setIsPreparing(false);
+    }
+  };
+
+  // Phase 4B: Execute Real Bi-Temporal Change Detection
+  const handleRunAnalysis = async () => {
+    if (!selectedBeforeScene || !selectedAfterScene) {
+      setAnalysisError("Please select both a Before scene and an After scene.");
+      return;
+    }
+
+    if (!aoi) {
+      setAnalysisError("Please define an Area of Interest (AOI) bounding box.");
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setAnalysisError(null);
+
+    try {
+      const result = await satelliteClient.analyzePair(
+        selectedBeforeScene.sceneId,
+        selectedAfterScene.sceneId,
+        aoi,
+        { mode: "LIVE_PUBLIC_DATA" }
+      );
+      setLocalAnalysisResult(result);
+      if (onAnalysisComplete) {
+        onAnalysisComplete(result);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setAnalysisError(`Live change analysis failed: ${msg}`);
+      setLocalAnalysisResult(null);
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -830,6 +882,208 @@ export function LiveAOISearch({
                     Scientific Rule Enforced: True-color / NIR Cloud-Optimized GeoTIFFs selected. Preview JPEG/PNGs excluded from scientific processing. Staged for Phase 4B change detection.
                   </span>
                 </div>
+
+                {/* Phase 4B: Run Change Analysis Trigger */}
+                {prepareResult.status === "READY_FOR_ANALYSIS" && (
+                  <div className="pt-3 border-t border-tactical-800 space-y-3">
+                    <button
+                      onClick={handleRunAnalysis}
+                      disabled={isAnalyzing}
+                      className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-mono font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center justify-center gap-2 animate-pulse"
+                    >
+                      <Activity className={`w-4 h-4 ${isAnalyzing ? "animate-spin" : ""}`} />
+                      <span>
+                        {isAnalyzing ? "ACQUIRING COGs & EXECUTING RASTER ANALYSIS..." : "RUN BI-TEMPORAL CHANGE ANALYSIS (PHASE 4B)"}
+                      </span>
+                    </button>
+
+                    {analysisError && (
+                      <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs font-mono flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 flex-shrink-0 text-rose-400 mt-0.5" />
+                        <div>
+                          <p className="font-bold">Live Change Analysis Error</p>
+                          <p className="text-[11px] text-rose-300/80">{analysisError}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* LIVE CHANGE ANALYSIS DASHBOARD */}
+                    {activeAnalysis && activeAnalysis.status === "ANALYZED" && (
+                      <div className="p-3.5 rounded-lg bg-tactical-950 border border-cyan-500/40 space-y-3 shadow-xl">
+                        {/* Status Header */}
+                        <div className="flex items-center justify-between pb-2 border-b border-tactical-800">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span className="text-xs font-bold font-mono tracking-wider text-slate-100 uppercase">
+                              LIVE SATELLITE CHANGE ANALYSIS RESULTS
+                            </span>
+                          </div>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+                            {activeAnalysis.status}
+                          </span>
+                        </div>
+
+                        {/* Top Metrics Grid */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] font-mono">
+                          {/* Quality */}
+                          <div className="bg-tactical-900 p-2.5 rounded border border-tactical-800">
+                            <span className="text-slate-400 block text-[10px] uppercase">Valid Coverage</span>
+                            <span className="text-emerald-300 text-sm font-bold block">
+                              {activeAnalysis.quality?.validPercentage}%
+                            </span>
+                            <span className="text-[10px] text-slate-500">
+                              {activeAnalysis.quality?.validPixels?.toLocaleString()} pixels valid
+                            </span>
+                          </div>
+
+                          {/* Changed Area */}
+                          <div className="bg-tactical-900 p-2.5 rounded border border-tactical-800">
+                            <span className="text-slate-400 block text-[10px] uppercase">Changed Area</span>
+                            <span className="text-amber-300 text-sm font-bold block">
+                              {activeAnalysis.change?.changedAreaHa} ha
+                            </span>
+                            <span className="text-[10px] text-slate-500">
+                              {activeAnalysis.change?.changedAreaKm2} km² ({activeAnalysis.change?.changedPixels} px)
+                            </span>
+                          </div>
+
+                          {/* Adaptive Threshold */}
+                          <div className="bg-tactical-900 p-2.5 rounded border border-tactical-800">
+                            <span className="text-slate-400 block text-[10px] uppercase">Change Threshold</span>
+                            <span className="text-cyan-300 text-sm font-bold block">
+                              {activeAnalysis.change?.threshold}
+                            </span>
+                            <span className="text-[10px] text-slate-500">
+                              Suppressed: {activeAnalysis.change?.falseAlarmsSuppressed} px
+                            </span>
+                          </div>
+
+                          {/* Detected Clusters */}
+                          <div className="bg-tactical-900 p-2.5 rounded border border-tactical-800">
+                            <span className="text-slate-400 block text-[10px] uppercase">Spatial Clusters</span>
+                            <span className="text-purple-300 text-sm font-bold block">
+                              {activeAnalysis.clusters?.length || 0} Sites
+                            </span>
+                            <span className="text-[10px] text-slate-500">
+                              Resolution: {activeAnalysis.change?.resolutionMeters || 10}m
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Classified Change Clusters Summary */}
+                        <div className="space-y-1.5 font-mono">
+                          <span className="text-[10px] uppercase tracking-wider text-slate-400 block">
+                            Change Classification Breakdown
+                          </span>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[11px]">
+                            {/* Construction */}
+                            <div className="p-2 rounded bg-rose-950/30 border border-rose-500/30 text-rose-300 flex items-center justify-between">
+                              <span className="flex items-center gap-1.5">
+                                <Building className="w-3.5 h-3.5 text-rose-400" />
+                                <span>Construction:</span>
+                              </span>
+                              <span className="font-bold">
+                                {activeAnalysis.clusters?.filter((c: any) => c.changeClass.includes("CONSTRUCTION")).length || 0}
+                              </span>
+                            </div>
+
+                            {/* Vegetation Loss */}
+                            <div className="p-2 rounded bg-amber-950/30 border border-amber-500/30 text-amber-300 flex items-center justify-between">
+                              <span className="flex items-center gap-1.5">
+                                <Flame className="w-3.5 h-3.5 text-amber-400" />
+                                <span>Clearance:</span>
+                              </span>
+                              <span className="font-bold">
+                                {activeAnalysis.clusters?.filter((c: any) => c.changeClass.includes("LOSS") || c.changeClass.includes("CLEARANCE")).length || 0}
+                              </span>
+                            </div>
+
+                            {/* Vegetation Growth */}
+                            <div className="p-2 rounded bg-emerald-950/30 border border-emerald-500/30 text-emerald-300 flex items-center justify-between">
+                              <span className="flex items-center gap-1.5">
+                                <Trees className="w-3.5 h-3.5 text-emerald-400" />
+                                <span>Greening:</span>
+                              </span>
+                              <span className="font-bold">
+                                {activeAnalysis.clusters?.filter((c: any) => c.changeClass.includes("GROWTH")).length || 0}
+                              </span>
+                            </div>
+
+                            {/* Water Variation */}
+                            <div className="p-2 rounded bg-blue-950/30 border border-blue-500/30 text-blue-300 flex items-center justify-between">
+                              <span className="flex items-center gap-1.5">
+                                <Droplets className="w-3.5 h-3.5 text-blue-400" />
+                                <span>Water Dynamics:</span>
+                              </span>
+                              <span className="font-bold">
+                                {activeAnalysis.clusters?.filter((c: any) => c.changeClass.includes("WATER")).length || 0}
+                              </span>
+                            </div>
+
+                            {/* Other / Uncertain */}
+                            <div className="p-2 rounded bg-purple-950/30 border border-purple-500/30 text-purple-300 flex items-center justify-between">
+                              <span className="flex items-center gap-1.5">
+                                <HelpCircle className="w-3.5 h-3.5 text-purple-400" />
+                                <span>Uncertain:</span>
+                              </span>
+                              <span className="font-bold">
+                                {activeAnalysis.clusters?.filter((c: any) => c.changeClass.includes("UNCERTAIN") || c.changeClass.includes("OTHER")).length || 0}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Top Detected Clusters List */}
+                        {activeAnalysis.clusters && activeAnalysis.clusters.length > 0 && (
+                          <div className="space-y-2 font-mono">
+                            <span className="text-[10px] uppercase tracking-wider text-slate-400 block">
+                              Detected Spatial Change Clusters ({activeAnalysis.clusters.length})
+                            </span>
+                            <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                              {activeAnalysis.clusters.slice(0, 10).map((clust: any) => (
+                                <div
+                                  key={clust.clusterId}
+                                  className="p-2 rounded bg-tactical-900 border border-tactical-800 text-[11px] space-y-1"
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-bold text-cyan-300">{clust.clusterId}</span>
+                                      <span className="text-slate-300 font-semibold">{clust.changeClass}</span>
+                                    </div>
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-tactical-800 text-slate-300 border border-tactical-700">
+                                      Conf: {clust.confidenceScore}
+                                    </span>
+                                  </div>
+                                  <div className="text-[10px] text-slate-400 flex items-center justify-between">
+                                    <span>Area: {clust.areaHa} ha ({clust.pixelCount} px)</span>
+                                    <span>Centroid: [{clust.centroid[0].toFixed(4)}, {clust.centroid[1].toFixed(4)}]</span>
+                                  </div>
+                                  <p className="text-[10px] text-slate-500 leading-tight italic">
+                                    {clust.classificationRationale}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Provenance and Evidence Chain */}
+                        {activeAnalysis.provenance && (
+                          <div className="p-2.5 rounded bg-tactical-900 border border-tactical-800 font-mono text-[10px] text-slate-400 space-y-1">
+                            <div className="flex items-center justify-between text-cyan-300">
+                              <span className="font-bold">ANALYSIS PROVENANCE:</span>
+                              <span className="bg-cyan-950 px-1 rounded border border-cyan-500/30">
+                                {activeAnalysis.provenance.provenanceId}
+                              </span>
+                            </div>
+                            <div><span className="text-slate-500">Method:</span> {activeAnalysis.change?.thresholdMethod}</div>
+                            <div><span className="text-slate-500">Chain:</span> {activeAnalysis.provenance.processingChain?.join(" → ")}</div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>

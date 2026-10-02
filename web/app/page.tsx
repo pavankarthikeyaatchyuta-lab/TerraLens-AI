@@ -38,6 +38,7 @@ export default function HomePage() {
   const [selectedBeforeScene, setSelectedBeforeScene] = useState<SatelliteScene | null>(null);
   const [selectedAfterScene, setSelectedAfterScene] = useState<SatelliteScene | null>(null);
   const [selectedPair, setSelectedPair] = useState<TemporalPairCandidate | null>(null);
+  const [liveAnalysisResult, setLiveAnalysisResult] = useState<any | null>(null);
 
   // Temporal & Change State
   const [temporalPair, setTemporalPair] = useState<any>(null);
@@ -171,6 +172,7 @@ export default function HomePage() {
                   onToggleDrawingAoi={setIsDrawingAoi}
                   selectedScene={selectedAfterScene || selectedBeforeScene}
                   selectedPair={selectedPair}
+                  liveAnalysisResult={liveAnalysisResult}
                 />
 
                 {/* Live Mode Map Helper / AOI Status Card */}
@@ -220,6 +222,8 @@ export default function HomePage() {
                       setSelectedAfterScene(pair.afterScene);
                     }
                   }}
+                  analysisResult={liveAnalysisResult}
+                  onAnalysisComplete={setLiveAnalysisResult}
                 />
               </div>
             </div>

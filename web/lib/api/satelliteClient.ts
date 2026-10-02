@@ -191,6 +191,40 @@ export class SatelliteApiClient {
 
     return response.json();
   }
+
+  /**
+   * Executes Phase 4B real bi-temporal Sentinel-2 change analysis over a specified AOI.
+   */
+  async analyzePair(
+    beforeSceneId: string,
+    afterSceneId: string,
+    aoi: BoundingBox,
+    options?: { threshold?: number; minClusterAreaM2?: number; mode?: string }
+  ): Promise<any> {
+    const response = await fetch(`${this.baseUrl}/api/satellite/analyze`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        beforeSceneId,
+        afterSceneId,
+        aoi,
+        threshold: options?.threshold,
+        minClusterAreaM2: options?.minClusterAreaM2,
+        mode: options?.mode,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.error || `Satellite change analysis failed with HTTP status ${response.status}`
+      );
+    }
+
+    return response.json();
+  }
 }
 
 export const satelliteClient = new SatelliteApiClient();

@@ -4,7 +4,7 @@
 **Problem Statement ID:** SIH26227  
 **Operational Status:** Phase 5 Complete (Full Research Prototype + Production Vercel Deployment)  
 **Live Public Demo:** [https://terra-lens-ai.vercel.app/](https://terra-lens-ai.vercel.app/)  
-**Automated Tests:** 98/98 Passing (100% Pass Rate)  
+**Automated Tests:** 121/121 Passing (100% Pass Rate) | Next.js 17/17 Production Routes Compiled  
 **Official SIH Submission:** [SUBMISSION.md](SUBMISSION.md)
 
 ---
@@ -422,12 +422,13 @@ In addition to deterministic Controlled Benchmark Mode, TerraLens AI supports **
 [ Standardized SatelliteScene[] ] (Metadata, Cloud Cover %, Previews)
 ```
 
-### Five Dedicated Server-Side API Endpoints:
+### Six Dedicated Server-Side API Endpoints:
 - `POST /api/satellite/search`: Validates geographic bounding boxes (`min_lat`, `min_lon`, `max_lat`, `max_lon`) and date windows (`startDate`, `endDate`), querying public STAC catalogs with structured timeout/error handling (400, 502, 504).
 - `POST /api/satellite/pairs`: Discovers temporal before/after scene pairs matching user-defined day intervals (14–730 days) and cloud thresholds.
 - `GET /api/satellite/scene/[sceneId]`: Retrieves immutable Sentinel-2 tile metadata, asset references, and true-color previews.
 - `POST /api/satellite/assets`: Discovers georeferenced raster analysis assets (e.g. 10m/20m COGs) and segregates them from preview thumbnails with AOI subwindow compatibility calculations.
-- `POST /api/satellite/prepare`: Validates temporal pairs, verifies CRS/resolution compatibility, coordinates spatial dimension reconciliation, and constructs immutable provenance evidence for Phase 4B change detection.
+- `POST /api/satellite/prepare`: Validates temporal pairs, verifies CRS/resolution compatibility, coordinates spatial dimension reconciliation, and constructs immutable provenance evidence for change detection.
+- `POST /api/satellite/analyze`: Executes the complete Phase 4B scientific bi-temporal Sentinel-2 change analysis pipeline on calibrated surface reflectance tiles, generating GeoJSON change polygons and provenance records.
 
 ### Phase 4A: Real Sentinel-2 Analysis Asset Foundation
 - **Preview vs. Analysis Asset Segregation:**
@@ -440,6 +441,37 @@ In addition to deterministic Controlled Benchmark Mode, TerraLens AI supports **
   - Evaluates native coordinate reference systems and establishes reprojection grids when UTM zones differ without claiming fake georeferencing.
 - **Immutable Provenance Records:**
   - Captures complete audit chain (`PROV-...`), timestamps, processing levels (Level-2A Bottom-of-Atmosphere), sensor instruments, and step-by-step verification history.
+
+### Phase 4B: Real Bi-Temporal Sentinel-2 Change Analysis Engine
+- **Quality Masking (SCL / Validity):**
+  - Evaluates ESA Sentinel-2 Scene Classification Layer (SCL) classes (0–11) to mask out cloud pixels (classes 8, 9, 10), cloud shadows (class 3), defective pixels (class 1), snow/ice (class 11), and nodata (class 0).
+  - Explicitly reports valid surface observation percentage, clouds suppressed, and shadows suppressed.
+- **Surface Reflectance Normalization:**
+  - Converts Level-2A Bottom-of-Atmosphere (BOA) Digital Numbers to physical surface reflectance via scale factor 0.0001 ($DN / 10000.0$).
+- **Deterministic Radiometric Illumination Matching:**
+  - Adjusts gain and offset across valid surface pixels between before and after acquisitions to compensate for sun elevation disparities and atmospheric variations.
+- **Multi-Spectral Difference Indices:**
+  - Computes Normalized Difference Vegetation Index (NDVI) safely with zero-division handling: $\text{NDVI} = \frac{\text{NIR} - \text{Red}}{\text{NIR} + \text{Red}}$.
+  - Formulates multi-spectral change score combining $\Delta\text{NDVI}$, $\Delta\text{Red}$, and $\Delta\text{NIR}$.
+- **Adaptive Statistical Thresholding:**
+  - Employs data-driven threshold formulation ($\mu + 1.8\sigma$ clamped in $[0.15, 0.45]$) avoiding arbitrary magic numbers.
+- **Morphological False-Alarm Mitigation:**
+  - Applies $3\times3$ morphological opening to eliminate isolated pixel noise, followed by $3\times3$ morphological closing to consolidate coherent change boundaries.
+- **Connected Components Spatial Clustering:**
+  - Groups changed pixels into spatial clusters via 8-connectivity.
+  - Enforces minimum cluster area filtering (default $900\text{ m}^2$ or 9 pixels) to suppress speckle noise.
+  - Transforms pixel bounding boxes into geographic coordinates ($[\text{lat}, \text{lon}]$), computing exact area in $\text{m}^2$, hectares, and $\text{km}^2$.
+- **Explainable Change Classification:**
+  - Categorizes each cluster using canonical spectral signatures:
+    - `BUILT_UP_CONSTRUCTION`: Red surface reflectance surge ($\Delta\text{Red} > +0.08$) with vegetation suppression ($\Delta\text{NDVI} < -0.04$).
+    - `VEGETATION_LOSS / CLEARANCE`: Significant vegetation loss ($\Delta\text{NDVI} < -0.15$) with increased bare soil/surface exposure.
+    - `VEGETATION_GROWTH`: Significant vegetation vigor gain ($\Delta\text{NDVI} > +0.15$).
+    - `WATER_VARIATION`: Sharp NIR attenuation ($\Delta\text{NIR} < -0.10$) characteristic of inundation or reservoir level change.
+    - `OTHER / UNCERTAIN`: Unambiguous or mixed spectral transitions.
+- **Explainable Confidence Score Formulation:**
+  - Produces continuous confidence scores in $[0.20, 0.98]$ synthesized from change magnitude, spatial coherence (logarithmic cluster size), and spectral signal consistency.
+- **Standard GeoJSON FeatureCollection:**
+  - Outputs standard WGS84 GeoJSON polygons with cluster properties rendered directly on the interactive TacticalMap with popups and color-coded overlays.
 
 ### Mode Isolation & Data Honesty Guarantees:
 - **Zero Fabrication:** Live Public Data Mode returns only verifiable open-access Copernicus metadata and real public Sentinel-2 assets.

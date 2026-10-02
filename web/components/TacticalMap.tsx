@@ -29,6 +29,8 @@ interface TacticalMapProps {
   onToggleDrawingAoi?: (drawing: boolean) => void;
   selectedScene?: SatelliteScene | null;
   selectedPair?: TemporalPairCandidate | null;
+  // Phase 4B Live Bi-Temporal Analysis Result
+  liveAnalysisResult?: any | null;
 }
 
 type MapMode = "google-hybrid" | "google-streets" | "esri-satellite" | "tactical";
@@ -52,6 +54,7 @@ export function TacticalMap({
   onToggleDrawingAoi,
   selectedScene = null,
   selectedPair = null,
+  liveAnalysisResult = null,
 }: TacticalMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
@@ -60,6 +63,7 @@ export function TacticalMap({
   const searchMarkerRef = useRef<any>(null);
   const aoiLayerRef = useRef<any>(null);
   const sceneFootprintRef = useRef<any>(null);
+  const changeClustersLayerRef = useRef<any>(null);
   const drawPreviewRef = useRef<any>(null);
   const startPointRef = useRef<any>(null);
 
@@ -477,6 +481,92 @@ export function TacticalMap({
       isMounted = false;
     };
   }, [selectedScene, selectedPair]);
+
+  // Render Phase 4B Change Clusters GeoJSON on Tactical Map
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    if (changeClustersLayerRef.current) {
+      changeClustersLayerRef.current.remove();
+      changeClustersLayerRef.current = null;
+    }
+
+    if (!liveAnalysisResult || !liveAnalysisResult.geojson || !liveAnalysisResult.geojson.features?.length) {
+      return;
+    }
+
+    let isMounted = true;
+    import("leaflet").then((L) => {
+      if (!isMounted) return;
+
+      if (changeClustersLayerRef.current) {
+        changeClustersLayerRef.current.remove();
+        changeClustersLayerRef.current = null;
+      }
+
+      const clusterGroup = L.layerGroup();
+
+      const getColorForClass = (cls: string) => {
+        switch (cls) {
+          case "BUILT_UP_CONSTRUCTION":
+            return "#f59e0b"; // Amber
+          case "VEGETATION_LOSS / CLEARANCE":
+            return "#ef4444"; // Red
+          case "VEGETATION_GROWTH":
+            return "#10b981"; // Emerald
+          case "WATER_VARIATION":
+            return "#3b82f6"; // Blue
+          default:
+            return "#a855f7"; // Purple
+        }
+      };
+
+      liveAnalysisResult.geojson.features.forEach((feature: any) => {
+        const props = feature.properties || {};
+        const coords = feature.geometry?.coordinates?.[0];
+        if (!coords || !Array.isArray(coords)) return;
+
+        // Leaflet expects [lat, lon] pairs
+        const latLngs: [number, number][] = coords.map((c: any) => [c[1], c[0]]);
+        const color = getColorForClass(props.classification);
+
+        const polygon = (L as any).polygon(latLngs, {
+          color: color,
+          weight: 2,
+          fillColor: color,
+          fillOpacity: 0.45,
+        });
+
+        polygon.bindTooltip(
+          `<strong>CLUSTER ${props.cluster_id}</strong><br/>` +
+          `Class: <span style="font-weight:bold;color:${color}">${props.classification}</span><br/>` +
+          `Area: ${props.area_m2 ? props.area_m2.toLocaleString() : 0} m² (${((props.area_m2 || 0) / 10000).toFixed(2)} ha)<br/>` +
+          `Confidence: ${props.confidence ? (props.confidence * 100).toFixed(1) : 0}%<br/>` +
+          `<span style="font-size:10px;color:#94a3b8">${props.rationale || ""}</span>`,
+          { permanent: false, direction: "top", className: "tactical-tooltip" }
+        );
+
+        polygon.addTo(clusterGroup);
+      });
+
+      clusterGroup.addTo(map);
+      changeClustersLayerRef.current = clusterGroup;
+
+      // Fit map to clusters bounds if bounding box exists
+      if (liveAnalysisResult.geojson.bbox) {
+        const [minLon, minLat, maxLon, maxLat] = liveAnalysisResult.geojson.bbox;
+        map.fitBounds([
+          [minLat, minLon],
+          [maxLat, maxLon],
+        ], { padding: [30, 30], maxZoom: 15 });
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [liveAnalysisResult]);
 
   // Handle layer switching
   const switchLayer = (newMode: MapMode) => {
