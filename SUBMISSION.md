@@ -12,6 +12,7 @@
 - **Leela Krishna Baddireddy** ([@leelakrishna18](https://github.com/leelakrishna18)) — Semantic Retrieval & Embedding Pipeline
 - **Hemanth Maddula** ([@hemanthmaddula146-sudo](https://github.com/hemanthmaddula146-sudo)) — Multi-Temporal Change & Geospatial Engine
 - **Divija Jangam** ([@divijajangam](https://github.com/divijajangam)) — Web Application & Analyst Interface
+- **Anjana Janyavula** ([@Anjana-Janyavula](https://github.com/Anjana-Janyavula)) — Evaluation Suite, QA & Robustness Benchmarking
 
 ---
 

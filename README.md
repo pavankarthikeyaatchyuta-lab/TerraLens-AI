@@ -399,3 +399,47 @@ Authoritative results from automated benchmark run (`scripts/run_evaluation.py` 
 - **Ground-Truth Annotation:** Unannotated catalog scenes do not have pixel-level ground truth masks; only controlled synthetic pairs have mathematical pixel annotations.
 - **Provenance Trace Lineage:** The system records up to 10 granular chronological steps across query ingestion, embedding generation, FAISS vector search, candidate location retrieval, source image loading, spatial alignment, change detection, morphological false-alarm filtering, confidence evaluation, and human analyst adjudication.
 - **Index Mode:** The current FAISS index uses `IndexFlatIP` (exact search). For scaling to millions of tiles, `IndexIVFFlat` or `IndexHNSW` is recommended.
+
+---
+
+## 11. Live Public Satellite Data Architecture (Copernicus Sentinel-2 L2A STAC)
+
+In addition to deterministic Controlled Benchmark Mode, TerraLens AI supports **Live Public Data Mode** for real-time Earth-observation discovery across the European Space Agency (ESA) Copernicus Sentinel-2 archive via SpatioTemporal Asset Catalog (STAC) endpoints:
+
+```
+[ Analyst AOI Selection ] (Map Drawing or Manual Bounds)
+           ↓
+[ LiveAOISearch.tsx ]
+           ↓
+[ satelliteClient.ts ] (Client-Side API Layer)
+           ↓
+[ POST /api/satellite/search ] (Server-Side Proxy)
+           ↓
+[ CopernicusSentinelProvider ]
+     ├── Primary: Microsoft Planetary Computer STAC
+     └── Fallback: AWS Earth Search (Element 84)
+           ↓
+[ Standardized SatelliteScene[] ] (Metadata, Cloud Cover %, Previews)
+```
+
+### Three Dedicated Server-Side API Endpoints:
+- `POST /api/satellite/search`: Validates geographic bounding boxes (`min_lat`, `min_lon`, `max_lat`, `max_lon`) and date windows (`startDate`, `endDate`), querying public STAC catalogs with structured timeout/error handling (400, 502, 504).
+- `POST /api/satellite/pairs`: Discovers temporal before/after scene pairs matching user-defined day intervals (14–730 days) and cloud thresholds.
+- `GET /api/satellite/scene/[sceneId]`: Retrieves immutable Sentinel-2 tile metadata, asset references, and true-color previews.
+
+### Mode Isolation & Data Honesty Guarantees:
+- **Zero Fabrication:** Live Public Data Mode returns only verifiable open-access Copernicus metadata.
+- **No Silent Fallback:** If upstream STAC endpoints are unreachable, the system explicitly guides the analyst rather than substituting synthetic benchmark data.
+- **Preview Disclosures:** Previews and thumbnails are explicitly labeled as *Preview* rather than full-resolution scientific rasters.
+
+---
+
+## 12. Team & Contributors (Smart India Hackathon 2026)
+
+| Contributor | GitHub Profile | Role | Focus Areas |
+|:---|:---|:---|:---|
+| **Pavan Karthikeya Atchyuta** | [@pavankarthikeyaatychuta-lab](https://github.com/pavankarthikeyaatychuta-lab) | Team Lead & Architect | System architecture, benchmark design, STAC provider abstraction, cloud deployment |
+| **Leela Krishna Baddireddy** | [@leelakrishna18](https://github.com/leelakrishna18) | Core Contributor | Semantic retrieval pipeline, CLIP multimodal embeddings, FAISS indexing |
+| **Hemanth Maddula** | [@hemanthmaddula146-sudo](https://github.com/hemanthmaddula146-sudo) | Core Contributor | Geospatial analytics, spherical area calculations, spatial IoU, MGRS parsing |
+| **Divija Jangam** | [@divijajangam](https://github.com/divijajangam) | Core Contributor | Full-stack Next.js web application, client-side STAC API SDK, interactive Leaflet integration |
+| **Anjana Janyavula** | [@Anjana-Janyavula](https://github.com/Anjana-Janyavula) | Core Contributor | QA & evaluation suite, benchmark verification, robustness testing, documentation |
