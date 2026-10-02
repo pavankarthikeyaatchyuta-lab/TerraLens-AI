@@ -6,12 +6,12 @@
 **Repository:** [https://github.com/pavankarthikeyaatchyuta-lab/TerraLens-AI](https://github.com/pavankarthikeyaatchyuta-lab/TerraLens-AI)  
 **Verification Status:** 126/126 Automated Tests Passing | Next.js 17/17 Routes Compiled | Phase 5B Scientific Validation Complete  
 
-### Team Members & Contributors
-- **Baddireddy Leela Krishna** ([@leelakrishna18](https://github.com/leelakrishna18)) — Team Leader & Semantic Retrieval Pipeline
+### Team Roster & Domain Roles
+- **Baddireddy Leela Krishna** ([@leelakrishna18](https://github.com/leelakrishna18)) — Team Leader, Semantic Retrieval & Embedding Pipeline
 - **Atchyuta Pavan Karthikeya** ([@pavankarthikeyaatychuta-lab](https://github.com/pavankarthikeyaatychuta-lab)) — System Architecture, Satellite Provider Abstraction & Cloud Infrastructure
-- **Hemanth Maddula** ([@hemanthmaddula146-sudo](https://github.com/hemanthmaddula146-sudo)) — Multi-Temporal Change & Geospatial Engine
-- **Divija Jangam** ([@divijajangam](https://github.com/divijajangam)) — Web Application & Analyst Interface
-- **Anjana Janyavula** ([@Anjana-Janyavula](https://github.com/Anjana-Janyavula)) — Evaluation Suite, QA & Robustness Benchmarking
+- **Hemanth Maddula** ([@hemanthmaddula146-sudo](https://github.com/hemanthmaddula146-sudo)) — Geospatial Analytics & Multi-Temporal Change Engine
+- **Divija Jangam** ([@divijajangam](https://github.com/divijajangam)) — Full-Stack Web Application & Analyst Interface
+- **Anjana Janyavula** ([@Anjana-Janyavula](https://github.com/Anjana-Janyavula)) — QA, Evaluation Suite & Robustness Benchmarking
 - **Busireddy Mohan Narayana Reddy** ([@Mohanreddy-lab](https://github.com/Mohanreddy-lab)) — Backend Engineering, Systems & Pre-Flight Auditing
 
 ---

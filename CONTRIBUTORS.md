@@ -12,10 +12,10 @@
 |---|---|---|---|
 | **Baddireddy Leela Krishna** | [@leelakrishna18](https://github.com/leelakrishna18) | Team Leader & AI/Retrieval Lead | Team leadership, multi-modal CLIP embeddings, FAISS vector indexing, semantic search optimization, retrieval benchmarks |
 | **Atchyuta Pavan Karthikeya** | [@pavankarthikeyaatychuta-lab](https://github.com/pavankarthikeyaatychuta-lab) | System Architecture & Cloud Infrastructure | End-to-end architecture, benchmark protocol, cloud infrastructure, STAC provider abstraction |
-| **Hemanth Maddula** | [@hemanthmaddula146-sudo](https://github.com/hemanthmaddula146-sudo) | Core Contributor — Geospatial & Change Engine | Multi-temporal image registration, radiometric normalization, morphological false-alarm filtering, spatial metrics |
-| **Divija Jangam** | [@divijajangam](https://github.com/divijajangam) | Core Contributor — Full-Stack & UI/UX | Next.js analyst dashboard, interactive Leaflet/Google/CARTO maps, client-side STAC API integration, evidence export |
-| **Anjana Janyavula** | [@Anjana-Janyavula](https://github.com/Anjana-Janyavula) | Core Contributor — QA & Evaluation Suite | Benchmark validation, robustness testing, false-alarm metrics, and evaluation documentation |
-| **Busireddy Mohan Narayana Reddy** | [@Mohanreddy-lab](https://github.com/Mohanreddy-lab) | Core Contributor — Backend Engineering & Systems Auditing | Backend API services, server-side data pipeline integration, network boundary security, pre-flight audits, and systems verification |
+| **Hemanth Maddula** | [@hemanthmaddula146-sudo](https://github.com/hemanthmaddula146-sudo) | Geospatial Analytics & Change Engine | Multi-temporal image registration, radiometric normalization, morphological false-alarm filtering, spatial metrics |
+| **Divija Jangam** | [@divijajangam](https://github.com/divijajangam) | Full-Stack Web Application & UI/UX | Next.js analyst dashboard, interactive Leaflet/Google/CARTO maps, client-side STAC API integration, evidence export |
+| **Anjana Janyavula** | [@Anjana-Janyavula](https://github.com/Anjana-Janyavula) | QA, Evaluation Suite & Benchmarking | Benchmark validation, robustness testing, false-alarm metrics, and evaluation documentation |
+| **Busireddy Mohan Narayana Reddy** | [@Mohanreddy-lab](https://github.com/Mohanreddy-lab) | Backend Engineering & Systems Auditing | Backend API services, server-side data pipeline integration, network boundary security, pre-flight audits, and systems verification |
 
 ---
 
