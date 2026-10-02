@@ -31,18 +31,18 @@ Cross-modal semantic search using normalized 512-dimensional CLIP baseline embed
 - **Precision@1:** 0.4 *(Fraction of top 1 retrieved items that are relevant)*
 - **Mean Reciprocal Rank (MRR):** 0.6667 *(Mean Reciprocal Rank over benchmark queries)*
 - **Target Location Hit@1:** 0.4 *(Top-1 candidate location match rate)*
-- **Cold-Start Model Initialization Latency:** 387.6 ms (~0.39 s) *(One-time CLIP model loading into memory)*
-- **First-Query Total Latency:** 9012.2 ms *(Cold-start execution including pipeline initialization)*
-- **Warm Semantic Retrieval Latency (Mean):** 12.2 ms *(Steady-state query execution over FAISS vector index)*
+- **Cold-Start Model Initialization Latency:** 421.5 ms (~0.42 s) *(One-time CLIP model loading into memory)*
+- **First-Query Total Latency:** 9150.9 ms *(Cold-start execution including pipeline initialization)*
+- **Warm Semantic Retrieval Latency (Mean):** 16.58 ms *(Steady-state query execution over FAISS vector index)*
 
 ### Individual Query Performance
 | Query ID / Text | Relevant Scenes | Retrieved @ 1 | Latency | R@1 | R@3 | R@5 | MRR |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| *"urban expansion and new construction near river"* | 2 | `SCENE_LOC_001_HYDERABAD_URBAN_2025` | 9012.2ms | 0.50 | 0.50 | 0.50 | 1.00 |
-| *"water reservoir shoreline drying and lake shrinkage"* | 2 | `SCENE_LOC_001_HYDERABAD_URBAN_2023` | 11.6ms | 0.00 | 0.50 | 0.50 | 0.50 |
-| *"forest road clearing corridor and tree removal"* | 2 | `SCENE_LOC_001_HYDERABAD_URBAN_2025` | 12.2ms | 0.00 | 0.50 | 0.50 | 0.50 |
-| *"coastal port reclamation and ocean harbor pier"* | 2 | `SCENE_LOC_001_HYDERABAD_URBAN_2025` | 11.7ms | 0.00 | 0.50 | 0.50 | 0.33 |
-| *"solar panel farm photovoltaic arrays in desert terrain"* | 2 | `SCENE_LOC_005_THAR_SOLAR_PARK_2025` | 13.2ms | 0.50 | 0.50 | 0.50 | 1.00 |
+| *"urban expansion and new construction near river"* | 2 | `SCENE_LOC_001_HYDERABAD_URBAN_2025` | 9150.9ms | 0.50 | 0.50 | 0.50 | 1.00 |
+| *"water reservoir shoreline drying and lake shrinkage"* | 2 | `SCENE_LOC_001_HYDERABAD_URBAN_2023` | 19.9ms | 0.00 | 0.50 | 0.50 | 0.50 |
+| *"forest road clearing corridor and tree removal"* | 2 | `SCENE_LOC_001_HYDERABAD_URBAN_2025` | 18.2ms | 0.00 | 0.50 | 0.50 | 0.50 |
+| *"coastal port reclamation and ocean harbor pier"* | 2 | `SCENE_LOC_001_HYDERABAD_URBAN_2025` | 14.2ms | 0.00 | 0.50 | 0.50 | 0.33 |
+| *"solar panel farm photovoltaic arrays in desert terrain"* | 2 | `SCENE_LOC_005_THAR_SOLAR_PARK_2025` | 14.0ms | 0.50 | 0.50 | 0.50 | 1.00 |
 
 ---
 
@@ -93,8 +93,8 @@ Actual measured execution times using `time.perf_counter()`:
 
 - **FAISS Index File Size:** 20.04 KB (10 vectors, dim=512)
 - **FAISS Metadata File Size:** 5.35 KB
-- **Semantic Retrieval Latency (Warm Mean):** 15.8 ms (Min: 12.3 ms, Max: 20.87 ms)
-- **Temporal Analysis Latency (Mean):** 33.37 ms (Shape: (512, 512), Min: 30.91 ms, Max: 38.0 ms)
+- **Semantic Retrieval Latency (Warm Mean):** 15.31 ms (Min: 11.7 ms, Max: 18.83 ms)
+- **Temporal Analysis Latency (Mean):** 40.51 ms (Shape: (512, 512), Min: 35.86 ms, Max: 43.53 ms)
 
 ---
 
