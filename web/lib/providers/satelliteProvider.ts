@@ -158,3 +158,112 @@ export function validateSearchQuery(query: SatelliteSearchQuery): { valid: boole
 
   return { valid: true };
 }
+
+/**
+ * Normalizes various bounding box representations into canonical TerraLens BoundingBox:
+ * { min_lat, min_lon, max_lat, max_lon }
+ */
+export function normalizeBoundingBox(input: unknown): BoundingBox | null {
+  if (!input) return null;
+
+  if (Array.isArray(input) && input.length === 4) {
+    const [minLon, minLat, maxLon, maxLat] = input.map(Number);
+    if ([minLon, minLat, maxLon, maxLat].every((n) => typeof n === "number" && !isNaN(n))) {
+      return {
+        min_lat: minLat,
+        min_lon: minLon,
+        max_lat: maxLat,
+        max_lon: maxLon,
+      };
+    }
+    return null;
+  }
+
+  if (typeof input === "object" && input !== null) {
+    const obj = input as Record<string, unknown>;
+
+    // Handle camelCase { minLat, minLon, maxLat, maxLon }
+    if (
+      "minLat" in obj &&
+      "minLon" in obj &&
+      "maxLat" in obj &&
+      "maxLon" in obj
+    ) {
+      const min_lat = Number(obj.minLat);
+      const min_lon = Number(obj.minLon);
+      const max_lat = Number(obj.maxLat);
+      const max_lon = Number(obj.maxLon);
+      if ([min_lat, min_lon, max_lat, max_lon].every((n) => !isNaN(n))) {
+        return { min_lat, min_lon, max_lat, max_lon };
+      }
+    }
+
+    // Handle snake_case { min_lat, min_lon, max_lat, max_lon }
+    if (
+      "min_lat" in obj &&
+      "min_lon" in obj &&
+      "max_lat" in obj &&
+      "max_lon" in obj
+    ) {
+      const min_lat = Number(obj.min_lat);
+      const min_lon = Number(obj.min_lon);
+      const max_lat = Number(obj.max_lat);
+      const max_lon = Number(obj.max_lon);
+      if ([min_lat, min_lon, max_lat, max_lon].every((n) => !isNaN(n))) {
+        return { min_lat, min_lon, max_lat, max_lon };
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Validates TemporalConstraints for temporal pair discovery.
+ */
+export function validateTemporalConstraints(
+  constraints?: TemporalConstraints
+): { valid: boolean; error?: string } {
+  if (!constraints) return { valid: true };
+
+  if (constraints.minDaysDifference !== undefined) {
+    if (
+      typeof constraints.minDaysDifference !== "number" ||
+      isNaN(constraints.minDaysDifference) ||
+      constraints.minDaysDifference < 0
+    ) {
+      return { valid: false, error: "minDaysDifference must be a non-negative number." };
+    }
+  }
+
+  if (constraints.maxDaysDifference !== undefined) {
+    if (
+      typeof constraints.maxDaysDifference !== "number" ||
+      isNaN(constraints.maxDaysDifference) ||
+      constraints.maxDaysDifference < 0
+    ) {
+      return { valid: false, error: "maxDaysDifference must be a non-negative number." };
+    }
+  }
+
+  if (
+    constraints.minDaysDifference !== undefined &&
+    constraints.maxDaysDifference !== undefined &&
+    constraints.minDaysDifference > constraints.maxDaysDifference
+  ) {
+    return { valid: false, error: "minDaysDifference cannot exceed maxDaysDifference." };
+  }
+
+  if (constraints.maxCloudCover !== undefined) {
+    if (
+      typeof constraints.maxCloudCover !== "number" ||
+      isNaN(constraints.maxCloudCover) ||
+      constraints.maxCloudCover < 0 ||
+      constraints.maxCloudCover > 100
+    ) {
+      return { valid: false, error: "maxCloudCover must be bounded between 0 and 100 percent." };
+    }
+  }
+
+  return { valid: true };
+}
