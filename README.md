@@ -4,7 +4,7 @@
 **Problem Statement ID:** SIH26227  
 **Operational Status:** Phase 5 Complete (Full Research Prototype + Production Vercel Deployment)  
 **Live Public Demo:** [https://terra-lens-ai.vercel.app/](https://terra-lens-ai.vercel.app/)  
-**Automated Tests:** 87/87 Passing (100% Pass Rate)  
+**Automated Tests:** 98/98 Passing (100% Pass Rate)  
 **Official SIH Submission:** [SUBMISSION.md](SUBMISSION.md)
 
 ---
@@ -422,13 +422,27 @@ In addition to deterministic Controlled Benchmark Mode, TerraLens AI supports **
 [ Standardized SatelliteScene[] ] (Metadata, Cloud Cover %, Previews)
 ```
 
-### Three Dedicated Server-Side API Endpoints:
+### Five Dedicated Server-Side API Endpoints:
 - `POST /api/satellite/search`: Validates geographic bounding boxes (`min_lat`, `min_lon`, `max_lat`, `max_lon`) and date windows (`startDate`, `endDate`), querying public STAC catalogs with structured timeout/error handling (400, 502, 504).
 - `POST /api/satellite/pairs`: Discovers temporal before/after scene pairs matching user-defined day intervals (14–730 days) and cloud thresholds.
 - `GET /api/satellite/scene/[sceneId]`: Retrieves immutable Sentinel-2 tile metadata, asset references, and true-color previews.
+- `POST /api/satellite/assets`: Discovers georeferenced raster analysis assets (e.g. 10m/20m COGs) and segregates them from preview thumbnails with AOI subwindow compatibility calculations.
+- `POST /api/satellite/prepare`: Validates temporal pairs, verifies CRS/resolution compatibility, coordinates spatial dimension reconciliation, and constructs immutable provenance evidence for Phase 4B change detection.
+
+### Phase 4A: Real Sentinel-2 Analysis Asset Foundation
+- **Preview vs. Analysis Asset Segregation:**
+  - *Preview Assets* (`rendered_preview`, `thumbnail`, `image/png`, `image/jpeg`): Restricted strictly to UI visualization and prohibited from scientific processing.
+  - *Analysis Assets* (`visual`, `B02`, `B03`, `B04`, `B08`, `image/tiff; profile=cloud-optimized`): Georeferenced Cloud-Optimized GeoTIFFs (COGs) possessing coordinate reference systems (CRS: EPSG:326xx), affine transforms, and native 10m/20m spatial resolutions.
+- **AOI Subwindow Windowing Strategy:**
+  - Eliminates multi-gigabyte SAFE archive downloads by projecting user AOIs into raster pixel offsets (`colOff`, `rowOff`, `width`, `height`).
+  - Enables HTTP partial range requests (Status 206), reducing data transfer from ~800 MB full granules to ~5.1 MB subwindows.
+- **Dimension Reconciliation & Image Alignment:**
+  - Evaluates native coordinate reference systems and establishes reprojection grids when UTM zones differ without claiming fake georeferencing.
+- **Immutable Provenance Records:**
+  - Captures complete audit chain (`PROV-...`), timestamps, processing levels (Level-2A Bottom-of-Atmosphere), sensor instruments, and step-by-step verification history.
 
 ### Mode Isolation & Data Honesty Guarantees:
-- **Zero Fabrication:** Live Public Data Mode returns only verifiable open-access Copernicus metadata.
+- **Zero Fabrication:** Live Public Data Mode returns only verifiable open-access Copernicus metadata and real public Sentinel-2 assets.
 - **No Silent Fallback:** If upstream STAC endpoints are unreachable, the system explicitly guides the analyst rather than substituting synthetic benchmark data.
 - **Preview Disclosures:** Previews and thumbnails are explicitly labeled as *Preview* rather than full-resolution scientific rasters.
 
