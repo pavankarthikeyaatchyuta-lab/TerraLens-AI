@@ -10,8 +10,8 @@
 
 | Name | GitHub Profile | Primary Role | Domain Responsibilities |
 |---|---|---|---|
-| **Pavan Karthikeya Atchyuta** | [@pavankarthikeyaatychuta-lab](https://github.com/pavankarthikeyaatychuta-lab) | Team Lead & System Architect | End-to-end architecture, benchmark protocol, cloud infrastructure, STAC provider abstraction |
-| **Leela Krishna Baddireddy** | [@leelakrishna18](https://github.com/leelakrishna18) | Core Contributor — AI & Retrieval | Multi-modal CLIP embeddings, FAISS vector indexing, semantic search optimization, retrieval benchmarks |
+| **Baddireddy Leela Krishna** | [@leelakrishna18](https://github.com/leelakrishna18) | Team Leader & AI/Retrieval Lead | Team leadership, multi-modal CLIP embeddings, FAISS vector indexing, semantic search optimization, retrieval benchmarks |
+| **Atchyuta Pavan Karthikeya** | [@pavankarthikeyaatychuta-lab](https://github.com/pavankarthikeyaatychuta-lab) | Team Member & System Architect | End-to-end architecture, benchmark protocol, cloud infrastructure, STAC provider abstraction |
 | **Hemanth Maddula** | [@hemanthmaddula146-sudo](https://github.com/hemanthmaddula146-sudo) | Core Contributor — Geospatial & Change Engine | Multi-temporal image registration, radiometric normalization, morphological false-alarm filtering, spatial metrics |
 | **Divija Jangam** | [@divijajangam](https://github.com/divijajangam) | Core Contributor — Full-Stack & UI/UX | Next.js analyst dashboard, interactive Leaflet/Google/CARTO maps, client-side STAC API integration, evidence export |
 | **Anjana Janyavula** | [@Anjana-Janyavula](https://github.com/Anjana-Janyavula) | Core Contributor — QA & Evaluation Suite | Benchmark validation, robustness testing, false-alarm metrics, and evaluation documentation |

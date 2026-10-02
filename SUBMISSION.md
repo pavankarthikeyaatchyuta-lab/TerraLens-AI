@@ -7,8 +7,8 @@
 **Verification Status:** 126/126 Automated Tests Passing | Next.js 17/17 Routes Compiled | Phase 5B Scientific Validation Complete  
 
 ### Team Members & Contributors
-- **Pavan Karthikeya Atchyuta** ([@pavankarthikeyaatychuta-lab](https://github.com/pavankarthikeyaatychuta-lab)) — Team Lead & System Architecture
-- **Leela Krishna Baddireddy** ([@leelakrishna18](https://github.com/leelakrishna18)) — Semantic Retrieval & Embedding Pipeline
+- **Baddireddy Leela Krishna** ([@leelakrishna18](https://github.com/leelakrishna18)) — Team Leader & Semantic Retrieval Pipeline
+- **Atchyuta Pavan Karthikeya** ([@pavankarthikeyaatychuta-lab](https://github.com/pavankarthikeyaatychuta-lab)) — Team Member & System Architecture
 - **Hemanth Maddula** ([@hemanthmaddula146-sudo](https://github.com/hemanthmaddula146-sudo)) — Multi-Temporal Change & Geospatial Engine
 - **Divija Jangam** ([@divijajangam](https://github.com/divijajangam)) — Web Application & Analyst Interface
 - **Anjana Janyavula** ([@Anjana-Janyavula](https://github.com/Anjana-Janyavula)) — Evaluation Suite, QA & Robustness Benchmarking
