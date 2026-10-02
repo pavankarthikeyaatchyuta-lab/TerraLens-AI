@@ -14,11 +14,21 @@ import {
   Loader2,
   Layers,
 } from "lucide-react";
+import { BoundingBox } from "@/types";
+import { SatelliteScene, TemporalPairCandidate } from "@/lib/providers/satelliteProvider";
 
 interface TacticalMapProps {
   locations: Location[];
   selectedLocationId: string;
   onSelectLocation: (locationId: string) => void;
+  // Phase 3 Live Public Data Mode props
+  isLiveMode?: boolean;
+  aoi?: BoundingBox | null;
+  onAoiChange?: (aoi: BoundingBox | null) => void;
+  isDrawingAoi?: boolean;
+  onToggleDrawingAoi?: (drawing: boolean) => void;
+  selectedScene?: SatelliteScene | null;
+  selectedPair?: TemporalPairCandidate | null;
 }
 
 type MapMode = "google-hybrid" | "google-streets" | "esri-satellite" | "tactical";
@@ -35,12 +45,23 @@ export function TacticalMap({
   locations,
   selectedLocationId,
   onSelectLocation,
+  isLiveMode = false,
+  aoi = null,
+  onAoiChange,
+  isDrawingAoi = false,
+  onToggleDrawingAoi,
+  selectedScene = null,
+  selectedPair = null,
 }: TacticalMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<{ [key: string]: any }>({});
   const layersRef = useRef<{ [key in MapMode]?: any }>({});
   const searchMarkerRef = useRef<any>(null);
+  const aoiLayerRef = useRef<any>(null);
+  const sceneFootprintRef = useRef<any>(null);
+  const drawPreviewRef = useRef<any>(null);
+  const startPointRef = useRef<any>(null);
 
   const [mapMode, setMapMode] = useState<MapMode>("google-hybrid");
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -248,6 +269,214 @@ export function TacticalMap({
       isMounted = false;
     };
   }, [locations, selectedLocationId, onSelectLocation]);
+
+  // Synchronize Analyst AOI Rectangle on Map
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    let isMounted = true;
+    import("leaflet").then((L) => {
+      if (!isMounted) return;
+
+      if (aoiLayerRef.current) {
+        aoiLayerRef.current.remove();
+        aoiLayerRef.current = null;
+      }
+
+      if (aoi) {
+        const bounds: [[number, number], [number, number]] = [
+          [aoi.min_lat, aoi.min_lon],
+          [aoi.max_lat, aoi.max_lon],
+        ];
+        const rect = L.rectangle(bounds, {
+          color: "#f59e0b", // Amber for analyst AOI
+          weight: 2.5,
+          fillColor: "#f59e0b",
+          fillOpacity: 0.15,
+          dashArray: "6, 6",
+        }).addTo(map);
+
+        rect.bindTooltip(
+          `<strong>ANALYST AOI</strong><br/>[${aoi.min_lat.toFixed(4)}, ${aoi.min_lon.toFixed(4)}] to [${aoi.max_lat.toFixed(4)}, ${aoi.max_lon.toFixed(4)}]`,
+          { permanent: false, direction: "top", className: "tactical-tooltip" }
+        );
+
+        aoiLayerRef.current = rect;
+
+        if (isLiveMode) {
+          map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13, duration: 1.0 });
+        }
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [aoi, isLiveMode]);
+
+  // Handle Interactive Map AOI Drawing
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    if (!isDrawingAoi) {
+      if (mapContainerRef.current) {
+        mapContainerRef.current.style.cursor = "";
+      }
+      map.dragging.enable();
+      if (drawPreviewRef.current) {
+        drawPreviewRef.current.remove();
+        drawPreviewRef.current = null;
+      }
+      startPointRef.current = null;
+      return;
+    }
+
+    if (mapContainerRef.current) {
+      mapContainerRef.current.style.cursor = "crosshair";
+    }
+    map.dragging.disable();
+
+    let LInstance: any = null;
+    import("leaflet").then((L) => {
+      LInstance = L;
+    });
+
+    const onMouseDown = (e: any) => {
+      startPointRef.current = e.latlng;
+    };
+
+    const onMouseMove = (e: any) => {
+      if (!startPointRef.current || !LInstance) return;
+      const start = startPointRef.current;
+      const curr = e.latlng;
+      const bounds: [[number, number], [number, number]] = [
+        [Math.min(start.lat, curr.lat), Math.min(start.lng, curr.lng)],
+        [Math.max(start.lat, curr.lat), Math.max(start.lng, curr.lng)],
+      ];
+
+      if (!drawPreviewRef.current) {
+        drawPreviewRef.current = LInstance.rectangle(bounds, {
+          color: "#00e5ff",
+          weight: 2,
+          fillColor: "#00e5ff",
+          fillOpacity: 0.2,
+          dashArray: "4, 4",
+        }).addTo(map);
+      } else {
+        drawPreviewRef.current.setBounds(bounds);
+      }
+    };
+
+    const onMouseUp = (e: any) => {
+      if (!startPointRef.current) return;
+      const start = startPointRef.current;
+      const end = e.latlng;
+
+      const minLat = Math.min(start.lat, end.lat);
+      const minLon = Math.min(start.lng, end.lng);
+      const maxLat = Math.max(start.lat, end.lat);
+      const maxLon = Math.max(start.lng, end.lng);
+
+      if (drawPreviewRef.current) {
+        drawPreviewRef.current.remove();
+        drawPreviewRef.current = null;
+      }
+      startPointRef.current = null;
+
+      if (mapContainerRef.current) {
+        mapContainerRef.current.style.cursor = "";
+      }
+      map.dragging.enable();
+
+      if (Math.abs(maxLat - minLat) > 0.001 && Math.abs(maxLon - minLon) > 0.001) {
+        if (onAoiChange) {
+          onAoiChange({
+            min_lat: parseFloat(minLat.toFixed(5)),
+            min_lon: parseFloat(minLon.toFixed(5)),
+            max_lat: parseFloat(maxLat.toFixed(5)),
+            max_lon: parseFloat(maxLon.toFixed(5)),
+          });
+        }
+      }
+
+      if (onToggleDrawingAoi) {
+        onToggleDrawingAoi(false);
+      }
+    };
+
+    map.on("mousedown", onMouseDown);
+    map.on("mousemove", onMouseMove);
+    map.on("mouseup", onMouseUp);
+
+    return () => {
+      map.off("mousedown", onMouseDown);
+      map.off("mousemove", onMouseMove);
+      map.off("mouseup", onMouseUp);
+      map.dragging.enable();
+      if (mapContainerRef.current) {
+        mapContainerRef.current.style.cursor = "";
+      }
+      if (drawPreviewRef.current) {
+        drawPreviewRef.current.remove();
+        drawPreviewRef.current = null;
+      }
+      startPointRef.current = null;
+    };
+  }, [isDrawingAoi, onAoiChange, onToggleDrawingAoi]);
+
+  // Synchronize Live Sentinel-2 Scene Footprint
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    const targetScene = selectedScene || selectedPair?.afterScene || selectedPair?.beforeScene;
+    if (!targetScene) {
+      if (sceneFootprintRef.current) {
+        sceneFootprintRef.current.remove();
+        sceneFootprintRef.current = null;
+      }
+      return;
+    }
+
+    let isMounted = true;
+    import("leaflet").then((L) => {
+      if (!isMounted) return;
+
+      if (sceneFootprintRef.current) {
+        sceneFootprintRef.current.remove();
+        sceneFootprintRef.current = null;
+      }
+
+      const [minLon, minLat, maxLon, maxLat] = targetScene.bbox;
+      if (minLat !== 0 || maxLat !== 0) {
+        const bounds: [[number, number], [number, number]] = [
+          [minLat, minLon],
+          [maxLat, maxLon],
+        ];
+
+        const footprint = L.rectangle(bounds, {
+          color: "#10b981", // Emerald for live Sentinel-2 scene
+          weight: 3,
+          fillColor: "#10b981",
+          fillOpacity: 0.18,
+        }).addTo(map);
+
+        footprint.bindTooltip(
+          `<strong>SENTINEL-2 FOOTPRINT</strong><br/>${targetScene.sceneId}<br/>Acquired: ${targetScene.acquisitionDate.split("T")[0]}<br/>Cloud: ${targetScene.cloudCoverPercentage.toFixed(1)}%`,
+          { permanent: false, direction: "top", className: "tactical-tooltip" }
+        );
+
+        sceneFootprintRef.current = footprint;
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 12, duration: 1.2 });
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedScene, selectedPair]);
 
   // Handle layer switching
   const switchLayer = (newMode: MapMode) => {
@@ -472,6 +701,46 @@ export function TacticalMap({
           </div>
         )}
       </div>
+
+      {/* Live Mode AOI Telemetry Bar */}
+      {isLiveMode && (
+        <div className="absolute top-12 left-2.5 z-[25] flex flex-wrap items-center gap-1.5 font-mono text-[10px] max-w-[calc(100%-20px)] pointer-events-auto">
+          {isDrawingAoi ? (
+            <div className="bg-amber-500/90 text-slate-950 font-bold px-2.5 py-1 rounded shadow-md animate-pulse flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-slate-950" />
+              <span>DRAG TO DRAW AOI RECTANGLE ON MAP</span>
+            </div>
+          ) : aoi ? (
+            <div className="bg-tactical-950/95 border border-amber-500/50 text-amber-300 px-2 py-0.5 rounded shadow-md flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+              <span>
+                AOI: [{aoi.min_lat.toFixed(2)}, {aoi.min_lon.toFixed(2)}] to [{aoi.max_lat.toFixed(2)}, {aoi.max_lon.toFixed(2)}]
+              </span>
+              {onAoiChange && (
+                <button
+                  type="button"
+                  onClick={() => onAoiChange(null)}
+                  className="hover:text-rose-400 text-slate-400 ml-1 px-1 font-bold"
+                  title="Clear AOI"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="bg-tactical-950/85 border border-slate-700 text-slate-400 px-2 py-0.5 rounded shadow-md">
+              LIVE SATELLITE DISCOVERY MODE
+            </div>
+          )}
+
+          {selectedScene && (
+            <div className="bg-emerald-950/95 border border-emerald-500/50 text-emerald-300 px-2 py-0.5 rounded shadow-md flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="truncate max-w-[180px]">SCENE: {selectedScene.sceneId}</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Top-Right Quick Actions: Expand/Collapse & Reset View */}
       <div className="absolute top-2.5 right-2.5 z-[25] flex items-center gap-1.5">

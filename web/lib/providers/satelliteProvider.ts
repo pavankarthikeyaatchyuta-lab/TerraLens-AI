@@ -5,7 +5,8 @@
  * and Controlled Benchmark / Offline Research Mode with deterministic reproducibility.
  */
 
-import { BoundingBox } from "@/types";
+export type { BoundingBox } from "@/types";
+import type { BoundingBox } from "@/types";
 
 export type OperatingMode = "CONTROLLED_BENCHMARK" | "LIVE_PUBLIC_DATA" | "OFFLINE_RESEARCH";
 
