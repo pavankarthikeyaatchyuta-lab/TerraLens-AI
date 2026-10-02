@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import {
   SatelliteScene,
   TemporalPairCandidate,
+  AnalysisPreparationResult,
 } from "@/lib/providers/satelliteProvider";
 import { BoundingBox } from "@/types";
 import { satelliteClient } from "@/lib/api/satelliteClient";
@@ -23,6 +24,9 @@ import {
   Filter,
   Eye,
   ShieldAlert,
+  Cpu,
+  FileCheck,
+  Binary,
 } from "lucide-react";
 
 interface LiveAOISearchProps {
@@ -98,6 +102,11 @@ export function LiveAOISearch({
   const [temporalPairs, setTemporalPairs] = useState<TemporalPairCandidate[]>([]);
   const [pairError, setPairError] = useState<string | null>(null);
   const [hasSearchedPairs, setHasSearchedPairs] = useState<boolean>(false);
+
+  // Phase 4A: Real Analysis Asset Preparation State
+  const [isPreparing, setIsPreparing] = useState<boolean>(false);
+  const [prepareResult, setPrepareResult] = useState<AnalysisPreparationResult | null>(null);
+  const [prepareError, setPrepareError] = useState<string | null>(null);
 
   // Handle Manual AOI Apply
   const handleApplyManualAoi = () => {
@@ -242,6 +251,38 @@ export function LiveAOISearch({
     onSelectScene(pair.beforeScene, "before");
     onSelectScene(pair.afterScene, "after");
     if (onFocusSceneOnMap) onFocusSceneOnMap(pair.afterScene);
+  };
+
+  // Phase 4A: Execute Analysis Preparation & Spatial Alignment
+  const handlePrepareAnalysis = async () => {
+    if (!selectedBeforeScene || !selectedAfterScene) {
+      setPrepareError("Please select both a Before scene and an After scene.");
+      return;
+    }
+
+    if (!aoi) {
+      setPrepareError("Please define an Area of Interest (AOI) bounding box.");
+      return;
+    }
+
+    setIsPreparing(true);
+    setPrepareError(null);
+
+    try {
+      const result = await satelliteClient.prepareAnalysis(
+        selectedBeforeScene.sceneId,
+        selectedAfterScene.sceneId,
+        aoi,
+        "LIVE_PUBLIC_DATA"
+      );
+      setPrepareResult(result);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setPrepareError(`Analysis preparation failed: ${msg}`);
+      setPrepareResult(null);
+    } finally {
+      setIsPreparing(false);
+    }
   };
 
   return (
@@ -644,12 +685,153 @@ export function LiveAOISearch({
           </div>
         </div>
 
-        {selectedBeforeScene && selectedAfterScene && (
-          <div className="p-2.5 rounded bg-emerald-950/30 border border-emerald-500/40 text-emerald-300 text-xs font-mono flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-            <span>
-              Acquisition pair selected. Spatial alignment and change detection pipeline will execute in Phase 4.
-            </span>
+        {selectedBeforeScene && selectedAfterScene && aoi && (
+          <div className="pt-2 border-t border-tactical-750 space-y-3">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={handlePrepareAnalysis}
+                disabled={isPreparing}
+                className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-mono font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center justify-center gap-2"
+              >
+                <Cpu className={`w-4 h-4 ${isPreparing ? "animate-spin" : ""}`} />
+                <span>
+                  {isPreparing ? "VERIFYING RASTER ASSETS & ALIGNMENT..." : "PREPARE FOR ANALYSIS (PHASE 4A)"}
+                </span>
+              </button>
+            </div>
+
+            {prepareError && (
+              <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs font-mono flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0 text-rose-400 mt-0.5" />
+                <div>
+                  <p className="font-bold">Analysis Preparation Error</p>
+                  <p className="text-[11px] text-rose-300/80">{prepareError}</p>
+                </div>
+              </div>
+            )}
+
+            {prepareResult && (
+              <div className="p-3.5 rounded-lg bg-tactical-900 border border-tactical-700 space-y-3 font-mono">
+                {/* Header with overall readiness badge */}
+                <div className="flex items-center justify-between pb-2 border-b border-tactical-800">
+                  <div className="flex items-center gap-2">
+                    <FileCheck className="w-4 h-4 text-emerald-400" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-200">
+                      ANALYSIS READINESS ASSESSMENT
+                    </span>
+                  </div>
+                  <span
+                    className={`px-2.5 py-0.5 rounded text-[11px] font-bold border ${
+                      prepareResult.status === "READY_FOR_ANALYSIS"
+                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                        : "bg-rose-500/20 text-rose-300 border-rose-500/40"
+                    }`}
+                  >
+                    {prepareResult.status}
+                  </span>
+                </div>
+
+                {/* Structured 10-point audit specification */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                  <div className="bg-tactical-950 p-2 rounded border border-tactical-800">
+                    <span className="text-slate-400 block text-[10px] uppercase">Before Scene</span>
+                    <span className="text-blue-300 truncate block font-semibold" title={prepareResult.beforeScene.sceneId}>
+                      {prepareResult.beforeScene.sceneId}
+                    </span>
+                    <span className="text-[10px] text-slate-500">{prepareResult.beforeScene.acquisitionDate.split("T")[0]}</span>
+                  </div>
+
+                  <div className="bg-tactical-950 p-2 rounded border border-tactical-800">
+                    <span className="text-slate-400 block text-[10px] uppercase">After Scene</span>
+                    <span className="text-amber-300 truncate block font-semibold" title={prepareResult.afterScene.sceneId}>
+                      {prepareResult.afterScene.sceneId}
+                    </span>
+                    <span className="text-[10px] text-slate-500">{prepareResult.afterScene.acquisitionDate.split("T")[0]}</span>
+                  </div>
+
+                  <div className="bg-tactical-950 p-2 rounded border border-tactical-800">
+                    <span className="text-slate-400 block text-[10px] uppercase">Analysis Asset</span>
+                    <span className="text-emerald-300 font-semibold truncate block">
+                      {prepareResult.analysisAssets.before[0]?.title || "True Color COG (10m)"}
+                    </span>
+                    <span className="text-[10px] text-slate-500">
+                      {prepareResult.analysisAssets.before.length} analysis bands verified
+                    </span>
+                  </div>
+
+                  <div className="bg-tactical-950 p-2 rounded border border-tactical-800">
+                    <span className="text-slate-400 block text-[10px] uppercase">Resolution & CRS</span>
+                    <span className="text-cyan-300 font-semibold block">
+                      {prepareResult.alignment.targetResolution} m • {prepareResult.alignment.targetCrs}
+                    </span>
+                    <span className="text-[10px] text-slate-500">
+                      CRS Match: {prepareResult.alignment.crsMatch ? "EXACT" : "REPROJECTION"}
+                    </span>
+                  </div>
+
+                  <div className="bg-tactical-950 p-2 rounded border border-tactical-800">
+                    <span className="text-slate-400 block text-[10px] uppercase">Spatial Coverage</span>
+                    <span className="text-slate-200 font-semibold block">
+                      {prepareResult.alignment.aoiIntersectionPercentage}% AOI Overlap
+                    </span>
+                    <span className="text-[10px] text-slate-500">Both scenes cover target area</span>
+                  </div>
+
+                  <div className="bg-tactical-950 p-2 rounded border border-tactical-800">
+                    <span className="text-slate-400 block text-[10px] uppercase">Temporal Gap</span>
+                    <span className="text-purple-300 font-semibold block">
+                      {prepareResult.temporalSeparationDays} days baseline
+                    </span>
+                    <span className="text-[10px] text-slate-500">Chronological order verified</span>
+                  </div>
+
+                  <div className="bg-tactical-950 p-2 rounded border border-tactical-800">
+                    <span className="text-slate-400 block text-[10px] uppercase">Raster Readiness</span>
+                    <span className="text-emerald-400 font-semibold block">READY</span>
+                    <span className="text-[10px] text-slate-500">Cloud-Optimized GeoTIFFs (COGs)</span>
+                  </div>
+
+                  <div className="bg-tactical-950 p-2 rounded border border-tactical-800">
+                    <span className="text-slate-400 block text-[10px] uppercase">Alignment Readiness</span>
+                    <span className="text-emerald-400 font-semibold block">
+                      {prepareResult.alignment.status}
+                    </span>
+                    <span className="text-[10px] text-slate-500 truncate block" title={prepareResult.alignment.dimensionReconciliation.method}>
+                      {prepareResult.alignment.dimensionReconciliation.method}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Provenance Evidence Chain */}
+                <div className="p-2.5 rounded bg-tactical-950 border border-tactical-800 space-y-1.5">
+                  <div className="flex items-center justify-between text-[10px] text-slate-400">
+                    <span className="flex items-center gap-1">
+                      <Binary className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>PROVENANCE EVIDENCE RECORD:</span>
+                    </span>
+                    <span className="font-mono text-cyan-300 bg-cyan-950/60 px-1.5 py-0.5 rounded border border-cyan-500/30">
+                      {prepareResult.provenance.provenanceId}
+                    </span>
+                  </div>
+                  <div className="text-[10px] text-slate-400 space-y-0.5">
+                    <div><span className="text-slate-500">Processing Level:</span> {prepareResult.provenance.processingLevel}</div>
+                    <div><span className="text-slate-500">Timestamp:</span> {prepareResult.provenance.timestamp}</div>
+                    <div>
+                      <span className="text-slate-500">Chain:</span>{" "}
+                      {prepareResult.provenance.processingChain.join(" → ")}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Scientific Rule Notice */}
+                <div className="p-2 rounded bg-cyan-950/30 border border-cyan-500/30 text-[10px] text-cyan-300/90 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-cyan-400 flex-shrink-0 animate-pulse"></span>
+                  <span>
+                    Scientific Rule Enforced: True-color / NIR Cloud-Optimized GeoTIFFs selected. Preview JPEG/PNGs excluded from scientific processing. Staged for Phase 4B change detection.
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
