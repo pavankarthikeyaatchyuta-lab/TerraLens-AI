@@ -15,7 +15,7 @@
 | **Hemanth Maddula** | [@hemanthmaddula146-sudo](https://github.com/hemanthmaddula146-sudo) | Core Contributor — Geospatial & Change Engine | Multi-temporal image registration, radiometric normalization, morphological false-alarm filtering, spatial metrics |
 | **Divija Jangam** | [@divijajangam](https://github.com/divijajangam) | Core Contributor — Full-Stack & UI/UX | Next.js analyst dashboard, interactive Leaflet/Google/CARTO maps, client-side STAC API integration, evidence export |
 | **Anjana Janyavula** | [@Anjana-Janyavula](https://github.com/Anjana-Janyavula) | Core Contributor — QA & Evaluation Suite | Benchmark validation, robustness testing, false-alarm metrics, and evaluation documentation |
-| **Mohan Narayana Reddy Busireddy** | [@Mohanreddy-lab](https://github.com/Mohanreddy-lab) | Core Contributor — Systems & Pre-Flight Auditing | Platform stability, network boundaries, pre-flight system audits, and pipeline verification |
+| **Busireddy Mohan Narayana Reddy** | [@Mohanreddy-lab](https://github.com/Mohanreddy-lab) | Core Contributor — Backend Engineering & Systems Auditing | Backend API services, server-side data pipeline integration, network boundary security, pre-flight audits, and systems verification |
 
 ---
 

@@ -12,7 +12,7 @@
 - **Hemanth Maddula** ([@hemanthmaddula146-sudo](https://github.com/hemanthmaddula146-sudo)) — Multi-Temporal Change & Geospatial Engine
 - **Divija Jangam** ([@divijajangam](https://github.com/divijajangam)) — Web Application & Analyst Interface
 - **Anjana Janyavula** ([@Anjana-Janyavula](https://github.com/Anjana-Janyavula)) — Evaluation Suite, QA & Robustness Benchmarking
-- **Mohan Narayana Reddy Busireddy** ([@Mohanreddy-lab](https://github.com/Mohanreddy-lab)) — Systems, Network Boundary & Pre-Flight Auditing
+- **Busireddy Mohan Narayana Reddy** ([@Mohanreddy-lab](https://github.com/Mohanreddy-lab)) — Backend Engineering, Systems & Pre-Flight Auditing
 
 ---
 
