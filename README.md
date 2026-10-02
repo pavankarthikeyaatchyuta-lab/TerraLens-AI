@@ -443,3 +443,4 @@ In addition to deterministic Controlled Benchmark Mode, TerraLens AI supports **
 | **Hemanth Maddula** | [@hemanthmaddula146-sudo](https://github.com/hemanthmaddula146-sudo) | Core Contributor | Geospatial analytics, spherical area calculations, spatial IoU, MGRS parsing |
 | **Divija Jangam** | [@divijajangam](https://github.com/divijajangam) | Core Contributor | Full-stack Next.js web application, client-side STAC API SDK, interactive Leaflet integration |
 | **Anjana Janyavula** | [@Anjana-Janyavula](https://github.com/Anjana-Janyavula) | Core Contributor | QA & evaluation suite, benchmark verification, robustness testing, documentation |
+| **Mohan Narayana Reddy Busireddy** | [@Mohanreddy-lab](https://github.com/Mohanreddy-lab) | Core Contributor | Systems, network boundary security, pre-flight audits, pipeline integrity |
