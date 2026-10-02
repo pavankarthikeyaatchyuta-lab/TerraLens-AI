@@ -137,7 +137,7 @@ def test_live_export_report_structure():
             "changedAreaHa": 32.0,
             "changedAreaKm2": 0.32,
             "threshold": 0.145,
-            "thresholdMethod": "Adaptive Otsu Threshold",
+            "thresholdMethod": "Adaptive Statistical Distribution (mean + 1.8*std, clamped [0.15, 0.45])",
             "falseAlarmsSuppressed": 650,
             "resolutionMeters": 10,
         },

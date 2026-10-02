@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
 - **Detected Changed Pixels:** ${(change.changedPixels || 0).toLocaleString()} px
 - **Total Changed Area:** ${change.changedAreaHa || 0} ha (${change.changedAreaKm2 || 0} km²)
 - **Spatial Clusters Extracted:** ${clusters.length} sites
-- **Thresholding Strategy:** ${change.thresholdMethod || "Adaptive Otsu Threshold"} (Calculated Cutoff: ${change.threshold || "N/A"})
+- **Thresholding Strategy:** ${change.thresholdMethod || "Adaptive Statistical Distribution (mean + 1.8*std, clamped [0.15, 0.45])"} (Calculated Cutoff: ${change.threshold || "N/A"})
 - **False Alarms Suppressed:** ${(change.falseAlarmsSuppressed || 0).toLocaleString()} pixels (Morphological open + min area filter)
 
 ## 3. SPATIAL CLUSTER ADJUDICATION TABLE
