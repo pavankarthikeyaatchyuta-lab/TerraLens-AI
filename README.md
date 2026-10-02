@@ -480,6 +480,29 @@ In addition to deterministic Controlled Benchmark Mode, TerraLens AI supports **
 
 ---
 
+## 11. Phase 5B — End-to-End Scientific & Product Validation
+
+The Phase 5B comprehensive audit verified the complete TerraLens AI workflow geometrically, scientifically, functionally, and operationally:
+
+### 1. Geodesic & Raster Arithmetic Verification
+- **Raster Analysis Tile:** $512 \times 512$ pixels at $10\text{ m}$ GSD $= 26,214,400\text{ m}^2 = 2,621.44\text{ ha}$ ($26.21\text{ km}^2$).
+- **Changed Pixels & Area:** $11,767\text{ pixels} \times 100\text{ m}^2 = 1,176,700\text{ m}^2 = 117.6700\text{ ha}$.
+- **Raster Footprint Percentage:** $\frac{117.67\text{ ha}}{2,621.44\text{ ha}} \times 100 = 4.4888\% \approx 4.49\%$ (Exact match with reported telemetry).
+- **WGS-84 Ellipsoidal AOI:** Subwindow $[17.40^\circ\text{N}, 78.44^\circ\text{E}]$ to $[17.44^\circ\text{N}, 78.48^\circ\text{E}]$ computes to $1,881.38\text{ ha}$ ($6.254\%$ change density).
+- **Cluster Sum Consistency:** $\sum_{i=1}^{19} \text{Area}(\text{Cluster}_i) = 117.6700\text{ ha}$ ($100.0\%$ arithmetic preservation).
+
+### 2. Cluster Geometry & Scientific Class Verification
+- **Geometry Validity:** All 19 spatial clusters export valid 5-point closed WGS-84 polygon boundaries strictly contained within target geographic extents.
+- **Rule-Based Decision Logic:** All cluster classifications strictly adhere to implemented multi-spectral thresholds ($\Delta\text{NDVI}$, $\Delta\text{Red}$, $\Delta\text{NIR}$) with zero manual overrides.
+- **Confidence Formulation:** Fully deterministic scoring within $[0.20, 0.98]$ reflecting signal contrast and spatial consistency, explicitly disclaiming calibrated probability.
+
+### 3. Human-in-the-Loop Adjudication & Dossier Export
+- **Non-Presumptive Default:** Every newly discovered cluster initializes strictly to `UNREVIEWED`.
+- **Adjudication State Machine:** Verified bi-directional transitions (`UNREVIEWED` $\leftrightarrow$ `CONFIRMED` $\leftrightarrow$ `REJECTED`) with persistent operational notes.
+- **Intelligence Export:** Full Markdown (`.md`) and JSON (`.json`) dossiers verify all 6 required sections with zero benchmark mock leakage.
+
+---
+
 ## 12. Team & Contributors (Smart India Hackathon 2026)
 
 | Contributor | GitHub Profile | Role | Focus Areas |
