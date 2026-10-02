@@ -508,7 +508,7 @@ The Phase 5B comprehensive audit verified the complete TerraLens AI workflow geo
 | Contributor | GitHub Profile | Role | Focus Areas |
 |:---|:---|:---|:---|
 | **Baddireddy Leela Krishna** | [@leelakrishna18](https://github.com/leelakrishna18) | Team Leader & Retrieval Pipeline | Overall team leadership, semantic retrieval pipeline, CLIP multimodal embeddings, FAISS indexing |
-| **Atchyuta Pavan Karthikeya** | [@pavankarthikeyaatychuta-lab](https://github.com/pavankarthikeyaatychuta-lab) | Team Member & Architect | System architecture, benchmark design, STAC provider abstraction, cloud deployment |
+| **Atchyuta Pavan Karthikeya** | [@pavankarthikeyaatychuta-lab](https://github.com/pavankarthikeyaatychuta-lab) | System Architecture & Cloud Infrastructure | System architecture, benchmark design, STAC provider abstraction, cloud deployment |
 | **Hemanth Maddula** | [@hemanthmaddula146-sudo](https://github.com/hemanthmaddula146-sudo) | Core Contributor | Geospatial analytics, spherical area calculations, spatial IoU, MGRS parsing |
 | **Divija Jangam** | [@divijajangam](https://github.com/divijajangam) | Core Contributor | Full-stack Next.js web application, client-side STAC API SDK, interactive Leaflet integration |
 | **Anjana Janyavula** | [@Anjana-Janyavula](https://github.com/Anjana-Janyavula) | Core Contributor | QA & evaluation suite, benchmark verification, robustness testing, documentation |
