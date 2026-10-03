@@ -40,7 +40,7 @@ export function SearchBar({ onSearch, isLoading, activeQuery }: SearchBarProps) 
           type="text"
           value={inputVal}
           onChange={(e) => setInputVal(e.target.value)}
-          placeholder="Enter natural-language query (e.g. 'urban expansion near water', 'reservoir drying')..."
+          placeholder="Enter arbitrary natural-language query (e.g. 'flooded farmland near river', 'new urban construction')..."
           className="w-full bg-tactical-900 border border-tactical-700 rounded-lg pl-11 pr-28 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-mono transition-all"
         />
 
@@ -62,7 +62,7 @@ export function SearchBar({ onSearch, isLoading, activeQuery }: SearchBarProps) 
           {isLoading ? (
             <>
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              <span>SEARCHING...</span>
+              <span>ENCODING...</span>
             </>
           ) : (
             <>
@@ -93,11 +93,11 @@ export function SearchBar({ onSearch, isLoading, activeQuery }: SearchBarProps) 
         ))}
       </div>
 
-      {/* Controlled Benchmark Notice */}
+      {/* Arbitrary Search & Inference Notice */}
       <div className="mt-3 pt-2.5 border-t border-tactical-700 flex items-center justify-between text-[11px] font-mono text-slate-500 dark:text-slate-400">
         <div className="flex items-center gap-1.5 text-sky-700 dark:text-sky-300">
           <Sparkles className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-          <span>Controlled Benchmark Mode: Evaluates queries against pre-indexed 512-dim normalized vectors.</span>
+          <span>Real-time CLIP Text Encoder: Arbitrary natural-language queries mapped to 512-dim vectors.</span>
         </div>
       </div>
     </div>

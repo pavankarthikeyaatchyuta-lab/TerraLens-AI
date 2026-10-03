@@ -13,6 +13,7 @@
     "leaflet": "^1.9.4",
     "lucide-react": "^0.475.0",
     "next": "^14.2.24",
+    "onnxruntime-web": "^1.30.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwind-merge": "^2.6.0"

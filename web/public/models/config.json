@@ -1,0 +1,9 @@
+{
+  "model_name": "openai/clip-vit-base-patch32",
+  "max_length": 77,
+  "projection_dim": 512,
+  "vocab_size": 49408,
+  "bos_token_id": 49406,
+  "eos_token_id": 49407,
+  "pad_token_id": 49407
+}

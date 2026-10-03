@@ -132,10 +132,16 @@ export interface SearchOutcome {
 /**
  * Executes semantic search over indexed scenes using exact cosine similarity
  * of precomputed 512d CLIP vectors.
- * If query is in the supported benchmark query set, exact cosine similarity is computed.
- * If not, returns an explicit unsupported notice without fabricating scores.
+ * If query is in the supported benchmark query set or an explicit 512d queryVector is provided,
+ * exact cosine similarity is computed.
+ * If neither is provided, returns an explicit unsupported notice without fabricating scores.
  */
-export function searchScenes(query: string, topK: number = 5): SearchOutcome {
+export function searchScenes(
+  query: string,
+  topK: number = 5,
+  queryVector?: number[] | null,
+  retrievalMode?: string
+): SearchOutcome {
   const start = performance.now();
   const normalizedQuery = query.toLowerCase().trim();
   const embFile = getSceneEmbeddings();
@@ -152,15 +158,24 @@ export function searchScenes(query: string, topK: number = 5): SearchOutcome {
     };
   }
 
-  // Exact match from precomputed CLIP benchmark embeddings
-  const queryVector: number[] | null = queryMap[normalizedQuery] || null;
+  // Exact match from provided client vector or precomputed CLIP benchmark embeddings
+  let activeVector: number[] | null = null;
+  let activeMode = "controlled-benchmark";
 
-  if (!queryVector) {
-    // If not a supported precomputed query, do NOT fabricate scores!
+  if (queryVector && Array.isArray(queryVector) && queryVector.length === 512) {
+    activeVector = queryVector;
+    activeMode = retrievalMode || "arbitrary-semantic-clip";
+  } else if (queryMap[normalizedQuery]) {
+    activeVector = queryMap[normalizedQuery];
+    activeMode = "controlled-benchmark";
+  }
+
+  if (!activeVector) {
+    // If not a supported precomputed query and no valid vector provided
     return {
       supported: false,
       mode: "controlled-benchmark",
-      message: "This query is not available in Controlled Benchmark Mode. Please use one of the supported benchmark queries.",
+      message: "This query is not available in Controlled Benchmark Mode and no client vector was provided. Please use arbitrary search or a supported benchmark query.",
       results: [],
       latencyMs: Math.round((performance.now() - start) * 100) / 100,
     };
@@ -169,7 +184,7 @@ export function searchScenes(query: string, topK: number = 5): SearchOutcome {
   const scored: Array<{ sceneRecord: SceneEmbeddingRecord; score: number }> = [];
 
   for (const sceneRec of embFile.scenes) {
-    const score = cosineSimilarity(queryVector, sceneRec.vector);
+    const score = cosineSimilarity(activeVector, sceneRec.vector);
     scored.push({ sceneRecord: sceneRec, score });
   }
 
@@ -228,7 +243,7 @@ export function searchScenes(query: string, topK: number = 5): SearchOutcome {
 
   return {
     supported: true,
-    mode: "controlled-benchmark",
+    mode: activeMode,
     results,
     latencyMs: latency,
   };

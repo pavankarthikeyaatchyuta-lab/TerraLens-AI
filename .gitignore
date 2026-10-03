@@ -61,3 +61,7 @@ node_modules/
 **/.next/
 *.tsbuildinfo
 next-env.d.ts
+
+# Scratch and intermediate artifacts
+scratch/
+*.onnx.data

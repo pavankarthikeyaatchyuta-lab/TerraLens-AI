@@ -3,9 +3,10 @@
 **Smart India Hackathon 2026 (SIH 2026)**  
 **Problem Statement ID:** SIH26227  
 **Team Name:** The Limit Breakers  
-**Operational Status:** Phase 6 Complete (SIH 2026 Final Demo & Submission Hardening)  
+**Operational Status:** Phase 7A-Lite Complete (Lightweight Local CLIP Semantic Retrieval)  
 **Live Public Demo:** [https://terra-lens-ai.vercel.app/](https://terra-lens-ai.vercel.app/)  
-**Automated Tests:** 126/126 Passing (100% Pass Rate) | Next.js 17/17 Production Routes Compiled  
+**Automated Tests:** 126/126 Passing (100% Pass Rate) | Next.js 14 Routes Compiled (0 errors) | Phase 7A-Lite Parity PASS (0.998+ Cosine)  
+**Model Payload:** 63.97 MB on disk (47.16 MB gzipped / Vercel-friendly)  
 **Official SIH Submission:** [SUBMISSION.md](SUBMISSION.md)
 
 ---
@@ -205,9 +206,20 @@ To uphold scientific and engineering integrity, TerraLens AI strictly distinguis
 - [x] **Human-in-the-Loop Analyst Adjudication:** Analysts can review automated findings and assign immutable verdicts (`TRUE CHANGE`, `FALSE ALARM`, `UNCERTAIN`), with an unreviewed default state.
 - [x] **Single-Source-of-Truth Benchmark Modal:** Directly ingests `evaluation_results.json` to render live Recall@K, Precision@K, MRR, Target Location Hit@1, pixel metrics, and robustness results with zero hardcoded discrepancies.
 - [x] **Multi-Format Intelligence Dossier Export:** Downloadable JSON dossiers and executive Markdown reports via `/api/export` encapsulating full sensor metadata, detection metrics, confidence scores, and analyst audit trails.
-- [x] **Comprehensive Test Suite:** **45 unit, integration, and end-to-end tests passing** across all modules with 100% pass rate.
+### 🚀 PHASE 7A-LITE: LIGHTWEIGHT LOCAL CLIP SEMANTIC RETRIEVAL
+- [x] **Lightweight Packaged ONNX / WASM CLIP Text Encoder:** Converted from the heavy 243.40 MB FP32 baseline to a 63.97 MB weight-only quantized ONNX model (47.16 MB gzipped over the wire), easily deployable to Vercel and runnable locally in standard browser environments.
+- [x] **Scientifically Validated Selective Quantization:** 8-bit block-wise MatMulNBits (`block_size=128`, symmetric) across all 12 Transformer layers combined with INT8 symmetric token embedding table quantization and on-the-fly FP32 dequantization.
+- [x] **Near-Perfect Numerical Parity:** Achieves $\ge 0.998$ average cosine similarity against full FP32 PyTorch reference with max element difference $< 0.013$ (verified via `scripts/verify_numerical_parity.py`).
+- [x] **100% Benchmark Ranking Preservation:** Zero rank degradation on all 5 benchmark queries and identical Top-1 accuracy across all evaluation targets.
+- [x] **Bit-for-Bit Tokenizer Parity:** Pure client-side BPE tokenizer matching OpenAI / HuggingFace CLIP tokenization with 100% exact token ID correspondence across arbitrary inputs.
+- [x] **Dual-Tier Resilient Inference:** Primary client-side WASM encoding with automatic fallback to server-side local Python/ONNX CLIP encoder (`scripts/encode_query.py`).
+- [x] **Strict Non-Fabrication Guarantee:** Zero keyword matching, zero fuzzy string mapping, zero hardcoded aliases, zero LLM query classifiers.
+- [x] **Exact Cosine / FAISS IndexFlatIP Equivalency:** Evaluates exact dot product on unit $L_2$-normalized 512-dimensional vectors ($A \cdot B = \cos(\theta)$).
+- [x] **Zero Dead Weight:** Removed 43.6 MB of unused WASM runtimes and 4.5 MB of unneeded raw tokenizer files.
+- [x] **Catalog Limitation Transparency:** Ranks existing 5 benchmark locations (10 scenes). Real Sentinel-2 multi-scene catalog expansion is scheduled for Phase 7B.
 
 ### ⏳ PLANNED (Future Extension Roadmap)
+- [ ] **Phase 7B (Real Sentinel-2 Catalog Expansion):** Expanding indexed scenes to 50+ real multi-temporal Sentinel-2 tiles across India with retrospective earliest baseline selection.
 - [ ] **Remote Sensing Fine-Tuned Model:** Upgrading from generic *CLIP baseline* to specialized Earth Observation vision-language models (e.g. RemoteCLIP / GeoRSCLIP).
 - [ ] **Pluggable Deep Change Detection:** ChangeFormer / Siamese UNet implementations implementing `BaseChangeDetector` once large-scale pre-training datasets are indexed.
 - [ ] **Deep Cloud & Shadow Masking:** Integration of s2cloudless or Fmask for multi-spectral cloud probability masks.

@@ -95,10 +95,24 @@ export default function HomePage() {
     setIsSearching(true);
     setActiveQuery(query);
     try {
+      // 1. Primary Tier: Client-Side Packaged ONNX CLIP Text Encoding
+      let clientVector: number[] | null = null;
+      try {
+        const { encodeQueryClient } = await import("@/lib/clipTextEncoder");
+        clientVector = await encodeQueryClient(query);
+      } catch (encodeErr) {
+        console.warn("Client ONNX inference unavailable, delegating to server tier:", encodeErr);
+      }
+
+      // 2. Query Search API with either client vector or fallback to server
       const res = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, top_k: 5 }),
+        body: JSON.stringify({
+          query,
+          vector: clientVector,
+          top_k: 5,
+        }),
       });
       const data = await res.json();
       setSearchOutcome(data);
