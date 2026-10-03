@@ -148,31 +148,45 @@ export default function HomePage() {
     }
   }, [selectedLocationId, operatingMode, catalogMode, scenes]);
 
-  // Handle Search Execution
-  const handleSearch = async (query: string) => {
+  // Handle Search Execution (Multimodal: Text, Image, or Scene + Filters)
+  const handleSearch = async (queryOrOptions: string | any) => {
     setIsSearching(true);
-    setActiveQuery(query);
+    const opts = typeof queryOrOptions === "string" ? { query: queryOrOptions } : queryOrOptions;
+    const query = opts.query || "";
+    if (query) setActiveQuery(query);
+
     try {
-      // 1. Primary Tier: Client-Side Packaged ONNX CLIP Text Encoding
+      const isReal = operatingMode === "REAL_EO_CATALOG" || catalogMode === "real-eo";
       let clientVector: number[] | null = null;
-      try {
-        const { encodeQueryClient } = await import("@/lib/clipTextEncoder");
-        clientVector = await encodeQueryClient(query);
-      } catch (encodeErr) {
-        console.warn("Client ONNX inference unavailable, delegating to server tier:", encodeErr);
+
+      // If it's a text query, try client-side ONNX encoding first
+      if (query && !opts.image && !opts.imageSceneId) {
+        try {
+          const { encodeQueryClient } = await import("@/lib/clipTextEncoder");
+          clientVector = await encodeQueryClient(query);
+        } catch (encodeErr) {
+          console.warn("Client ONNX inference unavailable, delegating to server tier:", encodeErr);
+        }
       }
 
-      // 2. Query Search API with either client vector or fallback to server
-      const isReal = operatingMode === "REAL_EO_CATALOG" || catalogMode === "real-eo";
+      const payload: Record<string, any> = {
+        top_k: 5,
+        catalog: isReal ? "real-eo" : "benchmark",
+        groupBy: opts.groupBy || "location",
+      };
+
+      if (opts.image) payload.image = opts.image;
+      if (opts.imageSceneId) payload.imageSceneId = opts.imageSceneId;
+      if (query) payload.query = query;
+      if (clientVector) payload.vector = clientVector;
+      if (opts.spatialFilter) payload.spatialFilter = opts.spatialFilter;
+      if (opts.temporalFilter) payload.temporalFilter = opts.temporalFilter;
+      if (opts.platformFilter) payload.platformFilter = opts.platformFilter;
+
       const res = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query,
-          vector: clientVector,
-          top_k: 5,
-          catalog: isReal ? "real-eo" : "benchmark",
-        }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       setSearchOutcome(data);
@@ -198,6 +212,15 @@ export default function HomePage() {
     } finally {
       setIsSearching(false);
     }
+  };
+
+  // Discover semantically similar locations given a scene
+  const handleFindSimilarLocations = (scene: Scene) => {
+    if (!scene?.scene_id) return;
+    handleSearch({
+      imageSceneId: scene.scene_id,
+      groupBy: "location",
+    });
   };
 
   // Discover Sentinel-2 temporal pairs for real EO location/scene
@@ -472,6 +495,7 @@ export default function HomePage() {
                   searchOutcome={searchOutcome}
                   onSelectBenchmarkQuery={handleSearch}
                   catalogMode={operatingMode === "REAL_EO_CATALOG" || catalogMode === "real-eo" ? "real-eo" : "benchmark"}
+                  onFindSimilarLocations={handleFindSimilarLocations}
                   onHandoffToLive={(loc) => {
                     if (operatingMode === "REAL_EO_CATALOG" || catalogMode === "real-eo") {
                       handleDiscoverRealPairs();

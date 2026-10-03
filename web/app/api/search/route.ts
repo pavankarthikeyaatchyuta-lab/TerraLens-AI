@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { searchScenes } from "@/lib/data";
+import { searchScenes, getEoSceneEmbeddings, getSceneEmbeddings, SearchFilters } from "@/lib/data";
 import { execFile } from "child_process";
 import path from "path";
 import fs from "fs";
@@ -7,36 +7,51 @@ import util from "util";
 
 const execFileAsync = util.promisify(execFile);
 
+const BENCHMARK_QUERIES = [
+  "urban expansion and new construction near river",
+  "water reservoir shoreline drying and lake shrinkage",
+  "forest road clearing corridor and tree removal",
+  "coastal port reclamation and ocean harbor pier",
+  "solar panel farm photovoltaic arrays in desert terrain",
+];
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const query = body.query;
-    const topK = body.top_k || 5;
-    const clientVector = body.vector;
+    const query = typeof body.query === "string" ? body.query : "";
+    const imageSceneId = typeof body.imageSceneId === "string" ? body.imageSceneId.trim() : undefined;
+    const image = typeof body.image === "string" ? body.image.trim() : undefined;
+    const clientVector = Array.isArray(body.vector) ? body.vector : undefined;
+    const topK = typeof body.top_k === "number" ? body.top_k : 5;
+    const groupBy: "scene" | "location" = body.groupBy === "scene" ? "scene" : "location";
+    const catalogParam = body.catalog || (body.mode === "real-eo" || body.mode === "real_eo" ? "real-eo" : undefined);
+    const spatialFilter = body.spatialFilter;
+    const temporalFilter = body.temporalFilter;
+    const platformFilter = body.platformFilter;
+    let excludeLocationId = typeof body.excludeLocationId === "string" ? body.excludeLocationId : undefined;
+    const excludeSelf = body.excludeSelf !== undefined ? Boolean(body.excludeSelf) : true;
 
-    if (!query || typeof query !== "string") {
+    if (!query && !imageSceneId && !image && !clientVector) {
       return NextResponse.json(
-        { error: "Field 'query' string is required in request body" },
+        { error: "Provide 'query', 'imageSceneId', 'image', or 'vector' in request body" },
         { status: 400 }
       );
     }
 
-    const catalogParam = body.catalog || (body.mode === "real-eo" || body.mode === "real_eo" ? "real-eo" : undefined);
-    
-    const BENCHMARK_QUERIES = [
-      "urban expansion and new construction near river",
-      "water reservoir shoreline drying and lake shrinkage",
-      "forest road clearing corridor and tree removal",
-      "coastal port reclamation and ocean harbor pier",
-      "solar panel farm photovoltaic arrays in desert terrain",
-    ];
-
     const isExplicitBenchmark =
       catalogParam === "benchmark" ||
       catalogParam === "controlled-benchmark" ||
-      (!catalogParam && BENCHMARK_QUERIES.includes(query.toLowerCase().trim()));
+      (!catalogParam && !imageSceneId && !image && query && BENCHMARK_QUERIES.includes(query.toLowerCase().trim()));
 
     const effectiveCatalog: "benchmark" | "real-eo" = isExplicitBenchmark ? "benchmark" : "real-eo";
+
+    const filters: SearchFilters | undefined = (spatialFilter || temporalFilter || platformFilter)
+      ? {
+          spatialFilter: spatialFilter?.bbox ? spatialFilter : undefined,
+          temporalFilter: (temporalFilter?.startDate || temporalFilter?.endDate) ? temporalFilter : undefined,
+          platformFilter: platformFilter?.platform ? platformFilter : undefined,
+        }
+      : undefined;
 
     // 1. Primary Tier: Client-side provided ONNX/WASM CLIP vector
     if (clientVector && Array.isArray(clientVector)) {
@@ -55,45 +70,178 @@ export async function POST(request: NextRequest) {
       }
 
       const outcome = searchScenes(
-        query,
+        query || "client-vector-query",
         topK,
         clientVector,
         effectiveCatalog === "real-eo" ? "real-eo-catalog" : "client-onnx-clip",
-        effectiveCatalog
+        effectiveCatalog,
+        filters,
+        groupBy,
+        excludeLocationId
       );
 
       return NextResponse.json({
         mode: effectiveCatalog === "real-eo" ? "real-eo-catalog" : "arbitrary-semantic-clip",
         catalog: effectiveCatalog,
         supported: true,
-        query,
+        queryType: "vector",
+        query: query || "client-vector-query",
         top_k: topK,
         total_matches: outcome.results.length,
         latency_ms: outcome.latencyMs,
         retrieval_mode: effectiveCatalog === "real-eo"
           ? "Client Packaged ONNX/WASM CLIP Text Encoder over Real Sentinel-2 Catalog (IndexFlatIP-equivalent Cosine Similarity)"
           : "Client Packaged ONNX/WASM CLIP Text Encoder (IndexFlatIP-equivalent Cosine Similarity)",
+        embedding_dimension: 512,
+        similarity_metric: "cosine",
+        filters_applied: filters || null,
+        group_by: groupBy,
         results: outcome.results,
       });
     }
 
-    // 2. Precomputed Benchmark Query Check
-    const benchmarkOutcome = searchScenes(query, topK, null, undefined, "benchmark");
-    if (benchmarkOutcome.supported) {
+    // 2. Query by existing catalog Scene ID (Instant Precomputed Vector Lookup)
+    if (imageSceneId) {
+      const primaryEmb = effectiveCatalog === "real-eo" ? getEoSceneEmbeddings() : getSceneEmbeddings();
+      const fallbackEmb = effectiveCatalog === "real-eo" ? getSceneEmbeddings() : getEoSceneEmbeddings();
+
+      let matchedRecord = primaryEmb?.scenes.find((s) => s.scene_id === imageSceneId);
+      if (!matchedRecord && fallbackEmb) {
+        matchedRecord = fallbackEmb.scenes.find((s) => s.scene_id === imageSceneId);
+      }
+
+      if (!matchedRecord) {
+        return NextResponse.json(
+          { error: `Scene ID '${imageSceneId}' not found in catalog embeddings` },
+          { status: 404 }
+        );
+      }
+
+      if (groupBy === "location" && excludeSelf) {
+        excludeLocationId = excludeLocationId || matchedRecord.location_id;
+      }
+
+      const outcome = searchScenes(
+        imageSceneId,
+        topK,
+        matchedRecord.vector,
+        "catalog-scene-visual",
+        effectiveCatalog,
+        filters,
+        groupBy,
+        excludeLocationId
+      );
+
       return NextResponse.json({
-        mode: "controlled-benchmark",
-        catalog: "benchmark",
+        mode: effectiveCatalog === "real-eo" ? "real-eo-catalog" : "arbitrary-semantic-clip",
+        catalog: effectiveCatalog,
         supported: true,
-        query,
+        queryType: "scene",
+        query: imageSceneId,
+        imageSceneId,
         top_k: topK,
-        total_matches: benchmarkOutcome.results.length,
-        latency_ms: benchmarkOutcome.latencyMs,
-        retrieval_mode: "Exact 512-dim Normalized Cosine Similarity (IndexFlatIP baseline)",
-        results: benchmarkOutcome.results,
+        total_matches: outcome.results.length,
+        latency_ms: outcome.latencyMs,
+        retrieval_mode: effectiveCatalog === "real-eo"
+          ? "Catalog Scene Visual Vector Match over Real Sentinel-2 Catalog (IndexFlatIP-equivalent Exact Cosine Similarity)"
+          : "Catalog Scene Visual Vector Match (IndexFlatIP-equivalent Exact Cosine Similarity)",
+        embedding_dimension: 512,
+        similarity_metric: "cosine",
+        filters_applied: filters || null,
+        group_by: groupBy,
+        results: outcome.results,
       });
     }
 
-    // 3. Fallback Tier: Server-side Local Python/ONNX CLIP encoder
+    // 3. Query by User-Uploaded Image (Base64)
+    if (image) {
+      const candidateImageScripts = [
+        path.join(process.cwd(), "scripts", "encode_image.py"),
+        path.join(process.cwd(), "..", "scripts", "encode_image.py"),
+      ];
+      let imageScript: string | null = null;
+      for (const p of candidateImageScripts) {
+        if (fs.existsSync(p)) {
+          imageScript = p;
+          break;
+        }
+      }
+
+      if (!imageScript) {
+        return NextResponse.json(
+          { error: "Image encoder script not found on server" },
+          { status: 500 }
+        );
+      }
+
+      try {
+        const { stdout } = await execFileAsync("python", [imageScript, "--base64", image], { timeout: 25000 });
+        const parsed = JSON.parse(stdout);
+        if (!parsed.vector || !Array.isArray(parsed.vector) || parsed.vector.length !== 512) {
+          throw new Error("Invalid vector output from image encoder");
+        }
+
+        const outcome = searchScenes(
+          "image_query",
+          topK,
+          parsed.vector,
+          "image-to-image-clip",
+          effectiveCatalog,
+          filters,
+          groupBy,
+          excludeLocationId
+        );
+
+        return NextResponse.json({
+          mode: effectiveCatalog === "real-eo" ? "real-eo-catalog" : "arbitrary-semantic-clip",
+          catalog: effectiveCatalog,
+          supported: true,
+          queryType: "image",
+          query: "uploaded_image",
+          top_k: topK,
+          total_matches: outcome.results.length,
+          latency_ms: outcome.latencyMs,
+          retrieval_mode: effectiveCatalog === "real-eo"
+            ? "Multimodal Image-to-Image CLIP Encoder over Real Sentinel-2 Catalog (IndexFlatIP-equivalent Cosine Similarity)"
+            : "Multimodal Image-to-Image CLIP Encoder (IndexFlatIP-equivalent Cosine Similarity)",
+          embedding_dimension: 512,
+          similarity_metric: "cosine",
+          filters_applied: filters || null,
+          group_by: groupBy,
+          results: outcome.results,
+        });
+      } catch (imgErr: any) {
+        return NextResponse.json(
+          { error: "Failed to embed image query", details: imgErr?.message || String(imgErr) },
+          { status: 500 }
+        );
+      }
+    }
+
+    // 4. Precomputed Benchmark Query Check (for benchmark queries in benchmark catalog)
+    if (effectiveCatalog === "benchmark") {
+      const benchmarkOutcome = searchScenes(query, topK, null, undefined, "benchmark", filters, groupBy, excludeLocationId);
+      if (benchmarkOutcome.supported) {
+        return NextResponse.json({
+          mode: "controlled-benchmark",
+          catalog: "benchmark",
+          supported: true,
+          queryType: "text",
+          query,
+          top_k: topK,
+          total_matches: benchmarkOutcome.results.length,
+          latency_ms: benchmarkOutcome.latencyMs,
+          retrieval_mode: "Exact 512-dim Normalized Cosine Similarity (IndexFlatIP baseline)",
+          embedding_dimension: 512,
+          similarity_metric: "cosine",
+          filters_applied: filters || null,
+          group_by: groupBy,
+          results: benchmarkOutcome.results,
+        });
+      }
+    }
+
+    // 5. Fallback Tier: Server-side Local Python/ONNX CLIP text encoder
     const candidateScriptPaths = [
       path.join(process.cwd(), "scripts", "encode_query.py"),
       path.join(process.cwd(), "..", "scripts", "encode_query.py"),
@@ -106,7 +254,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (scriptPath) {
+    if (scriptPath && query) {
       try {
         const { stdout } = await execFileAsync("python", [scriptPath, query], { timeout: 15000 });
         const parsed = JSON.parse(stdout);
@@ -116,12 +264,16 @@ export async function POST(request: NextRequest) {
             topK,
             parsed.vector,
             "server-python-clip",
-            effectiveCatalog
+            effectiveCatalog,
+            filters,
+            groupBy,
+            excludeLocationId
           );
           return NextResponse.json({
             mode: effectiveCatalog === "real-eo" ? "real-eo-catalog" : "server-python-clip",
             catalog: effectiveCatalog,
             supported: true,
+            queryType: "text",
             query,
             top_k: topK,
             total_matches: fallbackOutcome.results.length,
@@ -129,6 +281,10 @@ export async function POST(request: NextRequest) {
             retrieval_mode: effectiveCatalog === "real-eo"
               ? "Server-side Local Python/ONNX CLIP Text Encoder over Real Sentinel-2 Catalog (IndexFlatIP-equivalent Cosine Similarity)"
               : "Server-side Local Python/ONNX CLIP Text Encoder (IndexFlatIP-equivalent Cosine Similarity)",
+            embedding_dimension: 512,
+            similarity_metric: "cosine",
+            filters_applied: filters || null,
+            group_by: groupBy,
             results: fallbackOutcome.results,
           });
         }
@@ -140,18 +296,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       mode: "controlled-benchmark",
       supported: false,
+      queryType: "text",
       query,
-      message: benchmarkOutcome.message || "This query is not available in Controlled Benchmark Mode and local inference was unavailable.",
+      message: "This query is not available in Controlled Benchmark Mode and local inference was unavailable.",
       results: [],
       total_matches: 0,
-      latency_ms: benchmarkOutcome.latencyMs,
-      supported_benchmark_queries: [
-        "urban expansion and new construction near river",
-        "water reservoir shoreline drying and lake shrinkage",
-        "forest road clearing corridor and tree removal",
-        "coastal port reclamation and ocean harbor pier",
-        "solar panel farm photovoltaic arrays in desert terrain",
-      ],
+      latency_ms: 0,
+      supported_benchmark_queries: BENCHMARK_QUERIES,
     });
   } catch (err: any) {
     return NextResponse.json(

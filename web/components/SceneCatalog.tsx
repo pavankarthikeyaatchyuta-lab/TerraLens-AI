@@ -2,7 +2,7 @@
 
 import React from "react";
 import { SearchResult, Location, Scene } from "@/types";
-import { Layers, Calendar, Compass, ArrowRight, CheckCircle2, AlertTriangle, Crosshair } from "lucide-react";
+import { Layers, Calendar, Compass, ArrowRight, CheckCircle2, AlertTriangle, Crosshair, Sparkles } from "lucide-react";
 
 interface SceneCatalogProps {
   results: SearchResult[];
@@ -16,6 +16,7 @@ interface SceneCatalogProps {
   selectedSceneId?: string;
   onSelectResult?: (result: SearchResult) => void;
   allScenes?: Scene[];
+  onFindSimilarLocations?: (scene: Scene) => void;
 }
 
 export function SceneCatalog({
@@ -30,6 +31,7 @@ export function SceneCatalog({
   selectedSceneId,
   onSelectResult,
   allScenes = [],
+  onFindSimilarLocations,
 }: SceneCatalogProps) {
   const isRealEo = catalogMode === "real-eo";
 
@@ -178,6 +180,21 @@ export function SceneCatalog({
                   </span>
                 )}
               </div>
+
+              {onFindSimilarLocations && isSelected && item.scene?.scene_id && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onFindSimilarLocations(item.scene);
+                  }}
+                  className="w-full mt-1.5 py-1.5 px-2.5 rounded text-[10px] font-mono font-bold flex items-center justify-center gap-1.5 transition-all bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shadow-sm"
+                  title="Discover other locations with high visual/semantic similarity to this scene"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>FIND SEMANTICALLY SIMILAR LOCATIONS &rarr;</span>
+                </button>
+              )}
 
               {onHandoffToLive && isSelected && (
                 <button
