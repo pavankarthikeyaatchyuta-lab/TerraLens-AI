@@ -38,6 +38,8 @@ import {
   FileText,
   CheckCircle,
   XCircle,
+  Archive,
+  MapPin,
 } from "lucide-react";
 
 interface LiveAOISearchProps {
@@ -448,8 +450,8 @@ export function LiveAOISearch({
     });
   };
 
-  // Phase 5A: Evidence Report Export
-  const handleExportEvidence = async (format: "markdown" | "json") => {
+  // Phase 11: Export & Provenance Suite
+  const handleExportEvidence = async (format: "zip" | "geojson" | "json" | "markdown") => {
     if (!activeAnalysis) return;
     setIsExporting(true);
     setExportNotice(null);
@@ -465,25 +467,51 @@ export function LiveAOISearch({
           before_scene: selectedBeforeScene,
           after_scene: selectedAfterScene,
           analyst_reviews: analystReviews,
+          mode: "LIVE_PUBLIC_DATA",
         }),
       });
 
       if (!res.ok) throw new Error("Export endpoint returned HTTP " + res.status);
-      const data = await res.json();
 
-      const contentStr = typeof data.content === "string" ? data.content : JSON.stringify(data.content, null, 2);
-      const mimeType = format === "markdown" ? "text/markdown;charset=utf-8" : "application/json;charset=utf-8";
-      const blob = new Blob([contentStr], { type: mimeType });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = data.filename || `terralens_live_evidence.${format === "markdown" ? "md" : "json"}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      if (format === "zip") {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `terralens_bundle_live_${Date.now()}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setExportNotice(`Exported complete analysis bundle (.zip)`);
+      } else if (format === "geojson") {
+        const data = await res.json();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/geo+json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `change_clusters_live_${Date.now()}.geojson`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setExportNotice(`Exported GeoJSON FeatureCollection`);
+      } else {
+        const data = await res.json();
+        const contentStr = typeof data.content === "string" ? data.content : JSON.stringify(data.content, null, 2);
+        const mimeType = format === "markdown" ? "text/markdown;charset=utf-8" : "application/json;charset=utf-8";
+        const blob = new Blob([contentStr], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = data.filename || `terralens_live_evidence.${format === "markdown" ? "md" : "json"}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setExportNotice(`Exported: ${a.download}`);
+      }
 
-      setExportNotice(`Exported evidence dossier: ${a.download}`);
       setTimeout(() => setExportNotice(null), 5000);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -1552,33 +1580,56 @@ export function LiveAOISearch({
                           </div>
                         )}
 
-                        {/* Phase 5A: Export Evidence Report Action Bar */}
+                        {/* Phase 11: Export & Provenance Suite Action Bar */}
                         <div className="pt-2 border-t border-tactical-800 space-y-2">
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             <span className="text-xs font-mono font-bold text-slate-300 uppercase flex items-center gap-1.5">
-                              <FileText className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-                              <span>Analyst Evidence Dossier Export</span>
+                              <Archive className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                              <span>ANALYSIS EXPORT</span>
                             </span>
 
-                            <div className="flex gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
                               <button
                                 type="button"
-                                onClick={() => handleExportEvidence("markdown")}
+                                onClick={() => handleExportEvidence("zip")}
                                 disabled={isExporting}
-                                className="py-1.5 px-3 rounded bg-sky-600/20 hover:bg-sky-600/30 text-sky-700 dark:text-sky-300 border border-sky-500/40 text-xs font-mono font-bold transition-all flex items-center gap-1.5 disabled:opacity-50"
+                                className="py-1.5 px-3 rounded bg-sky-600 hover:bg-sky-500 text-white text-xs font-mono font-bold transition-all flex items-center gap-1.5 disabled:opacity-50 shadow-sm"
                               >
-                                <Download className="w-3.5 h-3.5" />
-                                <span>EXPORT DOSSIER (.MD)</span>
+                                <Archive className="w-3.5 h-3.5" />
+                                <span>EXPORT ANALYSIS BUNDLE</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleExportEvidence("geojson")}
+                                disabled={isExporting}
+                                className="py-1.5 px-2.5 rounded bg-tactical-800 hover:bg-tactical-750 text-slate-300 border border-tactical-700 text-xs font-mono font-semibold transition-all flex items-center gap-1 disabled:opacity-50"
+                                title="Download RFC 7946 GeoJSON FeatureCollection"
+                              >
+                                <MapPin className="w-3 h-3 text-emerald-400" />
+                                <span>GeoJSON</span>
                               </button>
 
                               <button
                                 type="button"
                                 onClick={() => handleExportEvidence("json")}
                                 disabled={isExporting}
-                                className="py-1.5 px-3 rounded bg-tactical-800 hover:bg-tactical-750 text-slate-300 border border-tactical-700 text-xs font-mono font-bold transition-all flex items-center gap-1.5 disabled:opacity-50"
+                                className="py-1.5 px-2.5 rounded bg-tactical-800 hover:bg-tactical-750 text-slate-300 border border-tactical-700 text-xs font-mono font-semibold transition-all flex items-center gap-1 disabled:opacity-50"
+                                title="Download Structured Analysis JSON"
                               >
-                                <FileCheck className="w-3.5 h-3.5" />
-                                <span>EXPORT JSON</span>
+                                <FileCheck className="w-3.5 h-3.5 text-sky-400" />
+                                <span>JSON</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleExportEvidence("markdown")}
+                                disabled={isExporting}
+                                className="py-1.5 px-2.5 rounded bg-tactical-800 hover:bg-tactical-750 text-slate-300 border border-tactical-700 text-xs font-mono font-semibold transition-all flex items-center gap-1 disabled:opacity-50"
+                                title="Download Operational Intelligence Markdown Dossier"
+                              >
+                                <FileText className="w-3.5 h-3.5 text-amber-400" />
+                                <span>REPORT</span>
                               </button>
                             </div>
                           </div>

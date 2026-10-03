@@ -610,6 +610,9 @@ export default function HomePage() {
                     <EvidencePanel
                       location={selectedLoc}
                       analysis={analysisResult}
+                      beforeScene={temporalPair?.before_scene}
+                      afterScene={temporalPair?.after_scene}
+                      catalogMode="benchmark"
                     />
                   </>
                 )}
@@ -677,6 +680,9 @@ export default function HomePage() {
                         <EvidencePanel
                           location={selectedLoc}
                           analysis={realAnalysisResult}
+                          beforeScene={selectedEoPair?.beforeScene}
+                          afterScene={selectedEoPair?.afterScene}
+                          catalogMode="real-eo"
                         />
                       </>
                     )}

@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jiti ./tests/test_change_analysis_engine.ts"
+    "test": "jiti ./tests/test_change_analysis_engine.ts && jiti ./tests/test_phase11_export.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",

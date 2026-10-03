@@ -1,54 +1,128 @@
 "use client";
 
 import React, { useState } from "react";
-import { Location, ChangeDetectionResult } from "@/types";
+import { Location } from "@/types";
 import {
   FileText,
-  Download,
   CheckCircle,
   AlertCircle,
   HelpCircle,
   History,
   ShieldCheck,
   FileCode,
+  Archive,
+  MapPin,
+  Loader2,
 } from "lucide-react";
 
 interface EvidencePanelProps {
   location: Location;
-  analysis: ChangeDetectionResult | null;
+  analysis: any;
+  beforeScene?: any;
+  afterScene?: any;
+  catalogMode?: "benchmark" | "real-eo" | "live";
 }
 
-export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
+export function EvidencePanel({
+  location,
+  analysis,
+  beforeScene,
+  afterScene,
+  catalogMode = "benchmark",
+}: EvidencePanelProps) {
   const [verdict, setVerdict] = useState<"TRUE_CHANGE" | "FALSE_ALARM" | "UNCERTAIN" | null>(null);
   const [analystNotes, setAnalystNotes] = useState<string>("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [exportNotice, setExportNotice] = useState<string | null>(null);
 
-  const handleExport = async (format: "json" | "markdown") => {
+  const isLiveOrReal = Boolean(analysis?.clusters || analysis?.change || analysis?.quality);
+  const analysisId = analysis?.provenance?.provenanceId || `ANALYSIS_${location.location_id}`;
+  const clusterCount = analysis?.clusters?.length ?? analysis?.change_regions?.length ?? 0;
+  const changedAreaHa = analysis?.change?.changedAreaHa ?? (
+    analysis?.changed_pixels ? ((analysis.changed_pixels * 100) / 10000).toFixed(2) : "0.00"
+  );
+  const t1Date = beforeScene?.acquisitionDate?.split("T")[0] || beforeScene?.acquisition_date || "2023-04-05";
+  const t2Date = afterScene?.acquisitionDate?.split("T")[0] || afterScene?.acquisition_date || "2025-03-12";
+  const temporalDays =
+    t1Date && t2Date
+      ? Math.round(Math.abs(new Date(t2Date).getTime() - new Date(t1Date).getTime()) / 86400000)
+      : "N/A";
+
+  const handleExport = async (format: "zip" | "geojson" | "json" | "markdown") => {
     setIsExporting(true);
+    setExportNotice(null);
+
     try {
+      const payload: any = {
+        location_id: location.location_id,
+        location_name: location.name,
+        format,
+        analyst_notes: analystNotes,
+        verdict: verdict || "UNREVIEWED",
+        analyst_decision: verdict || "UNREVIEWED",
+        mode: catalogMode === "real-eo" ? "REAL_EO_CATALOG" : "CONTROLLED_BENCHMARK",
+      };
+
+      if (isLiveOrReal) {
+        payload.live_analysis = analysis;
+        if (beforeScene) payload.before_scene = beforeScene;
+        if (afterScene) payload.after_scene = afterScene;
+      } else {
+        payload.analysis_result = analysis;
+      }
+
       const res = await fetch("/api/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          location_id: location.location_id,
-          format,
-          analyst_notes: analystNotes,
-          verdict: verdict || "UNREVIEWED",
-        }),
+        body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
-      const contentStr = typeof data.content === "string" ? data.content : JSON.stringify(data.content, null, 2);
-      const mimeType = format === "markdown" ? "text/markdown;charset=utf-8" : "application/json";
-      const blob = new Blob([contentStr], { type: mimeType });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = data.filename || `terralens_dossier_${location.location_id}.${format === "markdown" ? "md" : "json"}`;
-      a.click();
-      URL.revokeObjectURL(url);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+
+      if (format === "zip") {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `terralens_bundle_${location.location_id}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setExportNotice(`Exported complete bundle: terralens_bundle_${location.location_id}.zip`);
+      } else if (format === "geojson") {
+        const data = await res.json();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/geo+json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `change_clusters_${location.location_id}.geojson`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setExportNotice(`Exported RFC 7946 GeoJSON: change_clusters_${location.location_id}.geojson`);
+      } else {
+        const data = await res.json();
+        const contentStr = typeof data.content === "string" ? data.content : JSON.stringify(data.content, null, 2);
+        const mimeType = format === "markdown" ? "text/markdown;charset=utf-8" : "application/json";
+        const blob = new Blob([contentStr], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const ext = format === "markdown" ? "md" : "json";
+        a.download = data.filename || `terralens_${format === "markdown" ? "report" : "analysis"}_${location.location_id}.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setExportNotice(`Exported: ${a.download}`);
+      }
+
+      setTimeout(() => setExportNotice(null), 5000);
     } catch (err) {
-      alert("Failed to export dossier");
+      setExportNotice("Export failed: " + (err instanceof Error ? err.message : String(err)));
+      setTimeout(() => setExportNotice(null), 5000);
     } finally {
       setIsExporting(false);
     }
@@ -72,30 +146,30 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
     {
       num: "03",
       title: "Radiometric Contrast Normalization",
-      engine: "Illumination Equalization (Gaussian mean & variance match)",
+      engine: "Illumination Equalization (Gain [0.75, 1.25], Offset [-0.10, 0.10])",
       status: "SUCCESS",
       detail: `Sun angle and atmospheric radiance differences normalized across epochs.`,
     },
     {
       num: "04",
-      title: "Absolute Luminance Subtraction",
-      engine: "Luminance Delta Operator (|T2 - T1|)",
+      title: "Adaptive Statistical Thresholding",
+      engine: "Data-driven cutoff (mean + 1.8 * std, clamped [0.15, 0.45])",
       status: "SUCCESS",
-      detail: `Generated continuous absolute difference heatmap (262,144 evaluated pixels).`,
+      detail: `Statistical change magnitude cutoff determined without Otsu instability.`,
     },
     {
       num: "05",
       title: "False-Alarm Noise Suppression",
-      engine: "Morphological Open + Min-Region Thresholding",
+      engine: "3x3 Binary Opening + 3x3 Binary Closing + Min Cluster Filter",
       status: "SUCCESS",
-      detail: `Pruned high-frequency sensor noise and isolated pixels under 20 contiguous px.`,
+      detail: `Pruned high-frequency sensor noise and isolated pixels under 9 contiguous px (900 m²).`,
     },
     {
       num: "06",
       title: "Connected Component Extraction",
       engine: "8-Connectivity Spatial Region Clustering",
       status: "SUCCESS",
-      detail: `Identified ${analysis?.change_regions?.length || 0} discrete spatial change polygons with centroids.`,
+      detail: `Identified ${clusterCount} discrete spatial change polygons with centroids.`,
     },
   ];
 
@@ -119,7 +193,7 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
             <span>Processing Chain Provenance</span>
           </h4>
 
-          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+          <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1">
             {provenanceSteps.map((step) => (
               <div
                 key={step.num}
@@ -141,7 +215,7 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
         </div>
 
         {/* Right: Analyst Adjudication & Dossier Export */}
-        <div className="bg-tactical-900/60 p-3.5 rounded-lg border border-tactical-700 flex flex-col justify-between">
+        <div className="bg-tactical-900/60 p-3.5 rounded-lg border border-tactical-700 flex flex-col justify-between space-y-3">
           <div>
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 uppercase flex items-center gap-1.5">
@@ -210,7 +284,7 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
               Analyst Verification Notes:
             </label>
             <textarea
-              rows={3}
+              rows={2}
               value={analystNotes}
               onChange={(e) => setAnalystNotes(e.target.value)}
               placeholder="Enter domain interpretation notes for intelligence brief..."
@@ -218,25 +292,98 @@ export function EvidencePanel({ location, analysis }: EvidencePanelProps) {
             />
           </div>
 
-          {/* Export Action Buttons */}
-          <div className="mt-4 pt-3 border-t border-tactical-700/60 flex items-center justify-end gap-2">
-            <button
-              onClick={() => handleExport("json")}
-              disabled={isExporting}
-              className="px-3 py-1.5 rounded bg-tactical-800 hover:bg-tactical-700 text-slate-700 dark:text-slate-200 border border-tactical-600 text-xs font-mono font-semibold transition-all flex items-center gap-1.5"
-            >
-              <FileCode className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-              <span>EXPORT JSON</span>
-            </button>
+          {/* Phase 11: Dedicated Analysis Export Card */}
+          <div className="bg-tactical-950 p-3 rounded-lg border border-tactical-750 font-mono space-y-2.5">
+            <div className="flex items-center justify-between pb-1.5 border-b border-tactical-800 text-xs">
+              <div className="flex items-center gap-1.5 text-sky-400 font-bold">
+                <Archive className="w-3.5 h-3.5" />
+                <span>ANALYSIS EXPORT</span>
+              </div>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-500/30">
+                PORTABLE BUNDLE
+              </span>
+            </div>
 
-            <button
-              onClick={() => handleExport("markdown")}
-              disabled={isExporting}
-              className="px-3.5 py-1.5 rounded bg-sky-600 hover:bg-sky-500 text-white text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-sm"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>DOWNLOAD DOSSIER (.MD)</span>
-            </button>
+            <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300">
+              <div>
+                <span className="text-slate-500 block text-[10px]">ANALYSIS ID:</span>
+                <span className="font-bold text-slate-200 truncate block text-[10px]" title={analysisId}>
+                  {analysisId}
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px]">LOCATION:</span>
+                <span className="font-bold text-slate-200 truncate block text-[10px]" title={location.name}>
+                  {location.name}
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px]">T1 → T2 BASELINE:</span>
+                <span className="text-slate-200 block text-[10px]">
+                  {t1Date} → {t2Date} ({temporalDays}d)
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px]">CLUSTERS & EXTENT:</span>
+                <span className="text-emerald-400 font-bold block text-[10px]">
+                  {clusterCount} clusters • {changedAreaHa} ha
+                </span>
+              </div>
+            </div>
+
+            {/* Actions: Primary Bundle + Individual Actions */}
+            <div className="pt-2 border-t border-tactical-800 flex flex-wrap items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => handleExport("zip")}
+                disabled={isExporting}
+                className="py-1.5 px-3 rounded bg-sky-600 hover:bg-sky-500 text-white font-mono font-bold text-xs transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {isExporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Archive className="w-3.5 h-3.5" />}
+                <span>EXPORT ANALYSIS BUNDLE</span>
+              </button>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleExport("geojson")}
+                  disabled={isExporting}
+                  className="py-1 px-2 rounded bg-tactical-800 hover:bg-tactical-700 text-slate-300 border border-tactical-600 text-[11px] font-mono font-semibold transition-all flex items-center gap-1 disabled:opacity-50"
+                  title="Download RFC 7946 GeoJSON FeatureCollection"
+                >
+                  <MapPin className="w-3 h-3 text-emerald-400" />
+                  <span>GeoJSON</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleExport("json")}
+                  disabled={isExporting}
+                  className="py-1 px-2 rounded bg-tactical-800 hover:bg-tactical-700 text-slate-300 border border-tactical-600 text-[11px] font-mono font-semibold transition-all flex items-center gap-1 disabled:opacity-50"
+                  title="Download Structured Analysis JSON"
+                >
+                  <FileCode className="w-3 h-3 text-sky-400" />
+                  <span>JSON</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleExport("markdown")}
+                  disabled={isExporting}
+                  className="py-1 px-2 rounded bg-tactical-800 hover:bg-tactical-700 text-slate-300 border border-tactical-600 text-[11px] font-mono font-semibold transition-all flex items-center gap-1 disabled:opacity-50"
+                  title="Download Operational Intelligence Markdown Dossier"
+                >
+                  <FileText className="w-3 h-3 text-amber-400" />
+                  <span>REPORT</span>
+                </button>
+              </div>
+            </div>
+
+            {exportNotice && (
+              <p className="text-[11px] font-mono text-emerald-300 bg-emerald-950/40 p-1.5 rounded border border-emerald-500/30">
+                {exportNotice}
+              </p>
+            )}
           </div>
         </div>
       </div>
