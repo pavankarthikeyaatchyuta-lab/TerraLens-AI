@@ -26,6 +26,7 @@ export interface QualityReport {
   validPercentage: number;
   cloudPixelsSuppressed: number;
   shadowPixelsSuppressed: number;
+  snowPixelsSuppressed?: number;
   sclUsed: boolean;
 }
 
@@ -238,6 +239,8 @@ export class ChangeAnalysisEngine {
       beforeB08Url,
       afterB04Url,
       afterB08Url,
+      beforeSclUrl,
+      afterSclUrl,
       fixedThreshold,
       minClusterAreaM2 = 900,
     } = options;
@@ -277,51 +280,50 @@ export class ChangeAnalysisEngine {
     const side = Math.floor(Math.sqrt(numPixels)) || 512;
     const totalPixels = side * side;
 
-    // 2. Surface Reflectance Normalization (DN / 10000.0) & Base Validity
-    const b_red = new Float32Array(totalPixels);
-    const b_nir = new Float32Array(totalPixels);
-    const a_red = new Float32Array(totalPixels);
-    const a_nir = new Float32Array(totalPixels);
-    const validMask = new Uint8Array(totalPixels);
+    // 2. SCL Quality Masking + Surface Reflectance Normalization
+    // ESA Sentinel-2 L2A Scene Classification Layer (SCL) classes
+    // MASKED: 0=NoData, 1=Saturated/Defective, 3=CloudShadows, 8=CloudMedium, 9=CloudHigh, 10=Cirrus, 11=Snow/Ice
+    // VALID: 2=DarkArea, 4=Vegetation, 5=NotVegetated, 6=Water, 7=Unclassified
+    const SCL_MASKED_CLASSES = new Set([0, 1, 3, 8, 9, 10, 11]);
 
-    let validCount = 0;
-    let cloudShadowCount = 0;
+    // Attempt to read SCL tiles if URLs are provided
+    let b_scl_raw: Uint16Array | null = null;
+    let a_scl_raw: Uint16Array | null = null;
 
-    for (let i = 0; i < totalPixels; i++) {
-      const br = b_b04_raw[i] / 10000.0;
-      const bn = b_b08_raw[i] / 10000.0;
-      const ar = a_b04_raw[i] / 10000.0;
-      const an = a_b08_raw[i] / 10000.0;
-
-      b_red[i] = br;
-      b_nir[i] = bn;
-      a_red[i] = ar;
-      a_nir[i] = an;
-
-      // Quality Masking: valid surface reflectance (0 < R < 1.2), non-saturated, non-zero
-      const isValid = (
-        br > 0.005 && bn > 0.005 && ar > 0.005 && an > 0.005 &&
-        br < 1.2 && bn < 1.2 && ar < 1.2 && an < 1.2
-      );
-
-      if (isValid) {
-        validMask[i] = 1;
-        validCount++;
-      } else {
-        cloudShadowCount++;
+    if (beforeSclUrl && afterSclUrl) {
+      try {
+        // SCL is 20m (5490x5490) — tiled differently from 10m bands.
+        // Use tileIndex=0 for the closest tile, matching B04/B08 spatial area.
+        [b_scl_raw, a_scl_raw] = await Promise.all([
+          CogTileReader.readCogSubwindow(beforeSclUrl, Math.floor(targetTileIndex / 4)),
+          CogTileReader.readCogSubwindow(afterSclUrl, Math.floor(targetTileIndex / 4)),
+        ]);
+      } catch {
+        // SCL read failed — fall back to reflectance-bounds only
+        b_scl_raw = null;
+        a_scl_raw = null;
       }
     }
 
-    const validPercentage = parseFloat(((validCount / totalPixels) * 100).toFixed(2));
-    const qualityReport: QualityReport = {
-      totalPixels,
-      validPixels: validCount,
-      maskedPixels: totalPixels - validCount,
+    // 2. SCL Quality Masking & Surface Reflectance Normalization
+    const {
+      b_red,
+      b_nir,
+      a_red,
+      a_nir,
+      validMask,
+      validCount,
       validPercentage,
-      cloudPixelsSuppressed: Math.round(cloudShadowCount * 0.65),
-      shadowPixelsSuppressed: Math.round(cloudShadowCount * 0.35),
-      sclUsed: true,
-    };
+      qualityReport,
+    } = ChangeAnalysisEngine.applyQualityMask({
+      b_b04_raw,
+      b_b08_raw,
+      a_b04_raw,
+      a_b08_raw,
+      b_scl_raw,
+      a_scl_raw,
+      side,
+    });
 
     // 3. Deterministic Radiometric Illumination Matching on valid pixels
     let bMeanRed = 0, aMeanRed = 0, bStdRed = 0, aStdRed = 0;
@@ -443,6 +445,7 @@ export class ChangeAnalysisEngine {
       aoi,
       resolutionMeters,
       minClusterPixels,
+      validPercentage,
     });
 
     const finalChangedPixels = clusters.reduce((acc, c) => acc + c.pixelCount, 0);
@@ -555,9 +558,125 @@ export class ChangeAnalysisEngine {
   }
 
   /**
+   * Surface Reflectance Normalization & SCL Quality Masking.
+   * ESA Sentinel-2 L2A Scene Classification Layer (SCL) classes:
+   * MASKED: 0=NoData, 1=Saturated/Defective, 3=CloudShadows, 8=CloudMedium, 9=CloudHigh, 10=Cirrus, 11=Snow/Ice
+   * VALID: 2=DarkArea, 4=Vegetation, 5=NotVegetated, 6=Water, 7=Unclassified
+   */
+  public static applyQualityMask(options: {
+    b_b04_raw: Uint16Array;
+    b_b08_raw: Uint16Array;
+    a_b04_raw: Uint16Array;
+    a_b08_raw: Uint16Array;
+    b_scl_raw?: Uint16Array | null;
+    a_scl_raw?: Uint16Array | null;
+    side: number;
+  }): {
+    b_red: Float32Array;
+    b_nir: Float32Array;
+    a_red: Float32Array;
+    a_nir: Float32Array;
+    validMask: Uint8Array;
+    validCount: number;
+    validPercentage: number;
+    qualityReport: QualityReport;
+  } {
+    const { b_b04_raw, b_b08_raw, a_b04_raw, a_b08_raw, b_scl_raw, a_scl_raw, side } = options;
+    const totalPixels = side * side;
+    const SCL_MASKED_CLASSES = new Set([0, 1, 3, 8, 9, 10, 11]);
+    const sclAvailable = !!(b_scl_raw && a_scl_raw);
+
+    const b_red = new Float32Array(totalPixels);
+    const b_nir = new Float32Array(totalPixels);
+    const a_red = new Float32Array(totalPixels);
+    const a_nir = new Float32Array(totalPixels);
+    const validMask = new Uint8Array(totalPixels);
+
+    let validCount = 0;
+    let cloudCount = 0;
+    let shadowCount = 0;
+    let snowCount = 0;
+
+    for (let i = 0; i < totalPixels; i++) {
+      const br = b_b04_raw[i] / 10000.0;
+      const bn = b_b08_raw[i] / 10000.0;
+      const ar = a_b04_raw[i] / 10000.0;
+      const an = a_b08_raw[i] / 10000.0;
+
+      b_red[i] = br;
+      b_nir[i] = bn;
+      a_red[i] = ar;
+      a_nir[i] = an;
+
+      // Reflectance bounds check (always applied)
+      const reflValid = (
+        br > 0.005 && bn > 0.005 && ar > 0.005 && an > 0.005 &&
+        br < 1.2 && bn < 1.2 && ar < 1.2 && an < 1.2
+      );
+
+      if (!reflValid) {
+        continue;
+      }
+
+      // SCL-based masking (if SCL tiles are available)
+      if (sclAvailable && b_scl_raw && a_scl_raw) {
+        const sclSide = Math.floor(Math.sqrt(b_scl_raw.length)) || 256;
+        const row10 = Math.floor(i / side);
+        const col10 = i % side;
+        const sclRow = Math.min(sclSide - 1, Math.floor(row10 * sclSide / side));
+        const sclCol = Math.min(sclSide - 1, Math.floor(col10 * sclSide / side));
+        const sclIdx = sclRow * sclSide + sclCol;
+
+        const bSclClass = sclIdx < b_scl_raw.length ? b_scl_raw[sclIdx] : 0;
+        const aSclClass = sclIdx < a_scl_raw.length ? a_scl_raw[sclIdx] : 0;
+
+        if (SCL_MASKED_CLASSES.has(bSclClass) || SCL_MASKED_CLASSES.has(aSclClass)) {
+          if (bSclClass === 8 || bSclClass === 9 || bSclClass === 10 ||
+              aSclClass === 8 || aSclClass === 9 || aSclClass === 10) {
+            cloudCount++;
+          } else if (bSclClass === 3 || aSclClass === 3) {
+            shadowCount++;
+          } else if (bSclClass === 11 || aSclClass === 11) {
+            snowCount++;
+          }
+          continue;
+        }
+      }
+
+      validMask[i] = 1;
+      validCount++;
+    }
+
+    const maskedPixels = totalPixels - validCount;
+    const validPercentage = parseFloat(((validCount / totalPixels) * 100).toFixed(2));
+    const qualityReport: QualityReport = {
+      totalPixels,
+      validPixels: validCount,
+      maskedPixels,
+      validPercentage,
+      cloudPixelsSuppressed: sclAvailable ? cloudCount : Math.round(maskedPixels * 0.65),
+      shadowPixelsSuppressed: sclAvailable ? shadowCount : Math.round(maskedPixels * 0.35),
+      snowPixelsSuppressed: sclAvailable ? snowCount : 0,
+      sclUsed: sclAvailable,
+    };
+
+    return {
+      b_red,
+      b_nir,
+      a_red,
+      a_nir,
+      validMask,
+      validCount,
+      validPercentage,
+      qualityReport,
+    };
+  }
+
+  /**
    * Morphological 3x3 opening and closing.
    */
-  private static applyMorphology(mask: Uint8Array, width: number, height: number): Uint8Array {
+  public static applyMorphology(mask: Uint8Array, width: number, height: number): Uint8Array {
+    // 1. Erosion (opening step 1)
     const eroded = new Uint8Array(width * height);
     for (let r = 1; r < height - 1; r++) {
       for (let c = 1; c < width - 1; c++) {
@@ -575,6 +694,7 @@ export class ChangeAnalysisEngine {
       }
     }
 
+    // 2. Dilation (opening step 2)
     const opened = new Uint8Array(width * height);
     for (let r = 1; r < height - 1; r++) {
       for (let c = 1; c < width - 1; c++) {
@@ -592,14 +712,49 @@ export class ChangeAnalysisEngine {
       }
     }
 
-    const closed = new Uint8Array(opened);
+    // 3. Closing step 1: Dilation of opened result
+    const dilated = new Uint8Array(width * height);
+    for (let r = 1; r < height - 1; r++) {
+      for (let c = 1; c < width - 1; c++) {
+        let anyOn = false;
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let dc = -1; dc <= 1; dc++) {
+            if (opened[(r + dr) * width + (c + dc)]) {
+              anyOn = true;
+              break;
+            }
+          }
+          if (anyOn) break;
+        }
+        if (anyOn) dilated[r * width + c] = 1;
+      }
+    }
+
+    // 4. Closing step 2: Erosion of dilated result
+    const closed = new Uint8Array(width * height);
+    for (let r = 1; r < height - 1; r++) {
+      for (let c = 1; c < width - 1; c++) {
+        let allOn = true;
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let dc = -1; dc <= 1; dc++) {
+            if (!dilated[(r + dr) * width + (c + dc)]) {
+              allOn = false;
+              break;
+            }
+          }
+          if (!allOn) break;
+        }
+        if (allOn) closed[r * width + c] = 1;
+      }
+    }
+
     return closed;
   }
 
   /**
    * Connected component labeling and geospatial cluster synthesis.
    */
-  private static extractClusters(opts: {
+  public static extractClusters(opts: {
     cleanedMask: Uint8Array;
     changeScore: Float32Array;
     ndviDiff: Float32Array;
@@ -609,8 +764,9 @@ export class ChangeAnalysisEngine {
     aoi: BoundingBox;
     resolutionMeters: number;
     minClusterPixels: number;
+    validPercentage?: number;
   }): ChangeCluster[] {
-    const { cleanedMask, changeScore, ndviDiff, redDiff, nirDiff, side, aoi, resolutionMeters, minClusterPixels } = opts;
+    const { cleanedMask, changeScore, ndviDiff, redDiff, nirDiff, side, aoi, resolutionMeters, minClusterPixels, validPercentage } = opts;
     const visited = new Uint8Array(side * side);
     const clusters: ChangeCluster[] = [];
 
@@ -707,13 +863,17 @@ export class ChangeAnalysisEngine {
           } else if (meanRed > 0.08 && meanNdvi < -0.04) {
             changeClass = "BUILT_UP_CONSTRUCTION";
             rationale = `Pronounced surface reflectance increase (ΔRed=+${meanRed.toFixed(2)}) with vegetation loss indicating new structures.`;
+          } else if (meanNdvi < -0.12 && Math.abs(meanRed) <= 0.02 && Math.abs(meanNir) < 0.08) {
+            changeClass = "SEASONAL_PHENOLOGY / BROWNING";
+            rationale = `NDVI reduction (ΔNDVI=${meanNdvi.toFixed(2)}) without bare ground surface exposure indicating seasonal dry dormancy.`;
           }
 
-          // Confidence formulation [0.0, 1.0]
+          // Confidence formulation [0.0, 1.0] with quality penalty for heavily masked scenes
           const cMag = Math.min(0.40, meanScore * 0.8);
           const cSpatial = Math.min(0.35, 0.15 + Math.log10(count) * 0.08);
           const cSpectral = Math.abs(meanNdvi) > 0.10 || Math.abs(meanRed) > 0.05 ? 0.25 : 0.10;
-          const confidence = parseFloat(Math.min(0.98, Math.max(0.20, cMag + cSpatial + cSpectral)).toFixed(2));
+          const qualityPenalty = (opts.validPercentage !== undefined && opts.validPercentage < 50) ? 0.15 : (opts.validPercentage !== undefined && opts.validPercentage < 75) ? 0.05 : 0.0;
+          const confidence = parseFloat(Math.min(0.98, Math.max(0.20, cMag + cSpatial + cSpectral - qualityPenalty)).toFixed(2));
 
           const areaM2 = count * (resolutionMeters * resolutionMeters);
           const areaHa = parseFloat((areaM2 / 10000.0).toFixed(4));

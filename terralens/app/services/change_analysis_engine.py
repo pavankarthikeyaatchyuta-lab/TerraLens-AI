@@ -95,14 +95,23 @@ class Sentinel2QualityMasker:
             scl_valid = np.isin(scl_arr, list(cls.VALID_SCL_CLASSES))
             cloud_mask = np.isin(scl_arr, [cls.SCL_CLOUD_MEDIUM_PROBABILITY, cls.SCL_CLOUD_HIGH_PROBABILITY, cls.SCL_THIN_CIRRUS])
             shadow_mask = (scl_arr == cls.SCL_CLOUD_SHADOWS)
+            snow_mask = (scl_arr == cls.SCL_SNOW_OR_ICE)
+            cirrus_mask = (scl_arr == cls.SCL_THIN_CIRRUS)
+            defective_mask = (scl_arr == cls.SCL_SATURATED_OR_DEFECTIVE)
 
             cloud_pixels = int(np.sum(cloud_mask))
             shadow_pixels = int(np.sum(shadow_mask))
+            snow_pixels = int(np.sum(snow_mask))
+            cirrus_pixels = int(np.sum(cirrus_mask))
+            defective_pixels = int(np.sum(defective_mask))
             scl_masked_count = int(np.sum(~scl_valid))
 
             final_valid_mask = base_valid & scl_valid
         else:
             final_valid_mask = base_valid
+            snow_pixels = 0
+            cirrus_pixels = 0
+            defective_pixels = 0
 
         valid_pixels = int(np.sum(final_valid_mask))
         masked_pixels = total_pixels - valid_pixels
@@ -115,6 +124,9 @@ class Sentinel2QualityMasker:
             "valid_percentage": valid_percentage,
             "cloud_pixels": cloud_pixels,
             "shadow_pixels": shadow_pixels,
+            "snow_pixels": snow_pixels,
+            "cirrus_pixels": cirrus_pixels,
+            "defective_pixels": defective_pixels,
             "scl_masked_count": scl_masked_count,
             "scl_used": scl_array is not None,
         }
@@ -213,6 +225,7 @@ class ChangeAnalysisEngine:
             "after_quality": stats_a,
             "clouds_suppressed": stats_b["cloud_pixels"] + stats_a["cloud_pixels"],
             "shadows_suppressed": stats_b["shadow_pixels"] + stats_a["shadow_pixels"],
+            "snow_suppressed": stats_b.get("snow_pixels", 0) + stats_a.get("snow_pixels", 0),
         }
 
         if valid_pixels < 25:
@@ -389,6 +402,10 @@ class ChangeAnalysisEngine:
         visited = np.zeros((h, w), dtype=bool)
         clusters: List[Dict[str, Any]] = []
 
+        # Atmospheric quality penalty on cluster confidence if scene is heavily masked
+        valid_pct = (float(np.sum(combined_valid)) / combined_valid.size * 100.0) if combined_valid.size > 0 else 100.0
+        quality_penalty = 0.15 if valid_pct < 50.0 else (0.05 if valid_pct < 75.0 else 0.0)
+
         # 8-neighbor connectivity offsets
         neighbors = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
 
@@ -480,6 +497,7 @@ class ChangeAnalysisEngine:
                         pixel_count=pixel_count,
                         mean_ndvi_diff=mean_c_ndvi_diff,
                         mean_red_diff=mean_c_red_diff,
+                        quality_penalty=quality_penalty,
                     )
 
                     area_m2 = round(pixel_count * (resolution_m ** 2), 2)
@@ -555,6 +573,11 @@ class ChangeAnalysisEngine:
                 "BUILT_UP_CONSTRUCTION",
                 f"High red surface reflectance increase ({mean_red_diff:+.3f}) with vegetation suppression indicating new impervious structure.",
             )
+        elif mean_ndvi_diff < -0.12 and abs(mean_red_diff) <= 0.02 and abs(mean_nir_diff) < 0.08:
+            return (
+                "SEASONAL_PHENOLOGY / BROWNING",
+                f"NDVI reduction ({mean_ndvi_diff:+.3f}) without bare soil/red increase ({mean_red_diff:+.3f}) indicating seasonal dry dormancy.",
+            )
         else:
             return (
                 "OTHER / UNCERTAIN",
@@ -567,6 +590,7 @@ class ChangeAnalysisEngine:
         pixel_count: int,
         mean_ndvi_diff: float,
         mean_red_diff: float,
+        quality_penalty: float = 0.0,
     ) -> float:
         """Formulates explainable confidence score in range [0.0, 1.0]."""
         # 1. Magnitude component (0 to 0.40)
@@ -580,5 +604,5 @@ class ChangeAnalysisEngine:
         has_clear_spectral_trend = abs(mean_ndvi_diff) > 0.10 or abs(mean_red_diff) > 0.05
         c_spectral = 0.25 if has_clear_spectral_trend else 0.10
 
-        confidence = c_mag + c_spatial + c_spectral
+        confidence = c_mag + c_spatial + c_spectral - quality_penalty
         return round(float(np.clip(confidence, 0.20, 0.98)), 2)
