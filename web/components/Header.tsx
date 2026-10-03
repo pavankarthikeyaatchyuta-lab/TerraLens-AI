@@ -63,6 +63,19 @@ export function Header({
               </button>
               <button
                 type="button"
+                onClick={() => onSelectMode("REAL_EO_CATALOG")}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
+                  operatingMode === "REAL_EO_CATALOG"
+                    ? "bg-indigo-600/15 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/40 font-bold shadow-sm"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                }`}
+                title="Real Sentinel-2 EO Catalog Mode (70 Real Sentinel-2 Scenes across 35 Global Locations)"
+              >
+                <Database className="w-3 h-3 text-indigo-500" />
+                <span>REAL EO</span>
+              </button>
+              <button
+                type="button"
                 onClick={() => onSelectMode("LIVE_PUBLIC_DATA")}
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
                   operatingMode === "LIVE_PUBLIC_DATA"

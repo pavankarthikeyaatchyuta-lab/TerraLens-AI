@@ -45,8 +45,8 @@ class IndexService:
         except Exception as e:
             return False, f"Corrupted JSON in metadata mapping {self.metadata_path}: {e}"
 
-        expected_count = meta.get("total_vectors", 0)
-        records = meta.get("records", [])
+        expected_count = meta.get("total_vectors", meta.get("total_scenes", 0))
+        records = meta.get("records", meta.get("scenes", []))
 
         if len(records) != expected_count:
             return False, f"Metadata record count ({len(records)}) mismatches total_vectors ({expected_count})"
@@ -72,7 +72,7 @@ class IndexService:
             self._index = faiss.read_index(str(self.index_path))
             with open(self.metadata_path, "r", encoding="utf-8") as f:
                 self._metadata = json.load(f)
-            self._records = self._metadata.get("records", [])
+            self._records = self._metadata.get("records", self._metadata.get("scenes", []))
             logger.info(f"Loaded FAISS index with {self._index.ntotal} vectors from {self.index_path}")
             return True
         except Exception as e:

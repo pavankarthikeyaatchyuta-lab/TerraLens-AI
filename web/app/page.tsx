@@ -49,16 +49,21 @@ export default function HomePage() {
   // Modal State
   const [isEvaluationOpen, setIsEvaluationOpen] = useState<boolean>(false);
 
-  // Initial Load: Fetch scenes and locations
+  // Initial Load: Fetch scenes and locations based on active mode
   useEffect(() => {
-    fetch("/api/scenes")
+    const isRealEo = operatingMode === "REAL_EO_CATALOG";
+    const catalogQuery = isRealEo ? "?catalog=real-eo" : "";
+    fetch(`/api/scenes${catalogQuery}`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.locations) setLocations(data.locations);
+        if (data.locations && data.locations.length > 0) {
+          setLocations(data.locations);
+          setSelectedLocationId(data.locations[0].location_id);
+        }
         if (data.scenes) setScenes(data.scenes);
       })
       .catch((err) => console.error("Failed to load catalog", err));
-  }, []);
+  }, [operatingMode]);
 
   // When selected location changes, load temporal pair & trigger change analysis
   useEffect(() => {
@@ -105,6 +110,7 @@ export default function HomePage() {
       }
 
       // 2. Query Search API with either client vector or fallback to server
+      const isRealEo = operatingMode === "REAL_EO_CATALOG";
       const res = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -112,6 +118,7 @@ export default function HomePage() {
           query,
           vector: clientVector,
           top_k: 5,
+          catalog: isRealEo ? "real-eo" : "benchmark",
         }),
       });
       const data = await res.json();
@@ -250,9 +257,9 @@ export default function HomePage() {
         )}
 
         {/* ------------------------------------------------------------- */}
-        {/* MODE 2: CONTROLLED BENCHMARK (Deterministic 5-Location Hub)   */}
+        {/* MODE 2: SEMANTIC RETRIEVAL (Benchmark & Real EO Catalog)       */}
         {/* ------------------------------------------------------------- */}
-        {operatingMode === "CONTROLLED_BENCHMARK" && (
+        {(operatingMode === "CONTROLLED_BENCHMARK" || operatingMode === "REAL_EO_CATALOG") && (
           <div className="space-y-4">
             {/* Natural Language Query Bar */}
             <div id="console">

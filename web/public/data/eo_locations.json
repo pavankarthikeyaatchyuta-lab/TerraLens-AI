@@ -1,0 +1,935 @@
+{
+  "total_locations": 35,
+  "locations": [
+    {
+      "location_id": "LOC_EO_01_BHADLA_SOLAR",
+      "name": "Bhadla Solar Park, Rajasthan",
+      "description": "World's largest photovoltaic solar park spanning over 14,000 acres in the Thar desert.",
+      "latitude": 27.54,
+      "longitude": 71.95,
+      "bounding_box": {
+        "min_lat": 27.48,
+        "min_lon": 71.85,
+        "max_lat": 27.6,
+        "max_lon": 72.05
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "solar_farm",
+        "photovoltaic",
+        "energy",
+        "renewable",
+        "desert",
+        "arid",
+        "infrastructure"
+      ],
+      "available_dates": [
+        "2026-09-26",
+        "2026-10-01"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_02_PAVAGADA_SOLAR",
+      "name": "Pavagada Solar Park, Karnataka",
+      "description": "Shakti Sthala mega solar power project situated on semi-arid drought-prone terrain.",
+      "latitude": 14.15,
+      "longitude": 77.3,
+      "bounding_box": {
+        "min_lat": 14.05,
+        "min_lon": 77.2,
+        "max_lat": 14.25,
+        "max_lon": 77.4
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "solar_farm",
+        "photovoltaic",
+        "energy",
+        "renewable",
+        "rural"
+      ],
+      "available_dates": [
+        "2026-05-02",
+        "2026-09-27"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_03_KURNOOL_SOLAR",
+      "name": "Kurnool Ultra Mega Solar Park, AP",
+      "description": "1,000 MW grid-connected photovoltaic installation in Andhra Pradesh.",
+      "latitude": 15.75,
+      "longitude": 78.3,
+      "bounding_box": {
+        "min_lat": 15.65,
+        "min_lon": 78.2,
+        "max_lat": 15.85,
+        "max_lon": 78.4
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "solar_farm",
+        "photovoltaic",
+        "energy",
+        "infrastructure"
+      ],
+      "available_dates": [
+        "2026-05-17",
+        "2026-09-29"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_04_BENBAN_SOLAR",
+      "name": "Benban Solar Complex, Aswan, Egypt",
+      "description": "Gigawatt-scale photovoltaic complex in the Western Desert of Egypt.",
+      "latitude": 24.475,
+      "longitude": 32.775,
+      "bounding_box": {
+        "min_lat": 24.4,
+        "min_lon": 32.7,
+        "max_lat": 24.55,
+        "max_lon": 32.85
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "solar_farm",
+        "photovoltaic",
+        "energy",
+        "desert",
+        "international"
+      ],
+      "available_dates": [
+        "2026-09-26",
+        "2026-09-26"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_05_HYDERABAD_HITEC",
+      "name": "Hyderabad HITEC City & Gachibowli, Telangana",
+      "description": "Rapid urban expansion, high-rise commercial corridors, and transit infrastructure in Cyberabad.",
+      "latitude": 17.45,
+      "longitude": 78.38,
+      "bounding_box": {
+        "min_lat": 17.4,
+        "min_lon": 78.33,
+        "max_lat": 17.5,
+        "max_lon": 78.43
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "urban",
+        "construction",
+        "buildings",
+        "commercial",
+        "infrastructure",
+        "city"
+      ],
+      "available_dates": [
+        "2026-06-16",
+        "2026-06-16"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_06_NEW_DELHI_CENTRAL",
+      "name": "Central New Delhi & Yamuna Corridor",
+      "description": "High-density urban fabric, riverfront developments, and urban green belts along the Yamuna river.",
+      "latitude": 28.63,
+      "longitude": 77.23,
+      "bounding_box": {
+        "min_lat": 28.58,
+        "min_lon": 77.18,
+        "max_lat": 28.68,
+        "max_lon": 77.28
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "urban",
+        "capital",
+        "river",
+        "city",
+        "dense_buildings",
+        "infrastructure"
+      ],
+      "available_dates": [
+        "2026-09-30",
+        "2026-07-12"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_07_BENGALURU_TECH",
+      "name": "Bengaluru Electronic City & Peripheral Ring Road",
+      "description": "Technology business parks, residential clusters, and major arterial ring road expansion.",
+      "latitude": 12.87,
+      "longitude": 77.68,
+      "bounding_box": {
+        "min_lat": 12.82,
+        "min_lon": 77.63,
+        "max_lat": 12.92,
+        "max_lon": 77.73
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "urban",
+        "tech_park",
+        "development",
+        "industrial",
+        "roads"
+      ],
+      "available_dates": [
+        "2026-04-22",
+        "2026-04-27"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_08_KOLKATA_HOOGHLY",
+      "name": "Kolkata Hooghly Riverfront & Howrah",
+      "description": "Dense historic metropolis along the tidal Hooghly river with major bridge and dock infrastructure.",
+      "latitude": 22.55,
+      "longitude": 88.35,
+      "bounding_box": {
+        "min_lat": 22.5,
+        "min_lon": 88.3,
+        "max_lat": 22.6,
+        "max_lon": 88.4
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "urban",
+        "river",
+        "delta",
+        "bridges",
+        "city",
+        "transport"
+      ],
+      "available_dates": [
+        "2026-04-13",
+        "2026-04-23"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_09_DUBAI_COASTAL",
+      "name": "Dubai Marina & Palm Jumeirah, UAE",
+      "description": "Iconic coastal land reclamation, luxury high-rises, and artificial archipelago developments.",
+      "latitude": 25.125,
+      "longitude": 55.175,
+      "bounding_box": {
+        "min_lat": 25.05,
+        "min_lon": 55.1,
+        "max_lat": 25.2,
+        "max_lon": 55.25
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "coastal_reclamation",
+        "urban",
+        "ocean",
+        "artificial_islands",
+        "maritime"
+      ],
+      "available_dates": [
+        "2026-09-29",
+        "2026-09-24"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_10_SRIRAM_SAGAR",
+      "name": "Sriram Sagar Reservoir, Godavari Basin",
+      "description": "Major multipurpose water reservoir on the Godavari river exhibiting seasonal water level fluctuations.",
+      "latitude": 18.975,
+      "longitude": 78.325,
+      "bounding_box": {
+        "min_lat": 18.9,
+        "min_lon": 78.25,
+        "max_lat": 19.05,
+        "max_lon": 78.4
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "reservoir",
+        "water",
+        "dam",
+        "lake",
+        "inland_water",
+        "godavari"
+      ],
+      "available_dates": [
+        "2026-09-29",
+        "2026-09-29"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_11_NAGARJUNA_SAGAR",
+      "name": "Nagarjuna Sagar Dam & Reservoir, Krishna Basin",
+      "description": "One of India's largest masonry dams and water storage reservoirs with prominent shoreline changes.",
+      "latitude": 16.575,
+      "longitude": 79.325,
+      "bounding_box": {
+        "min_lat": 16.5,
+        "min_lon": 79.25,
+        "max_lat": 16.65,
+        "max_lon": 79.4
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "reservoir",
+        "water",
+        "dam",
+        "river_valley",
+        "lake"
+      ],
+      "available_dates": [
+        "2026-04-27",
+        "2026-09-29"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_12_CHILIKA_LAKE",
+      "name": "Chilika Lagoon & Sea Mouth, Odisha",
+      "description": "Asia's largest brackish water lagoon with dynamic tidal openings, mudflats, and fishery wetlands.",
+      "latitude": 19.75,
+      "longitude": 85.35,
+      "bounding_box": {
+        "min_lat": 19.6,
+        "min_lon": 85.2,
+        "max_lat": 19.9,
+        "max_lon": 85.5
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "lagoon",
+        "water",
+        "wetland",
+        "coastal",
+        "lake",
+        "fisheries"
+      ],
+      "available_dates": [
+        "2026-05-16",
+        "2026-09-18"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_13_LOKTAK_LAKE",
+      "name": "Loktak Lake & Phumdis, Manipur",
+      "description": "Unique freshwater wetland characterized by circular floating vegetation islands (phumdis).",
+      "latitude": 24.575,
+      "longitude": 93.825,
+      "bounding_box": {
+        "min_lat": 24.5,
+        "min_lon": 93.75,
+        "max_lat": 24.65,
+        "max_lon": 93.9
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "lake",
+        "wetland",
+        "floating_islands",
+        "water",
+        "inland"
+      ],
+      "available_dates": [
+        "2026-03-08",
+        "2026-02-21"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_14_PANGONG_TSO",
+      "name": "Pangong Tso Lake, Ladakh Himalayas",
+      "description": "Endorheic high-altitude Himalayan saltwater lake with vivid turquoise and deep blue waters.",
+      "latitude": 33.75,
+      "longitude": 78.65,
+      "bounding_box": {
+        "min_lat": 33.65,
+        "min_lon": 78.5,
+        "max_lat": 33.85,
+        "max_lon": 78.8
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "lake",
+        "high_altitude",
+        "mountain",
+        "glacial",
+        "water",
+        "himalayas"
+      ],
+      "available_dates": [
+        "2026-09-25",
+        "2026-09-10"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_15_LAKE_MEAD",
+      "name": "Lake Mead Reservoir, Colorado River, USA",
+      "description": "Historic water shrinkage and white bathtub ring along the reservoir cliffs of Nevada and Arizona.",
+      "latitude": 36.15,
+      "longitude": -114.375,
+      "bounding_box": {
+        "min_lat": 36.05,
+        "min_lon": -114.5,
+        "max_lat": 36.25,
+        "max_lon": -114.25
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "reservoir",
+        "water_shrinkage",
+        "lake",
+        "arid_canyon",
+        "drought"
+      ],
+      "available_dates": [
+        "2026-10-01",
+        "2026-10-01"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_16_JNPT_MUMBAI",
+      "name": "JNPT Port & Nhava Sheva Container Terminal, Mumbai",
+      "description": "Premier container gateway of India with extensive cargo yards, container berths, and tidal creeks.",
+      "latitude": 18.96,
+      "longitude": 72.97,
+      "bounding_box": {
+        "min_lat": 18.92,
+        "min_lon": 72.92,
+        "max_lat": 19.0,
+        "max_lon": 73.02
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "port",
+        "coastal",
+        "harbor",
+        "shipping",
+        "ocean",
+        "maritime",
+        "container_terminal"
+      ],
+      "available_dates": [
+        "2026-04-28",
+        "2026-05-11"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_17_VISAKHAPATNAM_PORT",
+      "name": "Visakhapatnam Outer Harbor & Port, AP",
+      "description": "Deepwater maritime harbor sheltered by the Dolphin's Nose headland on the Bay of Bengal.",
+      "latitude": 17.7,
+      "longitude": 83.3,
+      "bounding_box": {
+        "min_lat": 17.65,
+        "min_lon": 83.25,
+        "max_lat": 17.75,
+        "max_lon": 83.35
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "port",
+        "harbor",
+        "coastal",
+        "shipping",
+        "rocky_coast",
+        "bay_of_bengal"
+      ],
+      "available_dates": [
+        "2026-09-28",
+        "2026-09-08"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_18_PARADIP_PORT",
+      "name": "Paradip Deepwater Port, Odisha",
+      "description": "Artificial deep-sea port handling bulk minerals, coal, and crude tankers along the Mahanadi delta.",
+      "latitude": 20.3,
+      "longitude": 86.7,
+      "bounding_box": {
+        "min_lat": 20.25,
+        "min_lon": 86.65,
+        "max_lat": 20.35,
+        "max_lon": 86.75
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "port",
+        "coastal",
+        "harbor",
+        "ocean",
+        "shipping",
+        "bulk_cargo"
+      ],
+      "available_dates": [
+        "2026-09-27",
+        "2026-09-07"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_19_MUNDRA_PORT",
+      "name": "Mundra Port & Industrial SEZ, Gulf of Kutch",
+      "description": "Largest private commercial port in India featuring deepwater berths and massive coastal SEZ zones.",
+      "latitude": 22.775,
+      "longitude": 69.725,
+      "bounding_box": {
+        "min_lat": 22.7,
+        "min_lon": 69.65,
+        "max_lat": 22.85,
+        "max_lon": 69.8
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "port",
+        "industrial",
+        "shipping",
+        "coastal",
+        "docks",
+        "sez"
+      ],
+      "available_dates": [
+        "2026-10-01",
+        "2026-09-21"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_20_SINGAPORE_PORT",
+      "name": "Port of Singapore & Jurong Island Terminals",
+      "description": "One of the busiest maritime transshipment hubs globally, featuring reclaimed container terminals.",
+      "latitude": 1.27,
+      "longitude": 103.775,
+      "bounding_box": {
+        "min_lat": 1.22,
+        "min_lon": 103.7,
+        "max_lat": 1.32,
+        "max_lon": 103.85
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "port",
+        "urban",
+        "coastal",
+        "shipping",
+        "reclamation",
+        "international"
+      ],
+      "available_dates": [
+        "2026-03-25",
+        "2025-12-05"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_21_SUNDARBANS_DELTA",
+      "name": "Sundarbans Mangrove Biosphere, West Bengal",
+      "description": "World's largest halophytic mangrove forest and tidal delta ecosystem intersected by waterways.",
+      "latitude": 21.875,
+      "longitude": 88.825,
+      "bounding_box": {
+        "min_lat": 21.75,
+        "min_lon": 88.7,
+        "max_lat": 22.0,
+        "max_lon": 88.95
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "forest",
+        "mangrove",
+        "delta",
+        "wetland",
+        "tidal",
+        "conservation"
+      ],
+      "available_dates": [
+        "2026-05-10",
+        "2026-04-10"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_22_WESTERN_GHATS",
+      "name": "Silent Valley & Wayanad Rainforest, Western Ghats",
+      "description": "UNESCO World Heritage biodiversity hotspot featuring continuous evergreen canopy.",
+      "latitude": 11.15,
+      "longitude": 76.55,
+      "bounding_box": {
+        "min_lat": 11.05,
+        "min_lon": 76.45,
+        "max_lat": 11.25,
+        "max_lon": 76.65
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "forest",
+        "dense_vegetation",
+        "mountain_ridge",
+        "rainforest",
+        "biodiversity"
+      ],
+      "available_dates": [
+        "2026-04-10",
+        "2026-04-22"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_23_JIM_CORBETT",
+      "name": "Jim Corbett National Park, Shivalik Foothills",
+      "description": "Sub-Himalayan belt featuring dense sal forests, riverine grasslands, and Ramganga reservoir.",
+      "latitude": 29.6,
+      "longitude": 79.0,
+      "bounding_box": {
+        "min_lat": 29.5,
+        "min_lon": 78.9,
+        "max_lat": 29.7,
+        "max_lon": 79.1
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "forest",
+        "national_park",
+        "vegetation",
+        "river_valley",
+        "wildlife"
+      ],
+      "available_dates": [
+        "2026-06-19",
+        "2026-06-14"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_24_KAZIRANGA",
+      "name": "Kaziranga Floodplains & Forest, Assam",
+      "description": "Tall elephant grass, dense tropical moist broadleaf forest, and braided floodplains.",
+      "latitude": 26.65,
+      "longitude": 93.3,
+      "bounding_box": {
+        "min_lat": 26.55,
+        "min_lon": 93.15,
+        "max_lat": 26.75,
+        "max_lon": 93.45
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "wetland",
+        "grassland",
+        "river",
+        "floodplain",
+        "forest",
+        "nature"
+      ],
+      "available_dates": [
+        "2026-02-11",
+        "2026-02-16"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_25_AMAZON_RONDONIA",
+      "name": "Rondonia Deforestation Corridor, Amazon Basin",
+      "description": "Classic fishbone pattern of road clearing and tropical rainforest conversion to pastureland.",
+      "latitude": -10.075,
+      "longitude": -63.05,
+      "bounding_box": {
+        "min_lat": -10.2,
+        "min_lon": -63.2,
+        "max_lat": -9.95,
+        "max_lon": -62.9
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "forest",
+        "deforestation",
+        "roads",
+        "clearing",
+        "agriculture",
+        "amazon"
+      ],
+      "available_dates": [
+        "2026-09-28",
+        "2026-09-28"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_26_PUNJAB_AGRI",
+      "name": "Ludhiana & Sangrur Intensive Agriculture Grid, Punjab",
+      "description": "High-intensity wheat and rice cropland with geometric field grids and canal irrigation networks.",
+      "latitude": 30.8,
+      "longitude": 75.85,
+      "bounding_box": {
+        "min_lat": 30.7,
+        "min_lon": 75.75,
+        "max_lat": 30.9,
+        "max_lon": 75.95
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "agriculture",
+        "cropland",
+        "fields",
+        "farming",
+        "rural",
+        "irrigation"
+      ],
+      "available_dates": [
+        "2026-09-30",
+        "2026-09-30"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_27_HARYANA_AGRI",
+      "name": "Karnal Green Revolution Crop Belt, Haryana",
+      "description": "Extensive double-cropped agricultural landscape showing stark vegetative seasonality.",
+      "latitude": 29.7,
+      "longitude": 77.0,
+      "bounding_box": {
+        "min_lat": 29.6,
+        "min_lon": 76.9,
+        "max_lat": 29.8,
+        "max_lon": 77.1
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "agriculture",
+        "farming",
+        "paddy_wheat",
+        "rural",
+        "green_belt"
+      ],
+      "available_dates": [
+        "2026-09-30",
+        "2026-09-30"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_28_GODAVARI_DELTA_AGRI",
+      "name": "Godavari Delta Paddy & Aquaculture, AP",
+      "description": "Lush alluvial rice paddies, coconut plantations, and aquaculture ponds in coastal Andhra.",
+      "latitude": 16.9,
+      "longitude": 81.9,
+      "bounding_box": {
+        "min_lat": 16.8,
+        "min_lon": 81.8,
+        "max_lat": 17.0,
+        "max_lon": 82.0
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "agriculture",
+        "delta",
+        "irrigation",
+        "green_canals",
+        "aquaculture"
+      ],
+      "available_dates": [
+        "2026-05-24",
+        "2026-05-24"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_29_THAR_DUNES",
+      "name": "Thar Desert Longitudinal Dunes, Jaisalmer",
+      "description": "Active longitudinal sand dunes and shifting arid bedforms in western Rajasthan.",
+      "latitude": 26.95,
+      "longitude": 70.925,
+      "bounding_box": {
+        "min_lat": 26.85,
+        "min_lon": 70.8,
+        "max_lat": 27.05,
+        "max_lon": 71.05
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "desert",
+        "sand_dunes",
+        "arid",
+        "barren",
+        "wind_patterns"
+      ],
+      "available_dates": [
+        "2026-10-01",
+        "2026-10-01"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_30_RANN_OF_KUTCH",
+      "name": "Great Rann of Kutch Salt Crust Flat, Gujarat",
+      "description": "Vast expanse of seasonal salt marsh transforming into a blinding white salt crust.",
+      "latitude": 24.075,
+      "longitude": 69.9,
+      "bounding_box": {
+        "min_lat": 23.95,
+        "min_lon": 69.75,
+        "max_lat": 24.2,
+        "max_lon": 70.05
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "salt_desert",
+        "white_crust",
+        "arid",
+        "saline_flat",
+        "evaporite"
+      ],
+      "available_dates": [
+        "2026-10-01",
+        "2026-09-21"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_31_BRAHMAPUTRA_BRAIDED",
+      "name": "Brahmaputra River Braided Sandbars & Channels, Assam",
+      "description": "Highly dynamic braided river channels, transient sandbars (chars), and monsoon silt bars.",
+      "latitude": 26.55,
+      "longitude": 92.875,
+      "bounding_box": {
+        "min_lat": 26.45,
+        "min_lon": 92.75,
+        "max_lat": 26.65,
+        "max_lon": 93.0
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "river",
+        "sandbars",
+        "braided_channels",
+        "waterway",
+        "sediment"
+      ],
+      "available_dates": [
+        "2026-09-22",
+        "2026-07-04"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_32_NARMADA_ESTUARY",
+      "name": "Narmada River Estuary & Gulf of Khambhat",
+      "description": "Wide macro-tidal river mouth with extensive tidal mudflats and industrial petrochemical zones.",
+      "latitude": 21.725,
+      "longitude": 72.95,
+      "bounding_box": {
+        "min_lat": 21.65,
+        "min_lon": 72.85,
+        "max_lat": 21.8,
+        "max_lon": 73.05
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "estuary",
+        "river_mouth",
+        "tidal_flats",
+        "industrial",
+        "coastline"
+      ],
+      "available_dates": [
+        "2026-05-26",
+        "2026-09-23"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_33_SIACHEN_GLACIER",
+      "name": "Siachen Glacial Valley & Moraines, Karakoram",
+      "description": "Second-longest non-polar glacier in the world with medial moraines, crevasses, and ice seracs.",
+      "latitude": 35.4,
+      "longitude": 77.2,
+      "bounding_box": {
+        "min_lat": 35.3,
+        "min_lon": 77.1,
+        "max_lat": 35.5,
+        "max_lon": 77.3
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "glacier",
+        "ice",
+        "snow",
+        "mountain_peaks",
+        "high_altitude",
+        "moraine"
+      ],
+      "available_dates": [
+        "2026-09-10",
+        "2026-08-29"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_34_ROTTERDAM_PORT",
+      "name": "Port of Rotterdam Maasvlakte, Netherlands",
+      "description": "Deepwater maritime reclamation and automated container terminals on the North Sea.",
+      "latitude": 51.95,
+      "longitude": 4.2,
+      "bounding_box": {
+        "min_lat": 51.9,
+        "min_lon": 4.1,
+        "max_lat": 52.0,
+        "max_lon": 4.3
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "port",
+        "container_terminal",
+        "shipping",
+        "canals",
+        "industrial",
+        "international"
+      ],
+      "available_dates": [
+        "2026-08-12",
+        "2026-08-12"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    },
+    {
+      "location_id": "LOC_EO_35_CHENNAI_PORT",
+      "name": "Chennai Port & Coastal Breakwaters, Tamil Nadu",
+      "description": "Historic artificial harbor on the Coromandel coast with breakwater protection and cargo wharves.",
+      "latitude": 13.11,
+      "longitude": 80.315,
+      "bounding_box": {
+        "min_lat": 13.07,
+        "min_lon": 80.28,
+        "max_lat": 13.15,
+        "max_lon": 80.35
+      },
+      "primary_sensor": "Sentinel-2 MSI",
+      "tags": [
+        "coastal",
+        "port",
+        "ocean",
+        "shipping",
+        "harbor",
+        "breakwater"
+      ],
+      "available_dates": [
+        "2026-07-15",
+        "2026-06-25"
+      ],
+      "source": "copernicus_sentinel2_stac"
+    }
+  ]
+}

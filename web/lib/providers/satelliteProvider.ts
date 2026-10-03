@@ -8,7 +8,7 @@
 export type { BoundingBox } from "@/types";
 import type { BoundingBox } from "@/types";
 
-export type OperatingMode = "CONTROLLED_BENCHMARK" | "LIVE_PUBLIC_DATA" | "OFFLINE_RESEARCH";
+export type OperatingMode = "CONTROLLED_BENCHMARK" | "LIVE_PUBLIC_DATA" | "OFFLINE_RESEARCH" | "REAL_EO_CATALOG";
 
 export interface SatelliteSearchQuery {
   aoi: BoundingBox;

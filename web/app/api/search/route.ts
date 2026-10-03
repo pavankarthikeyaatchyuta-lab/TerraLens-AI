@@ -21,6 +21,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const catalogParam = body.catalog || (body.mode === "real-eo" || body.mode === "real_eo" ? "real-eo" : undefined);
+    
+    const BENCHMARK_QUERIES = [
+      "urban expansion and new construction near river",
+      "water reservoir shoreline drying and lake shrinkage",
+      "forest road clearing corridor and tree removal",
+      "coastal port reclamation and ocean harbor pier",
+      "solar panel farm photovoltaic arrays in desert terrain",
+    ];
+
+    const isExplicitBenchmark =
+      catalogParam === "benchmark" ||
+      catalogParam === "controlled-benchmark" ||
+      (!catalogParam && BENCHMARK_QUERIES.includes(query.toLowerCase().trim()));
+
+    const effectiveCatalog: "benchmark" | "real-eo" = isExplicitBenchmark ? "benchmark" : "real-eo";
+
     // 1. Primary Tier: Client-side provided ONNX/WASM CLIP vector
     if (clientVector && Array.isArray(clientVector)) {
       if (clientVector.length !== 512) {
@@ -37,24 +54,35 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const outcome = searchScenes(query, topK, clientVector, "client-onnx-clip");
+      const outcome = searchScenes(
+        query,
+        topK,
+        clientVector,
+        effectiveCatalog === "real-eo" ? "real-eo-catalog" : "client-onnx-clip",
+        effectiveCatalog
+      );
+
       return NextResponse.json({
-        mode: "arbitrary-semantic-clip",
+        mode: effectiveCatalog === "real-eo" ? "real-eo-catalog" : "arbitrary-semantic-clip",
+        catalog: effectiveCatalog,
         supported: true,
         query,
         top_k: topK,
         total_matches: outcome.results.length,
         latency_ms: outcome.latencyMs,
-        retrieval_mode: "Client Packaged ONNX/WASM CLIP Text Encoder (IndexFlatIP-equivalent Cosine Similarity)",
+        retrieval_mode: effectiveCatalog === "real-eo"
+          ? "Client Packaged ONNX/WASM CLIP Text Encoder over Real Sentinel-2 Catalog (IndexFlatIP-equivalent Cosine Similarity)"
+          : "Client Packaged ONNX/WASM CLIP Text Encoder (IndexFlatIP-equivalent Cosine Similarity)",
         results: outcome.results,
       });
     }
 
     // 2. Precomputed Benchmark Query Check
-    const benchmarkOutcome = searchScenes(query, topK);
+    const benchmarkOutcome = searchScenes(query, topK, null, undefined, "benchmark");
     if (benchmarkOutcome.supported) {
       return NextResponse.json({
         mode: "controlled-benchmark",
+        catalog: "benchmark",
         supported: true,
         query,
         top_k: topK,
@@ -83,15 +111,24 @@ export async function POST(request: NextRequest) {
         const { stdout } = await execFileAsync("python", [scriptPath, query], { timeout: 15000 });
         const parsed = JSON.parse(stdout);
         if (parsed.vector && Array.isArray(parsed.vector) && parsed.vector.length === 512) {
-          const fallbackOutcome = searchScenes(query, topK, parsed.vector, "server-python-clip");
+          const fallbackOutcome = searchScenes(
+            query,
+            topK,
+            parsed.vector,
+            "server-python-clip",
+            effectiveCatalog
+          );
           return NextResponse.json({
-            mode: "server-python-clip",
+            mode: effectiveCatalog === "real-eo" ? "real-eo-catalog" : "server-python-clip",
+            catalog: effectiveCatalog,
             supported: true,
             query,
             top_k: topK,
             total_matches: fallbackOutcome.results.length,
             latency_ms: fallbackOutcome.latencyMs,
-            retrieval_mode: "Server-side Local Python/ONNX CLIP Text Encoder (IndexFlatIP-equivalent Cosine Similarity)",
+            retrieval_mode: effectiveCatalog === "real-eo"
+              ? "Server-side Local Python/ONNX CLIP Text Encoder over Real Sentinel-2 Catalog (IndexFlatIP-equivalent Cosine Similarity)"
+              : "Server-side Local Python/ONNX CLIP Text Encoder (IndexFlatIP-equivalent Cosine Similarity)",
             results: fallbackOutcome.results,
           });
         }

@@ -24,10 +24,13 @@ interface EmbeddingsFile {
 }
 
 let cachedLocations: Location[] | null = null;
+let cachedEoLocations: Location[] | null = null;
 let cachedEmbeddings: EmbeddingsFile | null = null;
+let cachedEoEmbeddings: EmbeddingsFile | null = null;
 let cachedQueries: Record<string, number[]> | null = null;
 let cachedAnalyses: Record<string, ChangeDetectionResult> | null = null;
 let cachedEvaluation: any | null = null;
+let cachedEoScenes: Scene[] | null = null;
 
 function getDataDir(): string {
   // In Next.js standalone/server, process.cwd() is project root or web dir
@@ -54,9 +57,22 @@ export function getLocations(): Location[] {
   return cachedLocations!;
 }
 
+export function getEoLocations(): Location[] {
+  if (cachedEoLocations) return cachedEoLocations;
+  const filePath = path.join(getDataDir(), "eo_locations.json");
+  if (!fs.existsSync(filePath)) return getLocations();
+  const raw = fs.readFileSync(filePath, "utf-8");
+  const parsed = JSON.parse(raw);
+  cachedEoLocations = parsed.locations || [];
+  return cachedEoLocations!;
+}
+
 export function getLocationById(locationId: string): Location | undefined {
   const locs = getLocations();
-  return locs.find((l) => l.location_id === locationId);
+  const found = locs.find((l) => l.location_id === locationId);
+  if (found) return found;
+  const eoLocs = getEoLocations();
+  return eoLocs.find((l) => l.location_id === locationId);
 }
 
 export function getSceneEmbeddings(): EmbeddingsFile | null {
@@ -66,6 +82,15 @@ export function getSceneEmbeddings(): EmbeddingsFile | null {
   const raw = fs.readFileSync(filePath, "utf-8");
   cachedEmbeddings = JSON.parse(raw);
   return cachedEmbeddings;
+}
+
+export function getEoSceneEmbeddings(): EmbeddingsFile | null {
+  if (cachedEoEmbeddings) return cachedEoEmbeddings;
+  const filePath = path.join(getDataDir(), "eo_catalog_embeddings.json");
+  if (!fs.existsSync(filePath)) return getSceneEmbeddings();
+  const raw = fs.readFileSync(filePath, "utf-8");
+  cachedEoEmbeddings = JSON.parse(raw);
+  return cachedEoEmbeddings;
 }
 
 export function getQueryEmbeddings(): Record<string, number[]> {
@@ -116,9 +141,53 @@ export function getScenes(): Scene[] {
   }));
 }
 
+export function getEoScenes(): Scene[] {
+  if (cachedEoScenes) return cachedEoScenes;
+  const filePath = path.join(getDataDir(), "eo_scenes.json");
+  if (fs.existsSync(filePath)) {
+    try {
+      const raw = fs.readFileSync(filePath, "utf-8");
+      const parsed = JSON.parse(raw);
+      if (parsed.scenes && Array.isArray(parsed.scenes)) {
+        cachedEoScenes = parsed.scenes.map((s: any) => ({
+          scene_id: s.scene_id,
+          location_id: s.location_id,
+          acquisition_date: s.acquisition_date,
+          sensor: s.sensor || "Sentinel-2 MSI",
+          platform: s.platform,
+          cloud_percentage: s.cloud_percentage,
+          tags: s.tags || [],
+          image_path: s.image_path,
+          vector_id: s.vector_id,
+        }));
+        return cachedEoScenes!;
+      }
+    } catch {
+      // Fall through to embeddings
+    }
+  }
+  const embFile = getEoSceneEmbeddings();
+  if (!embFile) return [];
+  cachedEoScenes = embFile.scenes.map((s) => ({
+    scene_id: s.scene_id,
+    location_id: s.location_id,
+    acquisition_date: s.acquisition_date,
+    sensor: s.sensor,
+    platform: s.platform,
+    cloud_percentage: s.cloud_percentage,
+    tags: s.tags,
+    image_path: s.image_path,
+    vector_id: s.vector_id,
+  }));
+  return cachedEoScenes;
+}
+
 export function getSceneById(sceneId: string): Scene | undefined {
   const scenes = getScenes();
-  return scenes.find((s) => s.scene_id === sceneId);
+  const found = scenes.find((s) => s.scene_id === sceneId);
+  if (found) return found;
+  const eoScenes = getEoScenes();
+  return eoScenes.find((s) => s.scene_id === sceneId);
 }
 
 export interface SearchOutcome {
@@ -140,18 +209,21 @@ export function searchScenes(
   query: string,
   topK: number = 5,
   queryVector?: number[] | null,
-  retrievalMode?: string
+  retrievalMode?: string,
+  catalogMode?: "benchmark" | "real-eo" | "auto"
 ): SearchOutcome {
   const start = performance.now();
   const normalizedQuery = query.toLowerCase().trim();
-  const embFile = getSceneEmbeddings();
   const queryMap = getQueryEmbeddings();
-  const locations = getLocations();
+
+  const isRealEo = catalogMode === "real-eo";
+  const embFile = isRealEo ? (getEoSceneEmbeddings() || getSceneEmbeddings()) : getSceneEmbeddings();
+  const locations = isRealEo ? getEoLocations() : getLocations();
 
   if (!embFile || embFile.scenes.length === 0) {
     return {
       supported: false,
-      mode: "controlled-benchmark",
+      mode: isRealEo ? "real-eo-catalog" : "controlled-benchmark",
       message: "Catalog embeddings are not available.",
       results: [],
       latencyMs: Math.round((performance.now() - start) * 100) / 100,
@@ -160,21 +232,21 @@ export function searchScenes(
 
   // Exact match from provided client vector or precomputed CLIP benchmark embeddings
   let activeVector: number[] | null = null;
-  let activeMode = "controlled-benchmark";
+  let activeMode = isRealEo ? "real-eo-catalog" : "controlled-benchmark";
 
   if (queryVector && Array.isArray(queryVector) && queryVector.length === 512) {
     activeVector = queryVector;
-    activeMode = retrievalMode || "arbitrary-semantic-clip";
+    activeMode = isRealEo ? "real-eo-catalog" : (retrievalMode || "arbitrary-semantic-clip");
   } else if (queryMap[normalizedQuery]) {
     activeVector = queryMap[normalizedQuery];
-    activeMode = "controlled-benchmark";
+    activeMode = isRealEo ? "real-eo-catalog" : "controlled-benchmark";
   }
 
   if (!activeVector) {
     // If not a supported precomputed query and no valid vector provided
     return {
       supported: false,
-      mode: "controlled-benchmark",
+      mode: isRealEo ? "real-eo-catalog" : "controlled-benchmark",
       message: "This query is not available in Controlled Benchmark Mode and no client vector was provided. Please use arbitrary search or a supported benchmark query.",
       results: [],
       latencyMs: Math.round((performance.now() - start) * 100) / 100,
