@@ -72,6 +72,7 @@ export async function POST(request: NextRequest) {
       "LIVE_PUBLIC_DATA",
       "CONTROLLED_BENCHMARK",
       "OFFLINE_RESEARCH",
+      "REAL_EO_CATALOG",
     ];
     const targetMode: OperatingMode = validModes.includes(mode) ? mode : "LIVE_PUBLIC_DATA";
     const provider = getSatelliteProvider(targetMode);

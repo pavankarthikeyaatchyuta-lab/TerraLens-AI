@@ -18,9 +18,11 @@ import { Activity, ShieldCheck, Compass, Info, Terminal, Globe } from "lucide-re
 
 export default function HomePage() {
   const [operatingMode, setOperatingMode] = useState<OperatingMode>("CONTROLLED_BENCHMARK");
+  const [catalogMode, setCatalogMode] = useState<"benchmark" | "real-eo">("benchmark");
   const [locations, setLocations] = useState<Location[]>([]);
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [selectedLocationId, setSelectedLocationId] = useState<string>("LOC_001_HYDERABAD_URBAN");
+  const [selectedScene, setSelectedScene] = useState<Scene | null>(null);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searchOutcome, setSearchOutcome] = useState<any>(null);
   const [activeQuery, setActiveQuery] = useState<string>("");
@@ -41,7 +43,14 @@ export default function HomePage() {
   const [liveAnalysisResult, setLiveAnalysisResult] = useState<any | null>(null);
   const [selectedClusterId, setSelectedClusterId] = useState<string | null>(null);
 
-  // Temporal & Change State
+  // Real EO Temporal & Pair Discovery State
+  const [eoPairCandidates, setEoPairCandidates] = useState<TemporalPairCandidate[]>([]);
+  const [selectedEoPair, setSelectedEoPair] = useState<TemporalPairCandidate | null>(null);
+  const [isDiscoveringEoPairs, setIsDiscoveringEoPairs] = useState<boolean>(false);
+  const [realAnalysisResult, setRealAnalysisResult] = useState<any | null>(null);
+  const [isAnalyzingRealPair, setIsAnalyzingRealPair] = useState<boolean>(false);
+
+  // Benchmark Temporal & Change State
   const [temporalPair, setTemporalPair] = useState<any>(null);
   const [analysisResult, setAnalysisResult] = useState<ChangeDetectionResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
@@ -49,51 +58,89 @@ export default function HomePage() {
   // Modal State
   const [isEvaluationOpen, setIsEvaluationOpen] = useState<boolean>(false);
 
+  const isRealEo = operatingMode === "REAL_EO_CATALOG" || catalogMode === "real-eo";
+
+  // Mode Selection Handler
+  const handleSelectMode = (newMode: OperatingMode) => {
+    setOperatingMode(newMode);
+    if (newMode === "REAL_EO_CATALOG") {
+      setCatalogMode("real-eo");
+      setSelectedLocationId("LOC_EO_01_BHADLA_SOLAR");
+      setSearchResults([]);
+      setSearchOutcome(null);
+    } else if (newMode === "CONTROLLED_BENCHMARK") {
+      setCatalogMode("benchmark");
+      setSelectedLocationId("LOC_001_HYDERABAD_URBAN");
+      setSearchResults([]);
+      setSearchOutcome(null);
+    }
+  };
+
   // Initial Load: Fetch scenes and locations based on active mode
   useEffect(() => {
-    const isRealEo = operatingMode === "REAL_EO_CATALOG";
-    const catalogQuery = isRealEo ? "?catalog=real-eo" : "";
+    const isReal = operatingMode === "REAL_EO_CATALOG" || catalogMode === "real-eo";
+    const catalogQuery = isReal ? "?catalog=real-eo" : "?catalog=benchmark";
     fetch(`/api/scenes${catalogQuery}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.locations && data.locations.length > 0) {
           setLocations(data.locations);
-          setSelectedLocationId(data.locations[0].location_id);
+          const exists = data.locations.some((l: Location) => l.location_id === selectedLocationId);
+          if (!exists) {
+            setSelectedLocationId(data.locations[0].location_id);
+          }
         }
-        if (data.scenes) setScenes(data.scenes);
+        if (data.scenes && data.scenes.length > 0) {
+          setScenes(data.scenes);
+          if (isReal && data.scenes.length > 0) {
+            const currentLoc = selectedLocationId || (data.locations && data.locations[0]?.location_id);
+            const matching = data.scenes.find((s: Scene) => s.location_id === currentLoc);
+            setSelectedScene(matching || data.scenes[0]);
+          }
+        }
       })
       .catch((err) => console.error("Failed to load catalog", err));
-  }, [operatingMode]);
+  }, [operatingMode, catalogMode]);
 
-  // When selected location changes, load temporal pair & trigger change analysis
+  // When selected location changes
   useEffect(() => {
     if (!selectedLocationId) return;
+    const isReal = operatingMode === "REAL_EO_CATALOG" || catalogMode === "real-eo";
 
-    // Load temporal pair
-    fetch(`/api/scenes/${selectedLocationId}/temporal`)
-      .then((res) => res.json())
-      .then((data) => {
-        setTemporalPair(data);
-      })
-      .catch((err) => console.error("Failed to load temporal pair", err));
+    if (isReal) {
+      if (scenes.length > 0) {
+        const matching = scenes.find((s) => s.location_id === selectedLocationId);
+        if (matching) setSelectedScene(matching);
+      }
+      setEoPairCandidates([]);
+      setSelectedEoPair(null);
+      setRealAnalysisResult(null);
+    } else {
+      // In Benchmark mode: load temporal pair & trigger benchmark analysis
+      fetch(`/api/scenes/${selectedLocationId}/temporal?catalog=benchmark`)
+        .then((res) => res.json())
+        .then((data) => {
+          setTemporalPair(data);
+        })
+        .catch((err) => console.error("Failed to load temporal pair", err));
 
-    // Load change analysis
-    setIsAnalyzing(true);
-    fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ location_id: selectedLocationId }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setAnalysisResult(data);
-        setIsAnalyzing(false);
+      setIsAnalyzing(true);
+      fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ location_id: selectedLocationId }),
       })
-      .catch((err) => {
-        console.error("Failed to load analysis", err);
-        setIsAnalyzing(false);
-      });
-  }, [selectedLocationId]);
+        .then((res) => res.json())
+        .then((data) => {
+          setAnalysisResult(data);
+          setIsAnalyzing(false);
+        })
+        .catch((err) => {
+          console.error("Failed to load analysis", err);
+          setIsAnalyzing(false);
+        });
+    }
+  }, [selectedLocationId, operatingMode, catalogMode, scenes]);
 
   // Handle Search Execution
   const handleSearch = async (query: string) => {
@@ -110,7 +157,7 @@ export default function HomePage() {
       }
 
       // 2. Query Search API with either client vector or fallback to server
-      const isRealEo = operatingMode === "REAL_EO_CATALOG";
+      const isReal = operatingMode === "REAL_EO_CATALOG" || catalogMode === "real-eo";
       const res = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -118,7 +165,7 @@ export default function HomePage() {
           query,
           vector: clientVector,
           top_k: 5,
-          catalog: isRealEo ? "real-eo" : "benchmark",
+          catalog: isReal ? "real-eo" : "benchmark",
         }),
       });
       const data = await res.json();
@@ -126,9 +173,15 @@ export default function HomePage() {
       if (data.supported) {
         setSearchResults(data.results || []);
         setLastLatencyMs(data.latency_ms);
-        // Automatically select the top ranked location
-        if (data.results && data.results.length > 0 && data.results[0].location?.location_id) {
-          setSelectedLocationId(data.results[0].location.location_id);
+        // Automatically select the top ranked location & scene
+        if (data.results && data.results.length > 0) {
+          const topResult = data.results[0];
+          if (topResult.location?.location_id) {
+            setSelectedLocationId(topResult.location.location_id);
+          }
+          if (topResult.scene) {
+            setSelectedScene(topResult.scene);
+          }
         }
       } else {
         setSearchResults([]);
@@ -141,17 +194,102 @@ export default function HomePage() {
     }
   };
 
-  const selectedLoc = locations.find((l) => l.location_id === selectedLocationId) || locations[0] || {
-    location_id: "LOC_001_HYDERABAD_URBAN",
-    name: "Hyderabad Peri-Urban Growth Zone",
-    description: "Rapid peri-urban infrastructure development and construction near seasonal water channel.",
-    latitude: 17.4483,
-    longitude: 78.3742,
-    bounding_box: { min_lat: 17.3983, min_lon: 78.3242, max_lat: 17.4983, max_lon: 78.4242 },
-    primary_sensor: "Sentinel-2 MSI",
-    available_dates: ["2023-03-15", "2025-02-20"],
-    tags: ["urban", "construction", "buildings", "infrastructure", "river"],
+  // Discover Sentinel-2 temporal pairs for real EO location/scene
+  const handleDiscoverRealPairs = async () => {
+    const loc = locations.find((l) => l.location_id === selectedLocationId) || locations[0];
+    if (!loc) return;
+
+    setIsDiscoveringEoPairs(true);
+    try {
+      const aoi = loc.bounding_box || {
+        min_lat: loc.latitude - 0.05,
+        min_lon: loc.longitude - 0.05,
+        max_lat: loc.latitude + 0.05,
+        max_lon: loc.longitude + 0.05,
+      };
+      const res = await fetch("/api/satellite/pairs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          aoi,
+          minDaysDifference: 14,
+          maxDaysDifference: 730,
+          maxCloudCover: 25,
+          mode: "REAL_EO_CATALOG",
+        }),
+      });
+      const data = await res.json();
+      if (data.pairs && data.pairs.length > 0) {
+        setEoPairCandidates(data.pairs);
+        setSelectedEoPair(data.pairs[0]);
+      } else {
+        setEoPairCandidates([]);
+        setSelectedEoPair(null);
+      }
+    } catch (err) {
+      console.error("Failed to discover temporal pairs", err);
+    } finally {
+      setIsDiscoveringEoPairs(false);
+    }
   };
+
+  // Execute quantitative change analysis for selected real pair
+  const handleExecuteRealAnalysis = async () => {
+    const loc = locations.find((l) => l.location_id === selectedLocationId) || locations[0];
+    if (!selectedEoPair || !loc) return;
+
+    setIsAnalyzingRealPair(true);
+    try {
+      const aoi = loc.bounding_box || {
+        min_lat: loc.latitude - 0.05,
+        min_lon: loc.longitude - 0.05,
+        max_lat: loc.latitude + 0.05,
+        max_lon: loc.longitude + 0.05,
+      };
+      const res = await fetch("/api/satellite/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          beforeSceneId: selectedEoPair.beforeScene.sceneId,
+          afterSceneId: selectedEoPair.afterScene.sceneId,
+          aoi,
+          mode: "REAL_EO_CATALOG",
+        }),
+      });
+      const data = await res.json();
+      setRealAnalysisResult(data);
+    } catch (err) {
+      console.error("Failed to execute real analysis", err);
+    } finally {
+      setIsAnalyzingRealPair(false);
+    }
+  };
+
+  const selectedLoc = locations.find((l) => l.location_id === selectedLocationId) || locations[0] || (
+    isRealEo
+      ? {
+          location_id: "LOC_EO_01_BHADLA_SOLAR",
+          name: "Bhadla Solar Park, Rajasthan",
+          description: "Ultra-scale photovoltaic solar park arrays across arid desert terrain in Rajasthan, India.",
+          latitude: 27.5385,
+          longitude: 71.9542,
+          bounding_box: { min_lat: 27.48, min_lon: 71.85, max_lat: 27.60, max_lon: 72.05 },
+          primary_sensor: "Sentinel-2 MSI",
+          available_dates: ["2026-09-26", "2026-10-01"],
+          tags: ["solar", "photovoltaic", "energy", "desert", "rajasthan", "infrastructure"],
+        }
+      : {
+          location_id: "LOC_001_HYDERABAD_URBAN",
+          name: "Hyderabad Peri-Urban Growth Zone",
+          description: "Rapid peri-urban infrastructure development and construction near seasonal water channel.",
+          latitude: 17.4483,
+          longitude: 78.3742,
+          bounding_box: { min_lat: 17.3983, min_lon: 78.3242, max_lat: 17.4983, max_lon: 78.4242 },
+          primary_sensor: "Sentinel-2 MSI",
+          available_dates: ["2023-03-15", "2025-02-20"],
+          tags: ["urban", "construction", "buildings", "infrastructure", "river"],
+        }
+  );
 
   return (
     <div className="min-h-screen bg-tactical-900 tactical-grid flex flex-col">
@@ -159,9 +297,13 @@ export default function HomePage() {
       <Header
         onOpenEvaluation={() => setIsEvaluationOpen(true)}
         latencyMs={lastLatencyMs}
-        totalScenes={scenes.length || 10}
+        totalScenes={
+          operatingMode === "REAL_EO_CATALOG" || catalogMode === "real-eo"
+            ? (scenes.length >= 50 ? scenes.length : 70)
+            : (scenes.length || 10)
+        }
         operatingMode={operatingMode}
-        onSelectMode={setOperatingMode}
+        onSelectMode={handleSelectMode}
       />
 
       {/* Main Tactical Interface */}
@@ -283,46 +425,115 @@ export default function HomePage() {
                 <SceneCatalog
                   results={searchResults}
                   allLocations={locations}
+                  allScenes={scenes}
                   selectedLocationId={selectedLocationId}
+                  selectedSceneId={selectedScene?.scene_id}
                   onSelectLocation={(id) => setSelectedLocationId(id)}
+                  onSelectResult={(result) => {
+                    if (result.scene) setSelectedScene(result.scene);
+                  }}
                   searchOutcome={searchOutcome}
                   onSelectBenchmarkQuery={handleSearch}
+                  catalogMode={operatingMode === "REAL_EO_CATALOG" || catalogMode === "real-eo" ? "real-eo" : "benchmark"}
                   onHandoffToLive={(loc) => {
-                    if (loc.bounding_box) {
-                      setLiveAoi({
-                        min_lat: loc.bounding_box.min_lat,
-                        min_lon: loc.bounding_box.min_lon,
-                        max_lat: loc.bounding_box.max_lat,
-                        max_lon: loc.bounding_box.max_lon,
-                      });
+                    if (operatingMode === "REAL_EO_CATALOG" || catalogMode === "real-eo") {
+                      handleDiscoverRealPairs();
+                    } else {
+                      if (loc.bounding_box) {
+                        setLiveAoi({
+                          min_lat: loc.bounding_box.min_lat,
+                          min_lon: loc.bounding_box.min_lon,
+                          max_lat: loc.bounding_box.max_lat,
+                          max_lon: loc.bounding_box.max_lon,
+                        });
+                      }
+                      setOperatingMode("LIVE_PUBLIC_DATA");
+                      const el = document.getElementById("console");
+                      if (el) el.scrollIntoView({ behavior: "smooth" });
                     }
-                    setOperatingMode("LIVE_PUBLIC_DATA");
-                    const el = document.getElementById("console");
-                    if (el) el.scrollIntoView({ behavior: "smooth" });
                   }}
                 />
               </div>
 
               {/* Right Column (7 cols): Analysis, Temporal View, Diagnostics, Provenance */}
               <div className="lg:col-span-7 space-y-4">
-                <TemporalComparison
-                  location={selectedLoc}
-                  beforeScene={temporalPair?.before_scene}
-                  afterScene={temporalPair?.after_scene}
-                />
+                {operatingMode === "CONTROLLED_BENCHMARK" && (
+                  <>
+                    <TemporalComparison
+                      location={selectedLoc}
+                      beforeScene={temporalPair?.before_scene}
+                      afterScene={temporalPair?.after_scene}
+                      catalogMode="benchmark"
+                    />
 
-                <ConfidenceCard analysis={analysisResult} />
+                    <ConfidenceCard analysis={analysisResult} />
 
-                <ChangeMaskViewer
-                  location={selectedLoc}
-                  analysis={analysisResult}
-                  isLoading={isAnalyzing}
-                />
+                    <ChangeMaskViewer
+                      location={selectedLoc}
+                      analysis={analysisResult}
+                      isLoading={isAnalyzing}
+                    />
 
-                <EvidencePanel
-                  location={selectedLoc}
-                  analysis={analysisResult}
-                />
+                    <EvidencePanel
+                      location={selectedLoc}
+                      analysis={analysisResult}
+                    />
+                  </>
+                )}
+
+                {operatingMode === "REAL_EO_CATALOG" && (
+                  <>
+                    <TemporalComparison
+                      location={selectedLoc}
+                      selectedScene={selectedScene}
+                      beforeScene={selectedEoPair ? {
+                        scene_id: selectedEoPair.beforeScene.sceneId,
+                        location_id: selectedLoc.location_id,
+                        acquisition_date: selectedEoPair.beforeScene.acquisitionDate.slice(0, 10),
+                        sensor: selectedEoPair.beforeScene.instrument || "Sentinel-2 MSI",
+                        platform: selectedEoPair.beforeScene.platform,
+                        cloud_percentage: selectedEoPair.beforeScene.cloudCoverPercentage,
+                        tags: selectedLoc.tags,
+                        image_path: `/eo_catalog/thumbnails/${selectedEoPair.beforeScene.sceneId}.jpg`,
+                      } : (selectedScene || null)}
+                      afterScene={selectedEoPair ? {
+                        scene_id: selectedEoPair.afterScene.sceneId,
+                        location_id: selectedLoc.location_id,
+                        acquisition_date: selectedEoPair.afterScene.acquisitionDate.slice(0, 10),
+                        sensor: selectedEoPair.afterScene.instrument || "Sentinel-2 MSI",
+                        platform: selectedEoPair.afterScene.platform,
+                        cloud_percentage: selectedEoPair.afterScene.cloudCoverPercentage,
+                        tags: selectedLoc.tags,
+                        image_path: `/eo_catalog/thumbnails/${selectedEoPair.afterScene.sceneId}.jpg`,
+                      } : null}
+                      catalogMode="real-eo"
+                      onDiscoverPairs={handleDiscoverRealPairs}
+                      isDiscovering={isDiscoveringEoPairs}
+                      pairCandidates={eoPairCandidates}
+                      selectedPair={selectedEoPair}
+                      onSelectPair={setSelectedEoPair}
+                      onExecuteAnalysis={handleExecuteRealAnalysis}
+                      isAnalyzing={isAnalyzingRealPair}
+                    />
+
+                    {realAnalysisResult && (
+                      <>
+                        <ConfidenceCard analysis={realAnalysisResult} />
+
+                        <ChangeMaskViewer
+                          location={selectedLoc}
+                          analysis={realAnalysisResult}
+                          isLoading={isAnalyzingRealPair}
+                        />
+
+                        <EvidencePanel
+                          location={selectedLoc}
+                          analysis={realAnalysisResult}
+                        />
+                      </>
+                    )}
+                  </>
+                )}
               </div>
             </div>
           </div>

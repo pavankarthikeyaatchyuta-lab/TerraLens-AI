@@ -2,26 +2,67 @@
 
 import React, { useState, useRef, useCallback } from "react";
 import { Scene, Location } from "@/types";
-import { SplitSquareVertical, Columns2, Calendar, Satellite } from "lucide-react";
+import { TemporalPairCandidate } from "@/lib/providers/satelliteProvider";
+import {
+  SplitSquareVertical,
+  Columns2,
+  Calendar,
+  Satellite,
+  Database,
+  Sparkles,
+  Crosshair,
+  RotateCcw,
+  CheckCircle2,
+  Play,
+  Layers,
+} from "lucide-react";
 
 interface TemporalComparisonProps {
   location: Location;
   beforeScene?: Scene | null;
   afterScene?: Scene | null;
+  catalogMode?: "benchmark" | "real-eo";
+  selectedScene?: Scene | null;
+  onDiscoverPairs?: () => void;
+  isDiscovering?: boolean;
+  pairCandidates?: TemporalPairCandidate[];
+  selectedPair?: TemporalPairCandidate | null;
+  onSelectPair?: (pair: TemporalPairCandidate | null) => void;
+  onExecuteAnalysis?: () => void;
+  isAnalyzing?: boolean;
 }
 
 export function TemporalComparison({
   location,
   beforeScene,
   afterScene,
+  catalogMode = "benchmark",
+  selectedScene,
+  onDiscoverPairs,
+  isDiscovering = false,
+  pairCandidates = [],
+  selectedPair,
+  onSelectPair,
+  onExecuteAnalysis,
+  isAnalyzing = false,
 }: TemporalComparisonProps) {
   const [sliderPos, setSliderPos] = useState<number>(50);
   const [viewMode, setViewMode] = useState<"slider" | "side-by-side">("slider");
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef<boolean>(false);
 
-  const beforeImg = beforeScene?.image_path || `/samples/${location.location_id}/before_2023.jpg`;
-  const afterImg = afterScene?.image_path || `/samples/${location.location_id}/after_2025.jpg`;
+  const isRealEo = catalogMode === "real-eo";
+  const hasValidPair = Boolean(
+    beforeScene &&
+    afterScene &&
+    beforeScene.scene_id &&
+    afterScene.scene_id &&
+    beforeScene.scene_id !== afterScene.scene_id
+  );
+
+  const beforeImg = beforeScene?.image_path || (isRealEo ? "" : `/samples/${location.location_id}/before_2023.jpg`);
+  const afterImg = afterScene?.image_path || (isRealEo ? "" : `/samples/${location.location_id}/after_2025.jpg`);
+  const singlePreviewImg = selectedScene?.image_path || beforeScene?.image_path || "";
 
   const handlePointerDown = () => {
     isDragging.current = true;
@@ -45,48 +86,205 @@ export function TemporalComparison({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-3 border-b border-tactical-700">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <Satellite className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+            {isRealEo ? (
+              <Database className="w-4 h-4 text-indigo-500" />
+            ) : (
+              <Satellite className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+            )}
             <h3 className="text-sm font-bold font-mono text-slate-900 dark:text-slate-100 uppercase">
-              Temporal Imagery Pair: {location.name}
+              {isRealEo
+                ? hasValidPair
+                  ? `Temporal Observation Pair: ${location.name}`
+                  : `REAL EO Sentinel-2 Scene: ${location.name}`
+                : `Temporal Imagery Pair: ${location.name}`}
             </h3>
-            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-600/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
-              SYNTHETIC BENCHMARK • {location.primary_sensor} PROFILE
-            </span>
+            {isRealEo ? (
+              <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-indigo-600/15 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30">
+                REAL EO • SENTINEL-2 L2A
+              </span>
+            ) : (
+              <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-600/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                SYNTHETIC BENCHMARK • {location.primary_sensor} PROFILE
+              </span>
+            )}
           </div>
           <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
-            Sensor Profile: {location.primary_sensor} | Data: Controlled Synthetic Benchmark Scene (Analysis Imagery)
+            {isRealEo
+              ? `Sensor: ${selectedScene?.sensor || location.primary_sensor} | Platform: ${selectedScene?.platform || "Sentinel-2"} | Authentic Copernicus Sentinel-2 L2A Archive`
+              : `Sensor Profile: ${location.primary_sensor} | Data: Controlled Synthetic Benchmark Scene (Analysis Imagery)`}
           </p>
         </div>
 
-        {/* View Mode Toggle */}
-        <div className="flex items-center gap-1 bg-tactical-900 p-1 rounded-lg border border-tactical-700 text-xs font-mono">
-          <button
-            onClick={() => setViewMode("slider")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
-              viewMode === "slider"
-                ? "bg-sky-600/15 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300 font-bold border border-sky-500/40"
-                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
-            }`}
-          >
-            <SplitSquareVertical className="w-3.5 h-3.5" />
-            <span>SWIPE SLIDER</span>
-          </button>
-          <button
-            onClick={() => setViewMode("side-by-side")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
-              viewMode === "side-by-side"
-                ? "bg-sky-600/15 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300 font-bold border border-sky-500/40"
-                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
-            }`}
-          >
-            <Columns2 className="w-3.5 h-3.5" />
-            <span>SIDE-BY-SIDE</span>
-          </button>
-        </div>
+        {/* View Mode Toggle (Only when a pair is available) */}
+        {hasValidPair && (
+          <div className="flex items-center gap-1 bg-tactical-900 p-1 rounded-lg border border-tactical-700 text-xs font-mono">
+            <button
+              onClick={() => setViewMode("slider")}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
+                viewMode === "slider"
+                  ? "bg-sky-600/15 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300 font-bold border border-sky-500/40"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+              }`}
+            >
+              <SplitSquareVertical className="w-3.5 h-3.5" />
+              <span>SWIPE SLIDER</span>
+            </button>
+            <button
+              onClick={() => setViewMode("side-by-side")}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
+                viewMode === "side-by-side"
+                  ? "bg-sky-600/15 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300 font-bold border border-sky-500/40"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+              }`}
+            >
+              <Columns2 className="w-3.5 h-3.5" />
+              <span>SIDE-BY-SIDE</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Main Imagery Area */}
-      {viewMode === "slider" ? (
+      {isRealEo && !hasValidPair ? (
+        /* Real EO Single Scene Preview with Honest Transitional State */
+        <div className="space-y-3">
+          <div className="relative w-full aspect-video max-h-[380px] rounded-lg overflow-hidden border border-tactical-700 bg-tactical-900 flex items-center justify-center">
+            {singlePreviewImg ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={singlePreviewImg}
+                alt={selectedScene?.scene_id || "Sentinel-2 visual preview"}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="text-slate-500 font-mono text-xs flex flex-col items-center gap-2">
+                <Database className="w-8 h-8 text-indigo-500/50" />
+                <span>Real Sentinel-2 preview loading...</span>
+              </div>
+            )}
+
+            {/* Badges on preview */}
+            <div className="absolute top-3 left-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono text-indigo-600 dark:text-indigo-300 font-semibold shadow-sm">
+              <span>DISCOVERY SCENE:</span> {selectedScene?.acquisition_date || beforeScene?.acquisition_date || location.available_dates?.[0] || "2026"}
+            </div>
+
+            <div className="absolute top-3 right-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono text-slate-700 dark:text-slate-300 font-semibold shadow-sm">
+              <span>CLOUD:</span> {selectedScene?.cloud_percentage?.toFixed(2) ?? beforeScene?.cloud_percentage?.toFixed(2) ?? "0.00"}% • {selectedScene?.platform || "Sentinel-2"}
+            </div>
+
+            {selectedScene?.scene_id && (
+              <div className="absolute bottom-3 left-3 right-3 bg-tactical-900/95 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-[10px] font-mono text-slate-600 dark:text-slate-300 truncate shadow-sm">
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold">STAC ID:</span> {selectedScene.scene_id}
+              </div>
+            )}
+          </div>
+
+          {/* Honest Transitional State Card */}
+          <div className="p-3.5 bg-indigo-950/20 border border-indigo-500/30 rounded-xl space-y-2.5 font-mono text-xs">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300 font-bold">
+                <Sparkles className="w-4 h-4 text-indigo-500" />
+                <span>REAL EO SEMANTIC MATCH FOUND</span>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 font-semibold">
+                70-SCENE CATALOG
+              </span>
+            </div>
+
+            <p className="text-slate-600 dark:text-slate-300 text-[11px] leading-relaxed">
+              Real EO semantic match found. Select or discover a Sentinel-2 temporal pair for change analysis.
+            </p>
+
+            <div className="pt-1 flex flex-wrap items-center gap-2">
+              {onDiscoverPairs && (
+                <button
+                  type="button"
+                  onClick={onDiscoverPairs}
+                  disabled={isDiscovering}
+                  className="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold flex items-center gap-1.5 transition-all shadow-sm border border-indigo-400/40 text-xs"
+                >
+                  {isDiscovering ? (
+                    <>
+                      <RotateCcw className="w-3.5 h-3.5 animate-spin" />
+                      <span>QUERYING SENTINEL-2 STAC ARCHIVE...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Crosshair className="w-3.5 h-3.5" />
+                      <span>DISCOVER SENTINEL-2 TEMPORAL PAIRS</span>
+                    </>
+                  )}
+                </button>
+              )}
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                Queries open-access Copernicus Sentinel-2 STAC for temporal pairs over this AOI
+              </span>
+            </div>
+
+            {/* Discovered Pair Candidates List */}
+            {pairCandidates.length > 0 && (
+              <div className="pt-2 border-t border-indigo-500/20 space-y-2">
+                <span className="text-[10px] text-indigo-700 dark:text-indigo-300 font-bold uppercase tracking-wider block">
+                  Discovered STAC Temporal Candidates ({pairCandidates.length}):
+                </span>
+                <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto pr-1">
+                  {pairCandidates.map((pair, idx) => {
+                    const isSelected = selectedPair?.beforeScene.sceneId === pair.beforeScene.sceneId && selectedPair?.afterScene.sceneId === pair.afterScene.sceneId;
+                    return (
+                      <div
+                        key={pair.beforeScene.sceneId + pair.afterScene.sceneId}
+                        onClick={() => onSelectPair?.(pair)}
+                        className={`p-2.5 rounded-lg border cursor-pointer transition-all flex items-center justify-between text-[11px] ${
+                          isSelected
+                            ? "bg-indigo-900/40 border-indigo-400 text-white"
+                            : "bg-tactical-900 border-tactical-700 hover:border-indigo-500/50 text-slate-300"
+                        }`}
+                      >
+                        <div className="space-y-0.5">
+                          <div className="font-semibold text-slate-200">
+                            Pair #{idx + 1}: {pair.beforeScene.acquisitionDate.slice(0, 10)} &rarr; {pair.afterScene.acquisitionDate.slice(0, 10)}
+                          </div>
+                          <div className="text-[10px] text-slate-400 font-mono">
+                            &Delta; {pair.daysDifference} days • Before: {pair.beforeScene.cloudCoverPercentage.toFixed(1)}% cloud • After: {pair.afterScene.cloudCoverPercentage.toFixed(1)}% cloud
+                          </div>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          isSelected ? "bg-indigo-600 text-white" : "bg-tactical-800 text-slate-400"
+                        }`}>
+                          {isSelected ? "SELECTED" : "SELECT"}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {selectedPair && onExecuteAnalysis && (
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={onExecuteAnalysis}
+                      disabled={isAnalyzing}
+                      className="w-full py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm text-xs"
+                    >
+                      {isAnalyzing ? (
+                        <>
+                          <RotateCcw className="w-3.5 h-3.5 animate-spin" />
+                          <span>EXECUTING SCIENTIFIC B04/B08/SCL CHANGE ANALYSIS...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-3.5 h-3.5" />
+                          <span>RUN QUANTITATIVE SENTINEL-2 CHANGE DETECTION</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : viewMode === "slider" ? (
         <div
           ref={containerRef}
           onPointerDown={handlePointerDown}
@@ -119,16 +317,16 @@ export function TemporalComparison({
             />
             {/* Badge T1 */}
             <div className="absolute top-3 left-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono text-sky-700 dark:text-sky-300 font-semibold shadow-sm">
-              <span>T1 (BASELINE):</span> {location.available_dates?.[0] || "2023-03"}
+              <span>T1 (BASELINE):</span> {beforeScene?.acquisition_date || location.available_dates?.[0] || "2023-03"}
             </div>
           </div>
 
           {/* Badge T2 */}
           <div className="absolute top-3 right-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono text-amber-700 dark:text-amber-300 font-semibold shadow-sm">
-            <span>T2 (MONITORING):</span> {location.available_dates?.[1] || "2025-02"}
+            <span>T2 (MONITORING):</span> {afterScene?.acquisition_date || location.available_dates?.[1] || "2025-02"}
           </div>
 
-          {/* Slider divider bar (Clean, non-neon) */}
+          {/* Slider divider bar */}
           <div
             className="absolute top-0 bottom-0 w-0.5 bg-sky-500 shadow-sm pointer-events-none"
             style={{ left: `${sliderPos}%` }}
@@ -149,7 +347,7 @@ export function TemporalComparison({
               className="w-full h-full object-cover"
             />
             <div className="absolute top-3 left-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono text-sky-700 dark:text-sky-300 font-semibold shadow-sm">
-              <span>T1 BASELINE:</span> {location.available_dates?.[0] || "2023"}
+              <span>T1 BASELINE:</span> {beforeScene?.acquisition_date || location.available_dates?.[0] || "2023"}
             </div>
           </div>
 
@@ -162,7 +360,7 @@ export function TemporalComparison({
               className="w-full h-full object-cover"
             />
             <div className="absolute top-3 right-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono text-amber-700 dark:text-amber-300 font-semibold shadow-sm">
-              <span>T2 MONITORING:</span> {location.available_dates?.[1] || "2025"}
+              <span>T2 MONITORING:</span> {afterScene?.acquisition_date || location.available_dates?.[1] || "2025"}
             </div>
           </div>
         </div>

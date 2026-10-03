@@ -108,12 +108,18 @@ export function Header({
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-tactical-800 border border-tactical-700 text-slate-700 dark:text-slate-300 font-mono">
             <span
               className={`w-2 h-2 rounded-full ${
-                operatingMode === "LIVE_PUBLIC_DATA" ? "bg-emerald-500" : "bg-sky-500"
+                operatingMode === "LIVE_PUBLIC_DATA"
+                  ? "bg-emerald-500"
+                  : operatingMode === "REAL_EO_CATALOG"
+                  ? "bg-indigo-500"
+                  : "bg-sky-500"
               }`}
             ></span>
             <span className="text-[11px] font-medium">
               {operatingMode === "LIVE_PUBLIC_DATA"
                 ? "LIVE SENTINEL-2 ONLINE"
+                : operatingMode === "REAL_EO_CATALOG"
+                ? "REAL EO CATALOG ONLINE"
                 : operatingMode === "OFFLINE_RESEARCH"
                 ? "RESEARCH HARNESS"
                 : "BENCHMARK ONLINE"}
@@ -121,7 +127,7 @@ export function Header({
           </div>
 
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-tactical-800 border border-tactical-700 text-slate-700 dark:text-slate-300 font-mono">
-            <Database className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+            <Database className={`w-3.5 h-3.5 ${operatingMode === "REAL_EO_CATALOG" ? "text-indigo-500" : "text-sky-600 dark:text-sky-400"}`} />
             <span>INDEX: {totalScenes} SCENES</span>
           </div>
 

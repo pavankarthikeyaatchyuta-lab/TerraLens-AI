@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { SearchResult, Location } from "@/types";
+import { SearchResult, Location, Scene } from "@/types";
 import { Layers, Calendar, Compass, ArrowRight, CheckCircle2, AlertTriangle, Crosshair } from "lucide-react";
 
 interface SceneCatalogProps {
@@ -12,6 +12,10 @@ interface SceneCatalogProps {
   searchOutcome?: any;
   onSelectBenchmarkQuery?: (query: string) => void;
   onHandoffToLive?: (location: Location) => void;
+  catalogMode?: "benchmark" | "real-eo";
+  selectedSceneId?: string;
+  onSelectResult?: (result: SearchResult) => void;
+  allScenes?: Scene[];
 }
 
 export function SceneCatalog({
@@ -22,24 +26,38 @@ export function SceneCatalog({
   searchOutcome,
   onSelectBenchmarkQuery,
   onHandoffToLive,
+  catalogMode = "benchmark",
+  selectedSceneId,
+  onSelectResult,
+  allScenes = [],
 }: SceneCatalogProps) {
+  const isRealEo = catalogMode === "real-eo";
+
   // If no search results, show all locations
-  const items = results.length > 0
+  const items: SearchResult[] = results.length > 0
     ? results
-    : allLocations.map((loc, idx) => ({
-        rank: idx + 1,
-        similarity_score: 0.25,
-        location: loc,
-        scene: {
-          scene_id: loc.before_scene_id || "",
-          location_id: loc.location_id,
-          acquisition_date: loc.available_dates[0] || "2023",
-          sensor: loc.primary_sensor,
-          cloud_percentage: 1.2,
-          tags: loc.tags,
-          image_path: `/samples/${loc.location_id}/before_2023.jpg`,
-        },
-      }));
+    : allLocations.map((loc, idx) => {
+        const matchingScene = allScenes.find((s) => s.location_id === loc.location_id);
+        const imagePath = matchingScene?.image_path ||
+          (isRealEo
+            ? `/eo_catalog/thumbnails/${matchingScene?.scene_id || loc.location_id}.jpg`
+            : `/samples/${loc.location_id}/before_2023.jpg`);
+
+        return {
+          rank: idx + 1,
+          similarity_score: isRealEo ? 0.28 : 0.25,
+          location: loc,
+          scene: {
+            scene_id: matchingScene?.scene_id || loc.before_scene_id || "",
+            location_id: loc.location_id,
+            acquisition_date: matchingScene?.acquisition_date || loc.available_dates?.[0] || "2026",
+            sensor: matchingScene?.sensor || loc.primary_sensor,
+            cloud_percentage: matchingScene?.cloud_percentage ?? 1.2,
+            tags: matchingScene?.tags || loc.tags,
+            image_path: imagePath,
+          },
+        };
+      });
 
   return (
     <div className="bg-tactical-850 border border-tactical-700 rounded-xl p-4 shadow-sm">
@@ -50,7 +68,9 @@ export function SceneCatalog({
             {results.length > 0 ? `Semantic Matches (${results.length})` : "Candidate Locations Archive"}
           </h2>
         </div>
-        <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">OFFLINE INDEX: FAISS • NORMALIZED COSINE</span>
+        <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
+          {isRealEo ? "REAL EO INDEX: 70 SCENES • FAISS INDEXFLATIP" : "OFFLINE INDEX: FAISS • NORMALIZED COSINE"}
+        </span>
       </div>
 
       {searchOutcome && searchOutcome.supported === false && (
@@ -88,10 +108,15 @@ export function SceneCatalog({
           return (
             <div
               key={item.location.location_id + (item.scene?.scene_id || "")}
-              onClick={() => onSelectLocation(item.location.location_id)}
+              onClick={() => {
+                onSelectLocation(item.location.location_id);
+                onSelectResult?.(item);
+              }}
               className={`p-3 rounded-lg border transition-all cursor-pointer flex flex-col gap-2 ${
                 isSelected
-                  ? "bg-tactical-800/90 border-sky-500 ring-1 ring-sky-500/40 shadow-sm"
+                  ? isRealEo
+                    ? "bg-tactical-800/90 border-indigo-500 ring-1 ring-indigo-500/40 shadow-sm"
+                    : "bg-tactical-800/90 border-sky-500 ring-1 ring-sky-500/40 shadow-sm"
                   : "bg-tactical-900/60 border-tactical-700/70 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-tactical-900"
               }`}
             >
@@ -100,7 +125,9 @@ export function SceneCatalog({
                   <span
                     className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
                       isSelected
-                        ? "bg-sky-600 text-white"
+                        ? isRealEo
+                          ? "bg-indigo-600 text-white"
+                          : "bg-sky-600 text-white"
                         : "bg-tactical-700 text-slate-700 dark:text-slate-300"
                     }`}
                   >
@@ -112,7 +139,7 @@ export function SceneCatalog({
                 </div>
 
                 {results.length > 0 && (
-                  <span className="text-[11px] font-mono font-bold text-sky-600 dark:text-sky-400">
+                  <span className={`text-[11px] font-mono font-bold ${isRealEo ? "text-indigo-600 dark:text-indigo-400" : "text-sky-600 dark:text-sky-400"}`}>
                     {item.similarity_score.toFixed(4)}
                   </span>
                 )}
@@ -126,7 +153,7 @@ export function SceneCatalog({
               {results.length > 0 && (
                 <div className="w-full bg-tactical-700/50 h-1.5 rounded-full overflow-hidden">
                   <div
-                    className="bg-sky-500 h-full rounded-full transition-all duration-500"
+                    className={`h-full rounded-full transition-all duration-500 ${isRealEo ? "bg-indigo-500" : "bg-sky-500"}`}
                     style={{ width: `${scorePercent}%` }}
                   />
                 </div>
@@ -134,15 +161,15 @@ export function SceneCatalog({
 
               <div className="flex items-center justify-between pt-1 border-t border-tactical-700/40 text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                 <span className="flex items-center gap-1">
-                  <Compass className="w-3 h-3 text-sky-600 dark:text-sky-400" />
+                  <Compass className={`w-3 h-3 ${isRealEo ? "text-indigo-500" : "text-sky-600 dark:text-sky-400"}`} />
                   {item.location.latitude.toFixed(2)}°N, {item.location.longitude.toFixed(2)}°E
                 </span>
                 <span className="flex items-center gap-1">
                   <Calendar className="w-3 h-3 text-slate-400" />
-                  {item.location.available_dates?.join(" → ") || "2023 - 2025"}
+                  {item.location.available_dates?.join(" → ") || "2023 - 2026"}
                 </span>
                 {isSelected ? (
-                  <span className="text-sky-600 dark:text-sky-400 font-bold flex items-center gap-0.5">
+                  <span className={`${isRealEo ? "text-indigo-600 dark:text-indigo-400" : "text-sky-600 dark:text-sky-400"} font-bold flex items-center gap-0.5`}>
                     <CheckCircle2 className="w-3 h-3" /> ACTIVE
                   </span>
                 ) : (
@@ -159,10 +186,18 @@ export function SceneCatalog({
                     e.stopPropagation();
                     onHandoffToLive(item.location);
                   }}
-                  className="w-full mt-1 py-1.5 px-2.5 rounded bg-sky-500/15 hover:bg-sky-500/25 text-sky-700 dark:text-sky-300 border border-sky-500/30 text-[10px] font-mono font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm"
+                  className={`w-full mt-1 py-1.5 px-2.5 rounded text-[10px] font-mono font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm ${
+                    isRealEo
+                      ? "bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30"
+                      : "bg-sky-500/15 hover:bg-sky-500/25 text-sky-700 dark:text-sky-300 border border-sky-500/30"
+                  }`}
                 >
-                  <Crosshair className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-                  <span>LAUNCH IN LIVE SENTINEL-2 WORKFLOW &rarr;</span>
+                  <Crosshair className={`w-3.5 h-3.5 ${isRealEo ? "text-indigo-500" : "text-sky-600 dark:text-sky-400"}`} />
+                  <span>
+                    {isRealEo
+                      ? "DISCOVER SENTINEL-2 TEMPORAL PAIRS \u2192"
+                      : "LAUNCH IN LIVE SENTINEL-2 WORKFLOW \u2192"}
+                  </span>
                 </button>
               )}
             </div>

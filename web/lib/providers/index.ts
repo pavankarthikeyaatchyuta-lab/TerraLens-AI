@@ -17,7 +17,7 @@ let defaultBenchmarkProvider: MockBenchmarkProvider | null = null;
  * Factory returning the appropriate SatelliteDataProvider based on requested OperatingMode.
  */
 export function getSatelliteProvider(mode: OperatingMode = "CONTROLLED_BENCHMARK"): SatelliteDataProvider {
-  if (mode === "LIVE_PUBLIC_DATA") {
+  if (mode === "LIVE_PUBLIC_DATA" || mode === "REAL_EO_CATALOG") {
     if (!defaultCopernicusProvider) {
       defaultCopernicusProvider = new CopernicusSentinelProvider();
     }

@@ -1,17 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocationById, getSceneById, getScenes } from "@/lib/data";
+import { getLocationById, getSceneById, getScenes, getEoLocations, getEoScenes } from "@/lib/data";
+import { Scene } from "@/types";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   const id = params.id;
-  let location = getLocationById(id);
+  const catalogParam = request.nextUrl.searchParams.get("catalog");
+  const isRealEo =
+    catalogParam === "real-eo" ||
+    catalogParam === "real_eo" ||
+    id.startsWith("LOC_EO_") ||
+    id.startsWith("S2");
 
+  let location = isRealEo
+    ? (getEoLocations().find((l) => l.location_id === id) || getLocationById(id))
+    : getLocationById(id);
+
+  let targetScene: Scene | null = null;
   if (!location) {
     const scene = getSceneById(id);
     if (scene) {
-      location = getLocationById(scene.location_id);
+      targetScene = scene;
+      location = isRealEo
+        ? (getEoLocations().find((l) => l.location_id === scene.location_id) || getLocationById(scene.location_id))
+        : getLocationById(scene.location_id);
     }
   }
 
@@ -22,11 +36,21 @@ export async function GET(
     );
   }
 
-  const allScenes = getScenes().filter((s) => s.location_id === location.location_id);
-  const beforeScene = location.before_scene_id ? getSceneById(location.before_scene_id) : allScenes[0];
-  const afterScene = location.after_scene_id ? getSceneById(location.after_scene_id) : allScenes[1];
+  const allScenes = isRealEo
+    ? getEoScenes().filter((s) => s.location_id === location.location_id)
+    : getScenes().filter((s) => s.location_id === location.location_id);
+
+  let beforeScene: Scene | null = location.before_scene_id ? (getSceneById(location.before_scene_id) || null) : (allScenes[0] || null);
+  let afterScene: Scene | null = location.after_scene_id ? (getSceneById(location.after_scene_id) || null) : (allScenes[1] || null);
+
+  // If a specific scene was queried directly, ensure it is represented
+  if (targetScene) {
+    beforeScene = targetScene;
+    afterScene = allScenes.find((s) => s.scene_id !== targetScene?.scene_id) || null;
+  }
 
   return NextResponse.json({
+    catalog_mode: isRealEo ? "real-eo" : "benchmark",
     location_id: location.location_id,
     location_name: location.name,
     latitude: location.latitude,
