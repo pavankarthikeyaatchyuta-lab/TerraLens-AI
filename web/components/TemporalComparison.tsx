@@ -23,6 +23,7 @@ import {
   Clock,
   History,
   ArrowRight,
+  ShieldAlert,
 } from "lucide-react";
 
 interface TemporalComparisonProps {
@@ -38,9 +39,10 @@ interface TemporalComparisonProps {
   onSelectPair?: (pair: TemporalPairCandidate | null) => void;
   onExecuteAnalysis?: () => void;
   isAnalyzing?: boolean;
-  onDiscoverHistory?: () => void;
+  onDiscoverHistory?: (cloudThreshold?: number, startDate?: string, endDate?: string) => void;
   isDiscoveringHistory?: boolean;
   historyResult?: TemporalHistoryResult | null;
+  onSwitchToRealEo?: () => void;
 }
 
 export function TemporalComparison({
@@ -59,6 +61,7 @@ export function TemporalComparison({
   onDiscoverHistory,
   isDiscoveringHistory = false,
   historyResult,
+  onSwitchToRealEo,
 }: TemporalComparisonProps) {
   const [sliderPos, setSliderPos] = useState<number>(50);
   const [viewMode, setViewMode] = useState<"slider" | "side-by-side">("slider");
@@ -66,6 +69,13 @@ export function TemporalComparison({
   const [afterLoadError, setAfterLoadError] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef<boolean>(false);
+
+  // Real EO Observation Timeline & Custom Date Selector State
+  const [selectedT1SceneId, setSelectedT1SceneId] = useState<string>("");
+  const [selectedT2SceneId, setSelectedT2SceneId] = useState<string>("");
+  const [filterCloud, setFilterCloud] = useState<number>(25);
+  const [filterStartDate, setFilterStartDate] = useState<string>("");
+  const [filterEndDate, setFilterEndDate] = useState<string>("");
 
   const isRealEo = catalogMode === "real-eo";
   const hasValidPair = Boolean(
@@ -113,6 +123,44 @@ export function TemporalComparison({
   React.useEffect(() => {
     setAfterLoadError(false);
   }, [afterImg]);
+
+  // Synchronize initial T1 & T2 selections from historyResult or selectedPair
+  React.useEffect(() => {
+    if (!historyResult || !historyResult.usableObservations?.length) return;
+    const obs = historyResult.usableObservations;
+
+    if (!selectedT1SceneId || !obs.some((o) => o.sceneId === selectedT1SceneId)) {
+      const initialT1 = selectedPair?.beforeScene?.sceneId || historyResult.earliestUsable?.sceneId || obs[0]?.sceneId;
+      if (initialT1) setSelectedT1SceneId(initialT1);
+    }
+
+    if (!selectedT2SceneId || !obs.some((o) => o.sceneId === selectedT2SceneId)) {
+      const initialT2 = selectedPair?.afterScene?.sceneId || historyResult.latestUsable?.sceneId || obs[obs.length - 1]?.sceneId;
+      if (initialT2) setSelectedT2SceneId(initialT2);
+    }
+  }, [historyResult, selectedPair]);
+
+  const handleCompareSelectedDates = () => {
+    if (!historyResult || !historyResult.usableObservations?.length) return;
+    const obs = historyResult.usableObservations;
+    const t1 = obs.find((o) => o.sceneId === selectedT1SceneId) || historyResult.earliestUsable || obs[0];
+    const t2 = obs.find((o) => o.sceneId === selectedT2SceneId) || historyResult.latestUsable || obs[obs.length - 1];
+    if (!t1 || !t2) return;
+
+    const daysDifference = Math.abs(
+      Math.round(
+        (new Date(t2.acquisitionDate).getTime() - new Date(t1.acquisitionDate).getTime()) /
+          (1000 * 60 * 60 * 24)
+      )
+    );
+
+    onSelectPair?.({
+      beforeScene: t1,
+      afterScene: t2,
+      daysDifference,
+      recommended: true,
+    });
+  };
 
   const handlePointerDown = () => {
     isDragging.current = true;
@@ -281,14 +329,20 @@ export function TemporalComparison({
               />
             )}
             {/* Badge T1 */}
-            <div className="absolute top-3 left-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono text-sky-700 dark:text-sky-300 font-semibold shadow-sm">
-              <span>T1 (BASELINE):</span> {beforeScene?.acquisition_date || location.available_dates?.[0] || "2023-03"}
+            <div className="absolute top-3 left-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono font-semibold shadow-sm">
+              <span className={isRealEo ? "text-indigo-600 dark:text-indigo-300" : "text-amber-600 dark:text-amber-300"}>
+                {isRealEo ? "REAL S2 L2A • T1 (BASELINE):" : "CONTROLLED BENCHMARK • T1:"}
+              </span>{" "}
+              <span className="text-slate-900 dark:text-slate-100">{beforeScene?.acquisition_date || location.available_dates?.[0] || "2023-03"}</span>
             </div>
           </div>
 
           {/* Badge T2 */}
-          <div className="absolute top-3 right-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono text-amber-700 dark:text-amber-300 font-semibold shadow-sm">
-            <span>T2 (MONITORING):</span> {afterScene?.acquisition_date || location.available_dates?.[1] || "2025-02"}
+          <div className="absolute top-3 right-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono font-semibold shadow-sm">
+            <span className={isRealEo ? "text-indigo-600 dark:text-indigo-300" : "text-amber-600 dark:text-amber-300"}>
+              {isRealEo ? "REAL S2 L2A • T2 (MONITORING):" : "CONTROLLED BENCHMARK • T2:"}
+            </span>{" "}
+            <span className="text-slate-900 dark:text-slate-100">{afterScene?.acquisition_date || location.available_dates?.[1] || "2025-02"}</span>
           </div>
 
           {/* Slider divider bar */}
@@ -322,8 +376,11 @@ export function TemporalComparison({
                 className="w-full h-full object-cover"
               />
             )}
-            <div className="absolute top-3 left-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono text-sky-700 dark:text-sky-300 font-semibold shadow-sm">
-              <span>T1 BASELINE:</span> {beforeScene?.acquisition_date || location.available_dates?.[0] || "2023"}
+            <div className="absolute top-3 left-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono font-semibold shadow-sm">
+              <span className={isRealEo ? "text-indigo-600 dark:text-indigo-300" : "text-amber-600 dark:text-amber-300"}>
+                {isRealEo ? "REAL S2 L2A • T1:" : "BENCHMARK T1:"}
+              </span>{" "}
+              <span className="text-slate-900 dark:text-slate-100">{beforeScene?.acquisition_date || location.available_dates?.[0] || "2023"}</span>
             </div>
           </div>
 
@@ -346,163 +403,384 @@ export function TemporalComparison({
                 className="w-full h-full object-cover"
               />
             )}
-            <div className="absolute top-3 right-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono text-amber-700 dark:text-amber-300 font-semibold shadow-sm">
-              <span>T2 MONITORING:</span> {afterScene?.acquisition_date || location.available_dates?.[1] || "2025"}
+            <div className="absolute top-3 right-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono font-semibold shadow-sm">
+              <span className={isRealEo ? "text-indigo-600 dark:text-indigo-300" : "text-amber-600 dark:text-amber-300"}>
+                {isRealEo ? "REAL S2 L2A • T2:" : "BENCHMARK T2:"}
+              </span>{" "}
+              <span className="text-slate-900 dark:text-slate-100">{afterScene?.acquisition_date || location.available_dates?.[1] || "2025"}</span>
             </div>
           </div>
         </div>
       )}
 
-      {/* Real EO Controls, Pair Discovery & Temporal History Panel */}
-      {isRealEo && (
-        <div className="mt-3 p-3.5 bg-indigo-950/20 border border-indigo-500/30 rounded-xl space-y-2.5 font-mono text-xs">
+      {/* BENCHMARK MODE: Fixed Evaluation Notice Card */}
+      {!isRealEo && (
+        <div className="mt-3 p-3.5 bg-amber-950/20 border border-amber-500/30 rounded-xl space-y-2.5 font-mono text-xs">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300 font-bold">
-              <Sparkles className="w-4 h-4 text-indigo-500" />
-              <span>{hasValidPair ? "REAL EO SENTINEL-2 TEMPORAL PAIR LOADED" : "REAL EO SEMANTIC MATCH FOUND"}</span>
+            <div className="flex items-center gap-2 text-amber-300 font-bold">
+              <ShieldAlert className="w-4 h-4 text-amber-400" />
+              <span>CONTROLLED BENCHMARK — SYNTHETIC DATA BASELINE</span>
             </div>
-            <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 font-semibold">
-              {hasValidPair ? "TEMPORAL PAIR READY" : "70-SCENE CATALOG"}
+            <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">
+              STANDARDIZED EVALUATION
             </span>
           </div>
 
-          <p className="text-slate-600 dark:text-slate-300 text-[11px] leading-relaxed">
-            {hasValidPair
-              ? "Active Sentinel-2 temporal baseline (T1) and monitoring (T2) pair. You can run change detection, discover earliest observations, or select another candidate pair."
-              : "Real EO semantic match found. Select or discover a Sentinel-2 temporal pair for change analysis."}
+          <p className="text-slate-300 text-[11px] leading-relaxed">
+            This mode evaluates calibrated synthetic benchmark scene dates (<span className="text-amber-300 font-semibold">{beforeScene?.acquisition_date || "2023-04-05"}</span> &rarr; <span className="text-amber-300 font-semibold">{afterScene?.acquisition_date || "2025-03-12"}</span>) against standardized algorithmic ground truth. These dates are invariant benchmark scene dates, not an interactive general timeline.
           </p>
 
-          <div className="pt-1 flex flex-wrap items-center gap-2">
-            {onDiscoverPairs && (
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-amber-500/20 text-[11px]">
+            <div className="flex items-center gap-2 text-slate-400">
+              <span className="font-semibold text-amber-300">Standardized Pair:</span>
+              <span>{beforeScene?.acquisition_date || "2023"} &rarr; {afterScene?.acquisition_date || "2025"}</span>
+              <span className="text-slate-500">• Invariant Evaluation Baseline</span>
+            </div>
+
+            {onSwitchToRealEo && (
               <button
                 type="button"
-                onClick={onDiscoverPairs}
-                disabled={isDiscovering}
-                className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold flex items-center gap-1.5 transition-all shadow-sm border border-indigo-400/40 text-xs"
+                onClick={onSwitchToRealEo}
+                className="px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[10px] flex items-center gap-1 transition-all shadow-sm"
               >
-                {isDiscovering ? (
-                  <>
-                    <RotateCcw className="w-3.5 h-3.5 animate-spin" />
-                    <span>QUERYING SENTINEL-2 STAC ARCHIVE...</span>
-                  </>
-                ) : (
-                  <>
-                    <Crosshair className="w-3.5 h-3.5" />
-                    <span>DISCOVER SENTINEL-2 TEMPORAL PAIRS</span>
-                  </>
-                )}
+                <span>OPEN REAL SENTINEL-2 TIMELINE (REAL EO)</span>
+                <ArrowRight className="w-3 h-3" />
               </button>
             )}
+          </div>
+        </div>
+      )}
 
-            {onDiscoverHistory && (
+      {/* REAL EO MODE: Real Sentinel-2 Observation Timeline & Custom Date Pairing */}
+      {isRealEo && (
+        <div className="mt-3 p-3.5 bg-indigo-950/20 border border-indigo-500/30 rounded-xl space-y-3 font-mono text-xs">
+          {/* Panel Header */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-indigo-500/25">
+            <div className="flex items-center gap-2 text-indigo-300 font-bold">
+              <History className="w-4 h-4 text-indigo-400" />
+              <span>REAL SENTINEL-2 OBSERVATION TIMELINE & ARCHIVE</span>
+            </div>
+            <div className="flex items-center gap-2 text-[10px]">
+              <span className="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-semibold">
+                COPERNICUS STAC ARCHIVE
+              </span>
+              {historyResult && (
+                <span className={`px-2 py-0.5 rounded font-bold border ${
+                  historyResult.isExhaustive
+                    ? "bg-emerald-950/60 text-emerald-300 border-emerald-500/40"
+                    : "bg-amber-950/60 text-amber-300 border-amber-500/40"
+                }`}>
+                  {historyResult.isExhaustive ? "EXHAUSTIVE TIMELINE" : "NON-EXHAUSTIVE"}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Discovery / Trigger Bar if history not yet loaded */}
+          {!historyResult && (
+            <div className="p-3 bg-tactical-900 border border-tactical-700 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <div className="font-semibold text-slate-200">Query Sentinel-2 Observation History</div>
+                <div className="text-[11px] text-slate-400">
+                  Search Copernicus archives for all usable multi-temporal observations across {location.name}.
+                </div>
+              </div>
               <button
                 type="button"
-                onClick={onDiscoverHistory}
+                onClick={() => onDiscoverHistory?.(filterCloud, filterStartDate || undefined, filterEndDate || undefined)}
                 disabled={isDiscoveringHistory}
-                className="px-3 py-1.5 rounded-lg bg-sky-700/80 hover:bg-sky-600 disabled:opacity-50 text-white font-bold flex items-center gap-1.5 transition-all shadow-sm border border-sky-400/40 text-xs"
+                className="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold flex items-center gap-1.5 transition-all text-xs whitespace-nowrap shadow-sm"
               >
                 {isDiscoveringHistory ? (
                   <>
                     <RotateCcw className="w-3.5 h-3.5 animate-spin" />
-                    <span>DISCOVERING EARLIEST OBSERVATION...</span>
+                    <span>QUERYING STAC ARCHIVE...</span>
                   </>
                 ) : (
                   <>
                     <Clock className="w-3.5 h-3.5" />
-                    <span>DISCOVER EARLIEST USABLE & HISTORY</span>
+                    <span>LOAD SENTINEL-2 TIMELINE</span>
                   </>
                 )}
               </button>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* Phase 8: Temporal History & Earliest Usable Discovery Panel */}
+          {/* Observation History Results */}
           {historyResult && (
-            <div className="pt-3 border-t border-indigo-500/20 space-y-2.5">
-              <div className="flex flex-wrap items-center justify-between gap-1">
-                <span className="text-[11px] text-sky-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <History className="w-3.5 h-3.5 text-sky-400" />
-                  TEMPORAL HISTORY • {historyResult.usableCount} USABLE ({historyResult.recordsExamined || historyResult.totalFound} RECORDS EXAMINED)
-                </span>
-                <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
-                  {historyResult.pagesFollowed && (
-                    <span className="px-1.5 py-0.5 rounded bg-tactical-800 text-slate-300 border border-tactical-700">
-                      {historyResult.pagesFollowed} STAC PAGES
-                    </span>
-                  )}
-                  {historyResult.isExhaustive ? (
-                    <span className="px-1.5 py-0.5 rounded bg-emerald-950/60 text-emerald-300 border border-emerald-500/40 font-semibold">
-                      EXHAUSTIVE
-                    </span>
-                  ) : (
-                    <span className="px-1.5 py-0.5 rounded bg-amber-950/60 text-amber-300 border border-amber-500/40 font-semibold">
-                      NON-EXHAUSTIVE (MORE RECORDS REMAIN)
-                    </span>
-                  )}
-                  <span>Time Span: {historyResult.summary.temporalSpanDays} days</span>
+            <div className="space-y-3">
+              {/* Telemetry & Search Scope Summary */}
+              <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] bg-tactical-900 p-2.5 rounded-lg border border-tactical-700">
+                <div className="flex items-center gap-3">
+                  <span className="text-emerald-400 font-bold">
+                    {historyResult.usableCount} USABLE SCENES
+                  </span>
+                  <span className="text-slate-400">
+                    ({historyResult.recordsExamined || historyResult.totalFound} STAC records examined)
+                  </span>
+                  <span className="text-slate-400">
+                    Span: <strong className="text-slate-200">{historyResult.summary.temporalSpanDays} days</strong>
+                  </span>
+                </div>
+                {historyResult.pagesFollowed && (
+                  <span className="text-[10px] text-slate-400">
+                    {historyResult.pagesFollowed} STAC page(s) parsed
+                  </span>
+                )}
+              </div>
+
+              {/* Archive Filters: Date Range and Cloud Threshold */}
+              <div className="p-2.5 rounded-lg bg-tactical-900 border border-tactical-700 grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs">
+                <div>
+                  <label className="text-[10px] text-slate-400 block mb-0.5">Start Date</label>
+                  <input
+                    type="date"
+                    value={filterStartDate}
+                    onChange={(e) => setFilterStartDate(e.target.value)}
+                    className="w-full bg-tactical-950 border border-tactical-700 rounded px-2 py-1 text-slate-200 font-mono text-[11px]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-400 block mb-0.5">End Date</label>
+                  <input
+                    type="date"
+                    value={filterEndDate}
+                    onChange={(e) => setFilterEndDate(e.target.value)}
+                    className="w-full bg-tactical-950 border border-tactical-700 rounded px-2 py-1 text-slate-200 font-mono text-[11px]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-400 block mb-0.5">Max Cloud Cover</label>
+                  <select
+                    value={filterCloud}
+                    onChange={(e) => setFilterCloud(Number(e.target.value))}
+                    className="w-full bg-tactical-950 border border-tactical-700 rounded px-2 py-1 text-slate-200 font-mono text-[11px]"
+                  >
+                    <option value={10}>Max 10% Cloud</option>
+                    <option value={20}>Max 20% Cloud</option>
+                    <option value={25}>Max 25% Cloud (Default)</option>
+                    <option value={40}>Max 40% Cloud</option>
+                  </select>
+                </div>
+                <div className="flex items-end">
+                  <button
+                    type="button"
+                    onClick={() => onDiscoverHistory?.(filterCloud, filterStartDate || undefined, filterEndDate || undefined)}
+                    disabled={isDiscoveringHistory}
+                    className="w-full py-1.5 px-2.5 rounded bg-sky-700 hover:bg-sky-600 disabled:opacity-50 text-white font-bold text-[11px] transition-all flex items-center justify-center gap-1 shadow-sm"
+                  >
+                    {isDiscoveringHistory ? <RotateCcw className="w-3 h-3 animate-spin" /> : <Clock className="w-3 h-3" />}
+                    <span>FILTER ARCHIVE</span>
+                  </button>
                 </div>
               </div>
-              {historyResult.searchScope?.scopeDescription && (
-                <div className="text-[10px] font-mono flex items-center justify-between">
-                  <span className={historyResult.isExhaustive ? "text-emerald-400/90 font-semibold" : "text-amber-400/90 font-semibold"}>
-                    {historyResult.searchScope.scopeDescription}
-                  </span>
-                  <span className="text-slate-400">Scope: {historyResult.searchScope.startDate} &rarr; {historyResult.searchScope.endDate}</span>
+
+              {/* Chronological Visual Timeline Track */}
+              {historyResult.usableObservations.length > 0 && (
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-[10px] text-slate-400 uppercase tracking-wider">
+                    <span>Chronological Observation Timeline (Earliest &rarr; Latest):</span>
+                    <span>Click any observation to assign as T1 or T2</span>
+                  </div>
+                  <div className="flex gap-2 overflow-x-auto pb-2 pt-1 scrollbar-thin">
+                    {historyResult.usableObservations.map((obs, idx) => {
+                      const isT1 = selectedT1SceneId === obs.sceneId;
+                      const isT2 = selectedT2SceneId === obs.sceneId;
+                      const isEarliest = idx === 0;
+                      const isLatest = idx === historyResult.usableObservations.length - 1;
+                      const dateStr = obs.acquisitionDate.slice(0, 10);
+
+                      return (
+                        <div
+                          key={obs.sceneId}
+                          className={`flex-shrink-0 p-2 rounded-lg border text-[11px] font-mono transition-all min-w-[140px] space-y-1 ${
+                            isT1
+                              ? "bg-sky-950/60 border-sky-400 shadow-md text-white"
+                              : isT2
+                              ? "bg-amber-950/60 border-amber-400 shadow-md text-white"
+                              : "bg-tactical-900 border-tactical-700 text-slate-300 hover:border-slate-500"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold text-slate-400">#{idx + 1}</span>
+                            {isEarliest && (
+                              <span className="text-[9px] px-1 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+                                EARLIEST
+                              </span>
+                            )}
+                            {isLatest && (
+                              <span className="text-[9px] px-1 rounded bg-sky-500/20 text-sky-300 font-bold border border-sky-500/30">
+                                LATEST
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="font-bold text-slate-100">{dateStr}</div>
+                          <div className="text-[10px] text-slate-400">
+                            {obs.cloudCoverPercentage.toFixed(1)}% cloud • {obs.platform}
+                          </div>
+
+                          <div className="pt-1 flex items-center gap-1 border-t border-tactical-700/60">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedT1SceneId(obs.sceneId)}
+                              className={`flex-1 py-0.5 rounded text-[9px] font-bold transition-all ${
+                                isT1
+                                  ? "bg-sky-600 text-white"
+                                  : "bg-tactical-800 text-slate-400 hover:text-sky-300"
+                              }`}
+                            >
+                              {isT1 ? "T1 ACTIVE" : "SET T1"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedT2SceneId(obs.sceneId)}
+                              className={`flex-1 py-0.5 rounded text-[9px] font-bold transition-all ${
+                                isT2
+                                  ? "bg-amber-600 text-white"
+                                  : "bg-tactical-800 text-slate-400 hover:text-amber-300"
+                              }`}
+                            >
+                              {isT2 ? "T2 ACTIVE" : "SET T2"}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
-              {/* Earliest Usable Highlight Card */}
-              {historyResult.earliestUsable && (
-                <div className="p-3 bg-indigo-950/40 border border-indigo-500/40 rounded-lg space-y-2">
-                  <div className="flex flex-wrap items-center justify-between gap-1 text-[11px]">
-                    <span className={`font-bold flex items-center gap-1.5 ${historyResult.isExhaustive ? "text-emerald-400" : "text-amber-400"}`}>
-                      <CheckCircle2 className={`w-3.5 h-3.5 ${historyResult.isExhaustive ? "text-emerald-400" : "text-amber-400"}`} />
-                      {historyResult.isExhaustive
-                        ? "EARLIEST USABLE OBSERVATION"
-                        : "EARLIEST USABLE OBSERVATION FOUND IN SEARCHED SCOPE"}
-                    </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">
-                      CLOUD: {historyResult.earliestUsable.cloudCoverPercentage.toFixed(2)}% • {historyResult.earliestUsable.platform}
-                    </span>
+              {/* Dual T1 & T2 Selectors & Action Bar */}
+              <div className="p-3 rounded-lg bg-indigo-950/30 border border-indigo-500/40 space-y-2.5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                  {/* T1 Baseline Selector Box */}
+                  <div className="p-2.5 rounded bg-tactical-900 border border-tactical-700 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-sky-400 uppercase tracking-wide flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />
+                        T1 Baseline Observation:
+                      </span>
+                      {selectedT1SceneId === historyResult.earliestUsable?.sceneId && (
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
+                          EARLIEST USABLE
+                        </span>
+                      )}
+                    </div>
+                    <select
+                      value={selectedT1SceneId}
+                      onChange={(e) => setSelectedT1SceneId(e.target.value)}
+                      className="w-full bg-tactical-950 border border-tactical-700 rounded p-1.5 text-slate-200 font-mono text-[11px]"
+                    >
+                      {historyResult.usableObservations.map((o) => (
+                        <option key={o.sceneId} value={o.sceneId}>
+                          {o.acquisitionDate.slice(0, 10)} • {o.cloudCoverPercentage.toFixed(1)}% cloud • {o.platform}
+                        </option>
+                      ))}
+                    </select>
+                    {selectedT1SceneId && (
+                      <div className="text-[10px] text-slate-400 truncate">
+                        ID: {selectedT1SceneId}
+                      </div>
+                    )}
                   </div>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px]">
-                    <div>
-                      <div className="text-sm font-bold text-white tracking-wide">
-                        {new Date(historyResult.earliestUsable.acquisitionDate).toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase()}
-                      </div>
-                      <div className="text-[10px] text-slate-400 font-mono truncate max-w-sm">
-                        STAC ID: {historyResult.earliestUsable.sceneId}
-                      </div>
+                  {/* T2 Monitoring Selector Box */}
+                  <div className="p-2.5 rounded bg-tactical-900 border border-tactical-700 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-amber-400 uppercase tracking-wide flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+                        T2 Monitoring Observation:
+                      </span>
+                      {selectedT2SceneId === historyResult.latestUsable?.sceneId && (
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30 font-bold">
+                          LATEST USABLE
+                        </span>
+                      )}
                     </div>
-
-                    {historyResult.latestUsable && onSelectPair && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onSelectPair({
-                            beforeScene: historyResult.earliestUsable!,
-                            afterScene: historyResult.latestUsable!,
-                            daysDifference: historyResult.summary.temporalSpanDays,
-                            recommended: true,
-                          });
-                        }}
-                        className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm"
-                      >
-                        <span>PAIR WITH LATEST ({historyResult.summary.temporalSpanDays}d DELTA)</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
+                    <select
+                      value={selectedT2SceneId}
+                      onChange={(e) => setSelectedT2SceneId(e.target.value)}
+                      className="w-full bg-tactical-950 border border-tactical-700 rounded p-1.5 text-slate-200 font-mono text-[11px]"
+                    >
+                      {historyResult.usableObservations.map((o) => (
+                        <option key={o.sceneId} value={o.sceneId}>
+                          {o.acquisitionDate.slice(0, 10)} • {o.cloudCoverPercentage.toFixed(1)}% cloud • {o.platform}
+                        </option>
+                      ))}
+                    </select>
+                    {selectedT2SceneId && (
+                      <div className="text-[10px] text-slate-400 truncate">
+                        ID: {selectedT2SceneId}
+                      </div>
                     )}
                   </div>
                 </div>
-              )}
+
+                {/* Primary Comparison Action */}
+                {(() => {
+                  const t1Obs = historyResult.usableObservations.find((o) => o.sceneId === selectedT1SceneId);
+                  const t2Obs = historyResult.usableObservations.find((o) => o.sceneId === selectedT2SceneId);
+                  const t1Time = t1Obs ? new Date(t1Obs.acquisitionDate).getTime() : 0;
+                  const t2Time = t2Obs ? new Date(t2Obs.acquisitionDate).getTime() : 0;
+                  const daysDiff = t1Time && t2Time ? Math.abs(Math.round((t2Time - t1Time) / (1000 * 60 * 60 * 24))) : 0;
+                  const isChronological = t1Time <= t2Time;
+
+                  return (
+                    <div className="pt-1 space-y-2">
+                      <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-400">
+                        <div>
+                          Selected Pair: <strong className="text-sky-300">{t1Obs?.acquisitionDate.slice(0, 10) || "T1"}</strong> &rarr; <strong className="text-amber-300">{t2Obs?.acquisitionDate.slice(0, 10) || "T2"}</strong> (Δ {daysDiff} days)
+                        </div>
+                        {!isChronological && (
+                          <span className="text-amber-400 font-semibold">
+                            Note: T1 is later than T2; chronological ordering recommended for forward change detection.
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={handleCompareSelectedDates}
+                          className="py-2 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm text-xs border border-indigo-400/40"
+                        >
+                          <Crosshair className="w-3.5 h-3.5" />
+                          <span>COMPARE SELECTED DATES ({daysDiff}d DELTA)</span>
+                        </button>
+
+                        {onExecuteAnalysis && (
+                          <button
+                            type="button"
+                            onClick={onExecuteAnalysis}
+                            disabled={isAnalyzing}
+                            className="py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm text-xs border border-emerald-400/40"
+                          >
+                            {isAnalyzing ? (
+                              <>
+                                <RotateCcw className="w-3.5 h-3.5 animate-spin" />
+                                <span>ANALYZING B04/B08/SCL...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Play className="w-3.5 h-3.5" />
+                                <span>RUN QUANTITATIVE SENTINEL-2 CHANGE DETECTION</span>
+                              </>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
 
               {/* Transparency: Excluded Records Breakdown */}
               {historyResult.rejectedCount > 0 && (
                 <div className="p-2.5 bg-amber-950/20 border border-amber-500/30 rounded-lg text-[11px] space-y-1">
                   <div className="flex items-center gap-1.5 text-amber-400 font-semibold">
                     <AlertTriangle className="w-3.5 h-3.5" />
-                    <span>{historyResult.rejectedCount} earlier STAC record(s) excluded from usable baseline:</span>
+                    <span>{historyResult.rejectedCount} STAC record(s) excluded by quality/cloud filters:</span>
                   </div>
                   <ul className="text-[10px] text-slate-400 list-disc list-inside space-y-0.5 pl-1">
                     {Object.entries(historyResult.summary.rejectionBreakdown).map(([reason, count]) =>
@@ -515,111 +793,23 @@ export function TemporalComparison({
                   </ul>
                 </div>
               )}
-
-              {/* Chronological Available Observations List */}
-              {historyResult.usableObservations.length > 0 && (
-                <div className="space-y-1.5">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-                    Chronological Observations (Earliest &rarr; Latest):
-                  </span>
-                  <div className="grid grid-cols-1 gap-1.5 max-h-44 overflow-y-auto pr-1">
-                    {historyResult.usableObservations.map((obs, idx) => {
-                      const isEarliest = idx === 0;
-                      const isLatest = idx === historyResult.usableObservations.length - 1;
-                      const dateStr = obs.acquisitionDate.slice(0, 10);
-                      return (
-                        <div
-                          key={obs.sceneId}
-                          className="p-2 rounded bg-tactical-900 border border-tactical-700 flex items-center justify-between text-[11px]"
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-slate-500 w-5">#{idx + 1}</span>
-                            <div>
-                              <span className="font-semibold text-slate-200">{dateStr}</span>
-                              <span className="text-[10px] text-slate-400 ml-2 font-mono">
-                                {obs.cloudCoverPercentage.toFixed(1)}% cloud • {obs.platform}
-                              </span>
-                            </div>
-                            {isEarliest && (
-                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
-                                EARLIEST
-                              </span>
-                            )}
-                            {isLatest && (
-                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30 font-bold">
-                                LATEST
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (selectedPair) {
-                                  onSelectPair?.({
-                                    ...selectedPair,
-                                    beforeScene: obs,
-                                    daysDifference: Math.abs(Math.round((new Date(selectedPair.afterScene.acquisitionDate).getTime() - new Date(obs.acquisitionDate).getTime()) / (1000 * 60 * 60 * 24))),
-                                  });
-                                } else if (historyResult.latestUsable) {
-                                  onSelectPair?.({
-                                    beforeScene: obs,
-                                    afterScene: historyResult.latestUsable,
-                                    daysDifference: Math.abs(Math.round((new Date(historyResult.latestUsable.acquisitionDate).getTime() - new Date(obs.acquisitionDate).getTime()) / (1000 * 60 * 60 * 24))),
-                                    recommended: false,
-                                  });
-                                }
-                              }}
-                              className="px-2 py-0.5 rounded bg-sky-600/20 hover:bg-sky-600/30 text-sky-300 border border-sky-500/40 text-[10px] font-semibold"
-                            >
-                              SET AS T1
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (selectedPair) {
-                                  onSelectPair?.({
-                                    ...selectedPair,
-                                    afterScene: obs,
-                                    daysDifference: Math.abs(Math.round((new Date(obs.acquisitionDate).getTime() - new Date(selectedPair.beforeScene.acquisitionDate).getTime()) / (1000 * 60 * 60 * 24))),
-                                  });
-                                } else if (historyResult.earliestUsable) {
-                                  onSelectPair?.({
-                                    beforeScene: historyResult.earliestUsable,
-                                    afterScene: obs,
-                                    daysDifference: Math.abs(Math.round((new Date(obs.acquisitionDate).getTime() - new Date(historyResult.earliestUsable.acquisitionDate).getTime()) / (1000 * 60 * 60 * 24))),
-                                    recommended: false,
-                                  });
-                                }
-                              }}
-                              className="px-2 py-0.5 rounded bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/40 text-[10px] font-semibold"
-                            >
-                              SET AS T2
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
-          {/* Discovered Pair Candidates List */}
+          {/* Fallback Discovered Pair Candidates List if present */}
           {pairCandidates.length > 0 && (
             <div className="pt-2 border-t border-indigo-500/20 space-y-2">
               <span className="text-[10px] text-indigo-700 dark:text-indigo-300 font-bold uppercase tracking-wider block">
                 Discovered STAC Temporal Candidates ({pairCandidates.length}):
               </span>
-              <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto pr-1">
+              <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto pr-1">
                 {pairCandidates.map((pair, idx) => {
                   const isSelected = selectedPair?.beforeScene.sceneId === pair.beforeScene.sceneId && selectedPair?.afterScene.sceneId === pair.afterScene.sceneId;
                   return (
                     <div
                       key={pair.beforeScene.sceneId + pair.afterScene.sceneId}
                       onClick={() => onSelectPair?.(pair)}
-                      className={`p-2.5 rounded-lg border cursor-pointer transition-all flex items-center justify-between text-[11px] ${
+                      className={`p-2 rounded-lg border cursor-pointer transition-all flex items-center justify-between text-[11px] ${
                         isSelected
                           ? "bg-indigo-900/40 border-indigo-400 text-white"
                           : "bg-tactical-900 border-tactical-700 hover:border-indigo-500/50 text-slate-300"
@@ -642,29 +832,6 @@ export function TemporalComparison({
                   );
                 })}
               </div>
-
-              {selectedPair && onExecuteAnalysis && (
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={onExecuteAnalysis}
-                    disabled={isAnalyzing}
-                    className="w-full py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm text-xs"
-                  >
-                    {isAnalyzing ? (
-                      <>
-                        <RotateCcw className="w-3.5 h-3.5 animate-spin" />
-                        <span>EXECUTING SCIENTIFIC B04/B08/SCL CHANGE ANALYSIS...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Play className="w-3.5 h-3.5" />
-                        <span>RUN QUANTITATIVE SENTINEL-2 CHANGE DETECTION</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
             </div>
           )}
         </div>

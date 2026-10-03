@@ -54,10 +54,10 @@ export function Header({
                 onClick={() => onSelectMode("CONTROLLED_BENCHMARK")}
                 className={`px-2.5 py-1 rounded transition-all ${
                   operatingMode === "CONTROLLED_BENCHMARK"
-                    ? "bg-sky-600/15 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-500/40 font-bold shadow-sm"
+                    ? "bg-amber-600/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 font-bold shadow-sm"
                     : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                 }`}
-                title="Controlled Benchmark Mode (Deterministic 5-Location Evaluation Baseline)"
+                title="Controlled Benchmark Mode: Controlled Synthetic Data Baseline"
               >
                 BENCHMARK
               </button>
@@ -66,10 +66,10 @@ export function Header({
                 onClick={() => onSelectMode("REAL_EO_CATALOG")}
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
                   operatingMode === "REAL_EO_CATALOG"
-                    ? "bg-indigo-600/15 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/40 font-bold shadow-sm"
+                    ? "bg-indigo-600/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/40 font-bold shadow-sm"
                     : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                 }`}
-                title="Real Sentinel-2 EO Catalog Mode (70 Real Sentinel-2 Scenes across 35 Global Locations)"
+                title="Real EO Mode: Real Sentinel-2 L2A Multi-Temporal Archive"
               >
                 <Database className="w-3 h-3 text-indigo-500" />
                 <span>REAL EO</span>
@@ -79,10 +79,10 @@ export function Header({
                 onClick={() => onSelectMode("LIVE_PUBLIC_DATA")}
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
                   operatingMode === "LIVE_PUBLIC_DATA"
-                    ? "bg-emerald-600/15 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 font-bold shadow-sm"
+                    ? "bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 font-bold shadow-sm"
                     : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                 }`}
-                title="Live Public Data Mode (Copernicus Sentinel-2 L2A STAC Discovery)"
+                title="Live Public Data Mode: Live Public STAC Search"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 <span>LIVE STAC</span>
@@ -92,10 +92,10 @@ export function Header({
                 onClick={() => onSelectMode("OFFLINE_RESEARCH")}
                 className={`px-2.5 py-1 rounded transition-all ${
                   operatingMode === "OFFLINE_RESEARCH"
-                    ? "bg-amber-600/15 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 font-bold shadow-sm"
+                    ? "bg-slate-600/20 text-slate-700 dark:text-slate-300 border border-slate-500/40 font-bold shadow-sm"
                     : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                 }`}
-                title="Offline Research Mode (Local Python Pipeline & Evaluation Harness)"
+                title="Offline Research Mode: Local Python Harness"
               >
                 RESEARCH
               </button>
@@ -105,24 +105,37 @@ export function Header({
 
         {/* Tactical HUD Telemetry Badges & Theme Toggle */}
         <div className="flex flex-wrap items-center gap-2 text-xs">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-tactical-800 border border-tactical-700 text-slate-700 dark:text-slate-300 font-mono">
+          {/* Prominent Active Data Mode Badge */}
+          <div
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded font-mono text-[11px] font-bold border transition-colors ${
+              operatingMode === "CONTROLLED_BENCHMARK"
+                ? "bg-amber-950/40 border-amber-500/60 text-amber-300"
+                : operatingMode === "REAL_EO_CATALOG"
+                ? "bg-indigo-950/40 border-indigo-500/60 text-indigo-300"
+                : operatingMode === "LIVE_PUBLIC_DATA"
+                ? "bg-emerald-950/40 border-emerald-500/60 text-emerald-300"
+                : "bg-tactical-800 border-tactical-700 text-slate-300"
+            }`}
+          >
             <span
               className={`w-2 h-2 rounded-full ${
                 operatingMode === "LIVE_PUBLIC_DATA"
-                  ? "bg-emerald-500"
+                  ? "bg-emerald-400 animate-pulse"
                   : operatingMode === "REAL_EO_CATALOG"
-                  ? "bg-indigo-500"
-                  : "bg-sky-500"
+                  ? "bg-indigo-400"
+                  : operatingMode === "CONTROLLED_BENCHMARK"
+                  ? "bg-amber-400"
+                  : "bg-sky-400"
               }`}
             ></span>
-            <span className="text-[11px] font-medium">
-              {operatingMode === "LIVE_PUBLIC_DATA"
-                ? "LIVE SENTINEL-2 ONLINE"
+            <span>
+              {operatingMode === "CONTROLLED_BENCHMARK"
+                ? "CONTROLLED SYNTHETIC DATA"
                 : operatingMode === "REAL_EO_CATALOG"
-                ? "REAL EO CATALOG ONLINE"
-                : operatingMode === "OFFLINE_RESEARCH"
-                ? "RESEARCH HARNESS"
-                : "BENCHMARK ONLINE"}
+                ? "REAL SENTINEL-2 L2A"
+                : operatingMode === "LIVE_PUBLIC_DATA"
+                ? "LIVE PUBLIC STAC SEARCH"
+                : "OFFLINE RESEARCH HARNESS"}
             </span>
           </div>
 

@@ -21,6 +21,8 @@ interface TacticalMapProps {
   locations: Location[];
   selectedLocationId: string;
   onSelectLocation: (locationId: string) => void;
+  catalogMode?: "benchmark" | "real-eo" | "live";
+  operatingMode?: string;
   // Phase 3 Live Public Data Mode props
   isLiveMode?: boolean;
   aoi?: BoundingBox | null;
@@ -49,6 +51,8 @@ export function TacticalMap({
   locations,
   selectedLocationId,
   onSelectLocation,
+  catalogMode = "benchmark",
+  operatingMode,
   isLiveMode = false,
   aoi = null,
   onAoiChange,
@@ -191,71 +195,134 @@ export function TacticalMap({
       Object.values(markersRef.current).forEach((m: any) => m.remove());
       markersRef.current = {};
 
-      // Add markers & bounding boxes for each location in catalog
-      locations.forEach((loc) => {
-        const isSelected = loc.location_id === selectedLocationId;
+      const isReal = catalogMode === "real-eo";
+      const selectedLoc = locations.find((l) => l.location_id === selectedLocationId) || locations[0];
 
-        const customMarkerHtml = `
+      if (isReal && selectedLoc) {
+        // REAL EO MODE: Render ONLY the selected location's marker and AOI boundary.
+        // Do not render all 35 locations globally to avoid confusion with detected changes.
+        const pinHtml = `
           <div style="
             display: flex;
             align-items: center;
-            justify-content: center;
-            width: ${isSelected ? "34px" : "26px"};
-            height: ${isSelected ? "34px" : "26px"};
-            border-radius: 50%;
-            background: ${isSelected ? "#00e5ff" : "rgba(15, 23, 42, 0.88)"};
-            border: 2px solid ${isSelected ? "#ffffff" : "#00e5ff"};
-            color: ${isSelected ? "#090d16" : "#00e5ff"};
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 18px;
+            background: rgba(6, 78, 59, 0.95);
+            border: 2px solid #10b981;
+            color: #ffffff;
             font-size: 11px;
             font-weight: bold;
-            box-shadow: 0 0 16px ${isSelected ? "rgba(0,229,255,0.95)" : "rgba(0,0,0,0.75)"};
-            cursor: pointer;
-            transition: all 0.2s ease;
+            font-family: monospace;
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.8);
+            white-space: nowrap;
           ">
-            ${loc.location_id.split("_")[1] || "LOC"}
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+            <span>REAL EO: ${selectedLoc.name.split(",")[0]}</span>
           </div>
         `;
 
         const divIcon = L.divIcon({
-          html: customMarkerHtml,
-          className: "tactical-marker",
-          iconSize: isSelected ? [34, 34] : [26, 26],
-          iconAnchor: isSelected ? [17, 17] : [13, 13],
+          html: pinHtml,
+          className: "tactical-marker-real-eo",
+          iconSize: [160, 28],
+          iconAnchor: [80, 14],
         });
 
-        const marker = L.marker([loc.latitude, loc.longitude], { icon: divIcon }).addTo(map);
-
-        marker.on("click", () => {
-          onSelectLocation(loc.location_id);
-        });
-
+        const marker = L.marker([selectedLoc.latitude, selectedLoc.longitude], { icon: divIcon }).addTo(map);
         marker.bindTooltip(
-          `<strong>${loc.name}</strong><br/>Sensor: ${loc.primary_sensor}<br/>Lat: ${loc.latitude.toFixed(4)}, Lon: ${loc.longitude.toFixed(4)}`,
+          `<strong>REAL EO LOCATION: ${selectedLoc.name}</strong><br/>Sensor: ${selectedLoc.primary_sensor}<br/>Coordinates: ${selectedLoc.latitude.toFixed(4)}, ${selectedLoc.longitude.toFixed(4)}<br/><span style="color:#10b981;font-weight:bold;">Authentic Sentinel-2 L2A AOI</span>`,
           { className: "tactical-tooltip", direction: "top" }
         );
+        markersRef.current[selectedLoc.location_id] = marker;
 
-        // Bounding box rectangle for satellite scene
-        if (loc.bounding_box) {
+        if (selectedLoc.bounding_box) {
           const bounds: [[number, number], [number, number]] = [
-            [loc.bounding_box.min_lat, loc.bounding_box.min_lon],
-            [loc.bounding_box.max_lat, loc.bounding_box.max_lon],
+            [selectedLoc.bounding_box.min_lat, selectedLoc.bounding_box.min_lon],
+            [selectedLoc.bounding_box.max_lat, selectedLoc.bounding_box.max_lon],
           ];
           const rect = L.rectangle(bounds, {
-            color: isSelected ? "#00e5ff" : "#38bdf8",
-            weight: isSelected ? 2.5 : 1.2,
-            fillColor: isSelected ? "#00e5ff" : "#0284c7",
-            fillOpacity: isSelected ? 0.3 : 0.12,
-            dashArray: isSelected ? undefined : "4, 4",
+            color: "#10b981",
+            weight: 2.5,
+            fillColor: "#10b981",
+            fillOpacity: 0.15,
+            dashArray: "4, 4",
           }).addTo(map);
 
-          markersRef.current[`rect_${loc.location_id}`] = rect;
-        }
+          rect.bindTooltip(
+            `<strong>REAL EO AOI BOUNDARY</strong><br/>${selectedLoc.name}`,
+            { className: "tactical-tooltip", direction: "top" }
+          );
 
-        markersRef.current[loc.location_id] = marker;
-      });
+          markersRef.current[`rect_${selectedLoc.location_id}`] = rect;
+        }
+      } else {
+        // BENCHMARK MODE: Render benchmark locations clearly labeled as CATALOG LOCATIONS, not detected changes.
+        locations.forEach((loc) => {
+          const isSelected = loc.location_id === selectedLocationId;
+          const locNum = loc.location_id.replace("LOC_00", "").replace("LOC_0", "").replace("LOC_", "");
+
+          const customMarkerHtml = `
+            <div style="
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: ${isSelected ? "3px 8px" : "2px 6px"};
+              border-radius: 12px;
+              background: ${isSelected ? "#f59e0b" : "rgba(15, 23, 42, 0.90)"};
+              border: 2px solid ${isSelected ? "#ffffff" : "#f59e0b"};
+              color: ${isSelected ? "#090d16" : "#fbbf24"};
+              font-size: 10px;
+              font-weight: bold;
+              font-family: monospace;
+              box-shadow: 0 0 12px ${isSelected ? "rgba(245, 158, 11, 0.9)" : "rgba(0,0,0,0.6)"};
+              cursor: pointer;
+              transition: all 0.2s ease;
+              white-space: nowrap;
+            ">
+              CATALOG ${locNum}
+            </div>
+          `;
+
+          const divIcon = L.divIcon({
+            html: customMarkerHtml,
+            className: "tactical-marker-benchmark",
+            iconSize: isSelected ? [80, 24] : [70, 20],
+            iconAnchor: isSelected ? [40, 12] : [35, 10],
+          });
+
+          const marker = L.marker([loc.latitude, loc.longitude], { icon: divIcon }).addTo(map);
+
+          marker.on("click", () => {
+            onSelectLocation(loc.location_id);
+          });
+
+          marker.bindTooltip(
+            `<strong>BENCHMARK CATALOG LOCATION: ${loc.name}</strong><br/>Sensor Profile: ${loc.primary_sensor}<br/>Lat: ${loc.latitude.toFixed(4)}, Lon: ${loc.longitude.toFixed(4)}<br/><span style="color:#fbbf24;">Controlled Synthetic Benchmark Scene</span>`,
+            { className: "tactical-tooltip", direction: "top" }
+          );
+
+          if (loc.bounding_box) {
+            const bounds: [[number, number], [number, number]] = [
+              [loc.bounding_box.min_lat, loc.bounding_box.min_lon],
+              [loc.bounding_box.max_lat, loc.bounding_box.max_lon],
+            ];
+            const rect = L.rectangle(bounds, {
+              color: isSelected ? "#f59e0b" : "#64748b",
+              weight: isSelected ? 2.5 : 1.2,
+              fillColor: isSelected ? "#f59e0b" : "#475569",
+              fillOpacity: isSelected ? 0.2 : 0.08,
+              dashArray: isSelected ? undefined : "4, 4",
+            }).addTo(map);
+
+            markersRef.current[`rect_${loc.location_id}`] = rect;
+          }
+
+          markersRef.current[loc.location_id] = marker;
+        });
+      }
 
       // Fly to selected location with high-resolution detail
-      const selectedLoc = locations.find((l) => l.location_id === selectedLocationId);
       if (selectedLoc) {
         if (selectedLoc.bounding_box) {
           map.fitBounds(
@@ -276,7 +343,7 @@ export function TacticalMap({
     return () => {
       isMounted = false;
     };
-  }, [locations, selectedLocationId, onSelectLocation]);
+  }, [locations, selectedLocationId, onSelectLocation, catalogMode]);
 
   // Synchronize Analyst AOI Rectangle on Map
   useEffect(() => {
@@ -805,45 +872,61 @@ export function TacticalMap({
         )}
       </div>
 
-      {/* Live Mode AOI Telemetry Bar */}
-      {isLiveMode && (
-        <div className="absolute top-12 left-2.5 z-[25] flex flex-wrap items-center gap-1.5 font-mono text-[10px] max-w-[calc(100%-20px)] pointer-events-auto">
-          {isDrawingAoi ? (
-            <div className="bg-amber-500/90 text-slate-950 font-bold px-2.5 py-1 rounded shadow-sm flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-slate-950" />
-              <span>DRAG TO DRAW AOI RECTANGLE ON MAP</span>
-            </div>
-          ) : aoi ? (
-            <div className="bg-tactical-950/95 border border-amber-500/50 text-amber-300 px-2 py-0.5 rounded shadow-sm flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-              <span>
-                AOI: [{aoi.min_lat.toFixed(2)}, {aoi.min_lon.toFixed(2)}] to [{aoi.max_lat.toFixed(2)}, {aoi.max_lon.toFixed(2)}]
-              </span>
-              {onAoiChange && (
-                <button
-                  type="button"
-                  onClick={() => onAoiChange(null)}
-                  className="hover:text-rose-400 text-slate-400 ml-1 px-1 font-bold"
-                  title="Clear AOI"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-          ) : (
-            <div className="bg-tactical-950/85 border border-slate-700 text-slate-400 px-2 py-0.5 rounded shadow-sm">
-              LIVE SATELLITE DISCOVERY MODE
-            </div>
-          )}
+      {/* Telemetry Context Bar (GIS Basemap & Mode Context) */}
+      <div className="absolute top-12 left-2.5 z-[25] flex flex-wrap items-center gap-1.5 font-mono text-[10px] max-w-[calc(100%-20px)] pointer-events-auto">
+        {isLiveMode ? (
+          <>
+            {isDrawingAoi ? (
+              <div className="bg-amber-500/90 text-slate-950 font-bold px-2.5 py-1 rounded shadow-sm flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-slate-950" />
+                <span>DRAG TO DRAW AOI RECTANGLE ON MAP</span>
+              </div>
+            ) : aoi ? (
+              <div className="bg-tactical-950/95 border border-amber-500/50 text-amber-300 px-2 py-0.5 rounded shadow-sm flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                <span>
+                  AOI: [{aoi.min_lat.toFixed(2)}, {aoi.min_lon.toFixed(2)}] to [{aoi.max_lat.toFixed(2)}, {aoi.max_lon.toFixed(2)}]
+                </span>
+                {onAoiChange && (
+                  <button
+                    type="button"
+                    onClick={() => onAoiChange(null)}
+                    className="hover:text-rose-400 text-slate-400 ml-1 px-1 font-bold"
+                    title="Clear AOI"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="bg-tactical-950/85 border border-slate-700 text-slate-400 px-2 py-0.5 rounded shadow-sm">
+                LIVE SATELLITE DISCOVERY MODE
+              </div>
+            )}
 
-          {selectedScene && (
-            <div className="bg-emerald-950/95 border border-emerald-500/50 text-emerald-300 px-2 py-0.5 rounded shadow-sm flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span className="truncate max-w-[180px]">SCENE: {selectedScene.sceneId}</span>
-            </div>
-          )}
-        </div>
-      )}
+            {selectedScene && (
+              <div className="bg-emerald-950/95 border border-emerald-500/50 text-emerald-300 px-2 py-0.5 rounded shadow-sm flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span className="truncate max-w-[180px]">SCENE: {selectedScene.sceneId}</span>
+              </div>
+            )}
+          </>
+        ) : catalogMode === "real-eo" ? (
+          <div className="bg-indigo-950/95 border border-indigo-500/60 text-indigo-200 px-2.5 py-1 rounded shadow-sm flex items-center gap-1.5 backdrop-blur-md">
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span className="font-bold text-white">REAL EO AOI:</span>
+            <span>{locations.find((l) => l.location_id === selectedLocationId)?.name.split(",")[0] || "Sentinel-2"}</span>
+            <span className="text-indigo-400 font-semibold">• GIS BASEMAP</span>
+          </div>
+        ) : (
+          <div className="bg-amber-950/95 border border-amber-500/60 text-amber-200 px-2.5 py-1 rounded shadow-sm flex items-center gap-1.5 backdrop-blur-md">
+            <span className="w-2 h-2 rounded-full bg-amber-400" />
+            <span className="font-bold text-white">BENCHMARK LOCATION:</span>
+            <span>{locations.find((l) => l.location_id === selectedLocationId)?.name.split(",")[0] || "Synthetic"}</span>
+            <span className="text-amber-400 font-semibold">• GIS BASEMAP</span>
+          </div>
+        )}
+      </div>
 
       {/* Top-Right Quick Actions: Expand/Collapse & Reset View */}
       <div className="absolute top-2.5 right-2.5 z-[25] flex items-center gap-1.5">
@@ -931,23 +1014,17 @@ export function TacticalMap({
         <span className="w-2 h-2 rounded-full bg-emerald-500" />
         <span className="hidden sm:inline">
           {mapMode === "google-hybrid"
-            ? "GOOGLE SATELLITE HYBRID • EPSG:3857"
+            ? "GIS SATELLITE BASEMAP (GEOGRAPHIC CONTEXT) • EPSG:3857"
             : mapMode === "google-streets"
-            ? "GOOGLE MAPS STREETS • EPSG:3857"
+            ? "GIS ROAD MAP (GEOGRAPHIC CONTEXT) • EPSG:3857"
             : mapMode === "esri-satellite"
-            ? "ESRI WORLD IMAGERY • EPSG:4326"
+            ? "ESRI SATELLITE BASEMAP • EPSG:4326"
             : hasCartoKey
-            ? "CARTO VOYAGER • EPSG:4326"
-            : "OPENSTREETMAP • EPSG:4326"}
+            ? "CARTO VOYAGER BASEMAP • EPSG:4326"
+            : "OPENSTREETMAP BASEMAP • EPSG:4326"}
         </span>
         <span className="sm:hidden">
-          {mapMode === "google-hybrid"
-            ? "SATELLITE"
-            : mapMode === "google-streets"
-            ? "MAPS"
-            : mapMode === "esri-satellite"
-            ? "ESRI"
-            : "TACTICAL"}
+          GIS BASEMAP
         </span>
       </div>
 

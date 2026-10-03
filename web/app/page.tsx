@@ -14,7 +14,7 @@ import { EvaluationModal } from "@/components/EvaluationModal";
 import { LiveAOISearch } from "@/components/LiveAOISearch";
 import { Location, Scene, SearchResult, ChangeDetectionResult, BoundingBox } from "@/types";
 import { OperatingMode, SatelliteScene, TemporalPairCandidate } from "@/lib/providers/satelliteProvider";
-import { Activity, ShieldCheck, Compass, Info, Terminal, Globe } from "lucide-react";
+import { Activity, ShieldCheck, Compass, Info, Terminal, Globe, ArrowRight } from "lucide-react";
 
 export default function HomePage() {
   const [operatingMode, setOperatingMode] = useState<OperatingMode>("CONTROLLED_BENCHMARK");
@@ -263,7 +263,7 @@ export default function HomePage() {
   };
 
   // Phase 8: Discover Earliest Usable Observation & Complete STAC History
-  const handleDiscoverEoHistory = async (cloudThreshold: number = 25) => {
+  const handleDiscoverEoHistory = async (cloudThreshold: number = 25, startDate?: string, endDate?: string) => {
     const loc = locations.find((l) => l.location_id === selectedLocationId) || locations[0];
     if (!loc) return;
 
@@ -275,14 +275,18 @@ export default function HomePage() {
         max_lat: loc.latitude + 0.05,
         max_lon: loc.longitude + 0.05,
       };
+      const payload: Record<string, any> = {
+        aoi,
+        maxCloudCover: cloudThreshold,
+        mode: "REAL_EO_CATALOG",
+      };
+      if (startDate) payload.startDate = startDate;
+      if (endDate) payload.endDate = endDate;
+
       const res = await fetch("/api/satellite/history", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          aoi,
-          maxCloudCover: cloudThreshold,
-          mode: "REAL_EO_CATALOG",
-        }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       setEoHistoryResult(data);
@@ -292,6 +296,13 @@ export default function HomePage() {
       setIsDiscoveringEoHistory(false);
     }
   };
+
+  // Automatically discover observation history when in Real EO mode
+  useEffect(() => {
+    if (operatingMode === "REAL_EO_CATALOG") {
+      handleDiscoverEoHistory();
+    }
+  }, [selectedLocationId, operatingMode]);
 
   // Execute quantitative change analysis for selected real pair
   const handleExecuteRealAnalysis = async () => {
@@ -376,6 +387,58 @@ export default function HomePage() {
             if (el) el.scrollIntoView({ behavior: "smooth" });
           }}
         />
+
+        {/* Global Data Mode Status Banner */}
+        {operatingMode === "CONTROLLED_BENCHMARK" && (
+          <div className="bg-amber-950/20 border border-amber-500/40 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-mono text-xs shadow-sm">
+            <div className="flex items-center gap-2 text-amber-300 font-bold">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+              <span>DATA MODE: CONTROLLED BENCHMARK — SYNTHETIC DATA</span>
+            </div>
+            <div className="text-[11px] text-slate-300">
+              Standardized 5-location evaluation baseline (fixed T1/T2 scene pairs) for reproducible algorithmic scoring.
+            </div>
+            <button
+              type="button"
+              onClick={() => handleSelectMode("REAL_EO_CATALOG")}
+              className="px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[11px] transition-all flex items-center gap-1 shadow-sm whitespace-nowrap self-start sm:self-auto"
+            >
+              <span>SWITCH TO REAL EO (SENTINEL-2)</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+
+        {operatingMode === "REAL_EO_CATALOG" && (
+          <div className="bg-indigo-950/30 border border-indigo-500/40 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-mono text-xs shadow-sm">
+            <div className="flex items-center gap-2 text-indigo-300 font-bold">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>DATA MODE: REAL SENTINEL-2 L2A — COPERNICUS ARCHIVE</span>
+            </div>
+            <div className="text-[11px] text-slate-300">
+              35 global locations • Authentic Copernicus Sentinel-2 multispectral imagery • Interactive observation timeline & custom date pairing.
+            </div>
+            <button
+              type="button"
+              onClick={() => handleSelectMode("CONTROLLED_BENCHMARK")}
+              className="px-3 py-1 rounded bg-tactical-800 hover:bg-tactical-750 border border-tactical-700 text-slate-300 font-bold text-[11px] transition-all shadow-sm whitespace-nowrap self-start sm:self-auto"
+            >
+              <span>BENCHMARK MODE</span>
+            </button>
+          </div>
+        )}
+
+        {operatingMode === "LIVE_PUBLIC_DATA" && (
+          <div className="bg-emerald-950/30 border border-emerald-500/40 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-mono text-xs shadow-sm">
+            <div className="flex items-center gap-2 text-emerald-300 font-bold">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>DATA MODE: LIVE PUBLIC STAC SEARCH</span>
+            </div>
+            <div className="text-[11px] text-slate-300">
+              Global on-demand STAC discovery & change verification via Microsoft Planetary Computer & AWS Earth Search.
+            </div>
+          </div>
+        )}
 
         {/* ------------------------------------------------------------- */}
         {/* MODE 1: LIVE PUBLIC DATA (Copernicus Sentinel-2 STAC)         */}
@@ -480,6 +543,13 @@ export default function HomePage() {
                   locations={locations}
                   selectedLocationId={selectedLocationId}
                   onSelectLocation={(id) => setSelectedLocationId(id)}
+                  catalogMode={operatingMode === "REAL_EO_CATALOG" || catalogMode === "real-eo" ? "real-eo" : "benchmark"}
+                  operatingMode={operatingMode}
+                  selectedScene={operatingMode === "REAL_EO_CATALOG" ? (selectedEoPair?.afterScene || (selectedScene as any)) : null}
+                  selectedPair={operatingMode === "REAL_EO_CATALOG" ? selectedEoPair : null}
+                  liveAnalysisResult={operatingMode === "REAL_EO_CATALOG" ? realAnalysisResult : null}
+                  selectedClusterId={selectedClusterId}
+                  onSelectCluster={setSelectedClusterId}
                 />
 
                 <SceneCatalog
@@ -525,6 +595,7 @@ export default function HomePage() {
                       beforeScene={temporalPair?.before_scene}
                       afterScene={temporalPair?.after_scene}
                       catalogMode="benchmark"
+                      onSwitchToRealEo={() => handleSelectMode("REAL_EO_CATALOG")}
                     />
 
                     <ConfidenceCard analysis={analysisResult} />
@@ -533,6 +604,7 @@ export default function HomePage() {
                       location={selectedLoc}
                       analysis={analysisResult}
                       isLoading={isAnalyzing}
+                      catalogMode="benchmark"
                     />
 
                     <EvidencePanel
@@ -598,6 +670,8 @@ export default function HomePage() {
                           location={selectedLoc}
                           analysis={realAnalysisResult}
                           isLoading={isAnalyzingRealPair}
+                          catalogMode="real-eo"
+                          afterScene={selectedEoPair?.afterScene}
                         />
 
                         <EvidencePanel

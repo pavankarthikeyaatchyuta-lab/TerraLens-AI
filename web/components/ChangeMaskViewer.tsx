@@ -8,6 +8,8 @@ interface ChangeMaskViewerProps {
   location: Location;
   analysis: ChangeDetectionResult | null;
   isLoading: boolean;
+  catalogMode?: "benchmark" | "real-eo";
+  afterScene?: any;
 }
 
 type LayerMode = "overlay" | "heatmap" | "mask" | "raw";
@@ -16,10 +18,13 @@ export function ChangeMaskViewer({
   location,
   analysis,
   isLoading,
+  catalogMode = "benchmark",
+  afterScene,
 }: ChangeMaskViewerProps) {
   const [activeLayer, setActiveLayer] = useState<LayerMode>("overlay");
   const [opacity, setOpacity] = useState<number>(0.85);
   const [showBoxes, setShowBoxes] = useState<boolean>(true);
+  const isRealEo = catalogMode === "real-eo";
 
   if (isLoading) {
     return (
@@ -43,7 +48,14 @@ export function ChangeMaskViewer({
     );
   }
 
-  const rawAfterImg = `/samples/${location.location_id}/after_2025.jpg`;
+  const rawAfterImg = isRealEo
+    ? (afterScene?.previewUrl ||
+       afterScene?.thumbnailUrl ||
+       (afterScene?.sceneId
+         ? `https://planetarycomputer.microsoft.com/api/data/v1/item/preview.png?collection=sentinel-2-l2a&item=${encodeURIComponent(afterScene.sceneId)}&assets=visual&asset_bidx=visual%7C1,2,3&nodata=0&format=png`
+         : ""))
+    : `/samples/${location.location_id}/after_2025.jpg`;
+
   const maskImg = analysis.mask_path || `/outputs/change_masks/${location.location_id}_2023_2025_change_mask.png`;
   const heatmapImg = analysis.heatmap_path || `/outputs/change_masks/${location.location_id}_2023_2025_diff_heatmap.png`;
   const overlayImg = analysis.overlay_path || `/outputs/change_masks/${location.location_id}_2023_2025_overlay.png`;
@@ -52,11 +64,27 @@ export function ChangeMaskViewer({
     <div className="bg-tactical-850 border border-tactical-700 rounded-xl p-4 shadow-sm">
       {/* Layer selector bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-3 border-b border-tactical-700/60">
-        <div className="flex items-center gap-2">
-          <Layers className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-          <h3 className="text-sm font-bold font-mono text-slate-800 dark:text-slate-100 uppercase">
-            Change Detection Diagnostics & Raster Layers
-          </h3>
+        <div>
+          <div className="flex items-center gap-2">
+            <Layers className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+            <h3 className="text-sm font-bold font-mono text-slate-800 dark:text-slate-100 uppercase">
+              {isRealEo ? "Sentinel-2 Multispectral Analysis Layers" : "Change Detection Diagnostics & Raster Layers"}
+            </h3>
+            {isRealEo ? (
+              <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-indigo-600/15 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30">
+                REAL SENTINEL-2 L2A
+              </span>
+            ) : (
+              <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-600/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                CONTROLLED SYNTHETIC BENCHMARK SCENE
+              </span>
+            )}
+          </div>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
+            {isRealEo
+              ? "Analytical change raster visualization generated from authentic Copernicus Sentinel-2 L2A surface reflectance."
+              : "Standardized synthetic benchmark evaluation rasters (2023 → 2025)."}
+          </p>
         </div>
 
         {/* Layer Buttons */}
