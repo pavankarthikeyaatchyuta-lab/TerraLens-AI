@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   Play,
   Layers,
+  AlertTriangle,
 } from "lucide-react";
 
 interface TemporalComparisonProps {
@@ -48,6 +49,8 @@ export function TemporalComparison({
 }: TemporalComparisonProps) {
   const [sliderPos, setSliderPos] = useState<number>(50);
   const [viewMode, setViewMode] = useState<"slider" | "side-by-side">("slider");
+  const [beforeLoadError, setBeforeLoadError] = useState<boolean>(false);
+  const [afterLoadError, setAfterLoadError] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef<boolean>(false);
 
@@ -60,9 +63,43 @@ export function TemporalComparison({
     beforeScene.scene_id !== afterScene.scene_id
   );
 
-  const beforeImg = beforeScene?.image_path || (isRealEo ? "" : `/samples/${location.location_id}/before_2023.jpg`);
-  const afterImg = afterScene?.image_path || (isRealEo ? "" : `/samples/${location.location_id}/after_2025.jpg`);
+  const resolveImageryUrl = (scene?: Scene | null, stacScene?: any, isBefore: boolean = true) => {
+    // 1. Direct previewUrl or thumbnailUrl on STAC candidate scene
+    if (stacScene?.previewUrl) return stacScene.previewUrl;
+    if (stacScene?.thumbnailUrl) return stacScene.thumbnailUrl;
+    // 2. Absolute HTTP/HTTPS URL
+    if (scene?.image_path && (scene.image_path.startsWith("http://") || scene.image_path.startsWith("https://"))) {
+      return scene.image_path;
+    }
+    // 3. Benchmark mode deterministic sample images
+    if (!isRealEo) {
+      return scene?.image_path || (isBefore ? `/samples/${location.location_id}/before_2023.jpg` : `/samples/${location.location_id}/after_2025.jpg`);
+    }
+    // 4. Pre-downloaded 70-scene catalog path
+    if (scene?.image_path && scene.image_path.startsWith("/eo_catalog/thumbnails/")) {
+      return scene.image_path;
+    }
+    // 5. Construct authentic Planetary Computer Sentinel-2 visual preview from scene ID
+    const sid = stacScene?.sceneId || scene?.scene_id;
+    if (sid && (sid.startsWith("S2A_") || sid.startsWith("S2B_") || sid.startsWith("S2C_"))) {
+      return `https://planetarycomputer.microsoft.com/api/data/v1/item/preview.png?collection=sentinel-2-l2a&item=${encodeURIComponent(
+        sid
+      )}&assets=visual&asset_bidx=visual%7C1,2,3&nodata=0&format=png`;
+    }
+    return scene?.image_path || "";
+  };
+
+  const beforeImg = resolveImageryUrl(beforeScene, selectedPair?.beforeScene, true);
+  const afterImg = resolveImageryUrl(afterScene, selectedPair?.afterScene, false);
   const singlePreviewImg = selectedScene?.image_path || beforeScene?.image_path || "";
+
+  React.useEffect(() => {
+    setBeforeLoadError(false);
+  }, [beforeImg]);
+
+  React.useEffect(() => {
+    setAfterLoadError(false);
+  }, [afterImg]);
 
   const handlePointerDown = () => {
     isDragging.current = true;
@@ -293,28 +330,50 @@ export function TemporalComparison({
           className="relative w-full aspect-square max-h-[460px] rounded-lg overflow-hidden border border-tactical-700 select-none cursor-ew-resize bg-tactical-900"
         >
           {/* After image (background) */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={afterImg}
-            alt="After observation"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+          {afterLoadError ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-tactical-900 border border-tactical-700 text-center font-mono text-xs">
+              <AlertTriangle className="w-8 h-8 text-amber-500 mb-2" />
+              <span className="font-bold text-slate-200">T2 MONITORING OBSERVATION UNAVAILABLE</span>
+              <span className="text-[11px] text-slate-400 mt-1 max-w-sm">
+                Authentic Sentinel-2 L2A observation for {afterScene?.acquisition_date || "T2"} ({afterScene?.scene_id || "selected scene"}) could not be retrieved from Earth Observation archives.
+              </span>
+            </div>
+          ) : (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={afterImg}
+              alt="After observation"
+              onError={() => setAfterLoadError(true)}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          )}
 
           {/* Before image (clipped foreground) */}
           <div
             className="absolute inset-0 overflow-hidden"
             style={{ width: `${sliderPos}%` }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={beforeImg}
-              alt="Before observation"
-              className="absolute inset-0 w-full h-full object-cover max-w-none"
-              style={{
-                width: containerRef.current ? `${containerRef.current.clientWidth}px` : "100%",
-                height: "100%",
-              }}
-            />
+            {beforeLoadError ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-tactical-900 border border-tactical-700 text-center font-mono text-xs">
+                <AlertTriangle className="w-8 h-8 text-amber-500 mb-2" />
+                <span className="font-bold text-slate-200">T1 BASELINE OBSERVATION UNAVAILABLE</span>
+                <span className="text-[11px] text-slate-400 mt-1 max-w-sm">
+                  Authentic Sentinel-2 L2A observation for {beforeScene?.acquisition_date || "T1"} ({beforeScene?.scene_id || "selected scene"}) could not be retrieved from Earth Observation archives.
+                </span>
+              </div>
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={beforeImg}
+                alt="Before observation"
+                onError={() => setBeforeLoadError(true)}
+                className="absolute inset-0 w-full h-full object-cover max-w-none"
+                style={{
+                  width: containerRef.current ? `${containerRef.current.clientWidth}px` : "100%",
+                  height: "100%",
+                }}
+              />
+            )}
             {/* Badge T1 */}
             <div className="absolute top-3 left-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono text-sky-700 dark:text-sky-300 font-semibold shadow-sm">
               <span>T1 (BASELINE):</span> {beforeScene?.acquisition_date || location.available_dates?.[0] || "2023-03"}
@@ -340,12 +399,23 @@ export function TemporalComparison({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 aspect-[2/1] max-h-[460px]">
           {/* Before */}
           <div className="relative rounded-lg overflow-hidden border border-tactical-700 bg-tactical-900">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={beforeImg}
-              alt="T1 Baseline"
-              className="w-full h-full object-cover"
-            />
+            {beforeLoadError ? (
+              <div className="w-full h-full min-h-[220px] flex flex-col items-center justify-center p-6 bg-tactical-900 border border-tactical-700 text-center font-mono text-xs">
+                <AlertTriangle className="w-8 h-8 text-amber-500 mb-2" />
+                <span className="font-bold text-slate-200">T1 BASELINE OBSERVATION UNAVAILABLE</span>
+                <span className="text-[11px] text-slate-400 mt-1 max-w-sm">
+                  Authentic Sentinel-2 L2A observation for {beforeScene?.acquisition_date || "T1"} ({beforeScene?.scene_id || "selected scene"}) could not be retrieved from Earth Observation archives.
+                </span>
+              </div>
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={beforeImg}
+                alt="T1 Baseline"
+                onError={() => setBeforeLoadError(true)}
+                className="w-full h-full object-cover"
+              />
+            )}
             <div className="absolute top-3 left-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono text-sky-700 dark:text-sky-300 font-semibold shadow-sm">
               <span>T1 BASELINE:</span> {beforeScene?.acquisition_date || location.available_dates?.[0] || "2023"}
             </div>
@@ -353,12 +423,23 @@ export function TemporalComparison({
 
           {/* After */}
           <div className="relative rounded-lg overflow-hidden border border-tactical-700 bg-tactical-900">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={afterImg}
-              alt="T2 Monitoring"
-              className="w-full h-full object-cover"
-            />
+            {afterLoadError ? (
+              <div className="w-full h-full min-h-[220px] flex flex-col items-center justify-center p-6 bg-tactical-900 border border-tactical-700 text-center font-mono text-xs">
+                <AlertTriangle className="w-8 h-8 text-amber-500 mb-2" />
+                <span className="font-bold text-slate-200">T2 MONITORING OBSERVATION UNAVAILABLE</span>
+                <span className="text-[11px] text-slate-400 mt-1 max-w-sm">
+                  Authentic Sentinel-2 L2A observation for {afterScene?.acquisition_date || "T2"} ({afterScene?.scene_id || "selected scene"}) could not be retrieved from Earth Observation archives.
+                </span>
+              </div>
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={afterImg}
+                alt="T2 Monitoring"
+                onError={() => setAfterLoadError(true)}
+                className="w-full h-full object-cover"
+              />
+            )}
             <div className="absolute top-3 right-3 bg-tactical-900/90 backdrop-blur-md px-2.5 py-1 rounded border border-tactical-700 text-xs font-mono text-amber-700 dark:text-amber-300 font-semibold shadow-sm">
               <span>T2 MONITORING:</span> {afterScene?.acquisition_date || location.available_dates?.[1] || "2025"}
             </div>

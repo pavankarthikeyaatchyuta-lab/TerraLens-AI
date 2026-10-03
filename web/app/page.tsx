@@ -494,7 +494,12 @@ export default function HomePage() {
                         platform: selectedEoPair.beforeScene.platform,
                         cloud_percentage: selectedEoPair.beforeScene.cloudCoverPercentage,
                         tags: selectedLoc.tags,
-                        image_path: `/eo_catalog/thumbnails/${selectedEoPair.beforeScene.sceneId}.jpg`,
+                        image_path:
+                          selectedEoPair.beforeScene.previewUrl ||
+                          selectedEoPair.beforeScene.thumbnailUrl ||
+                          `https://planetarycomputer.microsoft.com/api/data/v1/item/preview.png?collection=sentinel-2-l2a&item=${encodeURIComponent(
+                            selectedEoPair.beforeScene.sceneId
+                          )}&assets=visual&asset_bidx=visual%7C1,2,3&nodata=0&format=png`,
                       } : (selectedScene || null)}
                       afterScene={selectedEoPair ? {
                         scene_id: selectedEoPair.afterScene.sceneId,
@@ -504,7 +509,12 @@ export default function HomePage() {
                         platform: selectedEoPair.afterScene.platform,
                         cloud_percentage: selectedEoPair.afterScene.cloudCoverPercentage,
                         tags: selectedLoc.tags,
-                        image_path: `/eo_catalog/thumbnails/${selectedEoPair.afterScene.sceneId}.jpg`,
+                        image_path:
+                          selectedEoPair.afterScene.previewUrl ||
+                          selectedEoPair.afterScene.thumbnailUrl ||
+                          `https://planetarycomputer.microsoft.com/api/data/v1/item/preview.png?collection=sentinel-2-l2a&item=${encodeURIComponent(
+                            selectedEoPair.afterScene.sceneId
+                          )}&assets=visual&asset_bidx=visual%7C1,2,3&nodata=0&format=png`,
                       } : null}
                       catalogMode="real-eo"
                       onDiscoverPairs={handleDiscoverRealPairs}
