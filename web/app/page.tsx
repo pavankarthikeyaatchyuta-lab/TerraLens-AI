@@ -50,6 +50,10 @@ export default function HomePage() {
   const [realAnalysisResult, setRealAnalysisResult] = useState<any | null>(null);
   const [isAnalyzingRealPair, setIsAnalyzingRealPair] = useState<boolean>(false);
 
+  // Phase 8: Real EO Temporal History State
+  const [eoHistoryResult, setEoHistoryResult] = useState<any | null>(null);
+  const [isDiscoveringEoHistory, setIsDiscoveringEoHistory] = useState<boolean>(false);
+
   // Benchmark Temporal & Change State
   const [temporalPair, setTemporalPair] = useState<any>(null);
   const [analysisResult, setAnalysisResult] = useState<ChangeDetectionResult | null>(null);
@@ -115,6 +119,8 @@ export default function HomePage() {
       setEoPairCandidates([]);
       setSelectedEoPair(null);
       setRealAnalysisResult(null);
+      setEoHistoryResult(null);
+      setIsDiscoveringEoHistory(false);
     } else {
       // In Benchmark mode: load temporal pair & trigger benchmark analysis
       fetch(`/api/scenes/${selectedLocationId}/temporal?catalog=benchmark`)
@@ -230,6 +236,37 @@ export default function HomePage() {
       console.error("Failed to discover temporal pairs", err);
     } finally {
       setIsDiscoveringEoPairs(false);
+    }
+  };
+
+  // Phase 8: Discover Earliest Usable Observation & Complete STAC History
+  const handleDiscoverEoHistory = async (cloudThreshold: number = 25) => {
+    const loc = locations.find((l) => l.location_id === selectedLocationId) || locations[0];
+    if (!loc) return;
+
+    setIsDiscoveringEoHistory(true);
+    try {
+      const aoi = loc.bounding_box || {
+        min_lat: loc.latitude - 0.05,
+        min_lon: loc.longitude - 0.05,
+        max_lat: loc.latitude + 0.05,
+        max_lon: loc.longitude + 0.05,
+      };
+      const res = await fetch("/api/satellite/history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          aoi,
+          maxCloudCover: cloudThreshold,
+          mode: "REAL_EO_CATALOG",
+        }),
+      });
+      const data = await res.json();
+      setEoHistoryResult(data);
+    } catch (err) {
+      console.error("Failed to discover temporal history", err);
+    } finally {
+      setIsDiscoveringEoHistory(false);
     }
   };
 
@@ -524,6 +561,9 @@ export default function HomePage() {
                       onSelectPair={setSelectedEoPair}
                       onExecuteAnalysis={handleExecuteRealAnalysis}
                       isAnalyzing={isAnalyzingRealPair}
+                      onDiscoverHistory={handleDiscoverEoHistory}
+                      isDiscoveringHistory={isDiscoveringEoHistory}
+                      historyResult={eoHistoryResult}
                     />
 
                     {realAnalysisResult && (

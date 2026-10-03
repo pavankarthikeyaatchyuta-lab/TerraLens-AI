@@ -162,6 +162,55 @@ export interface TemporalPairCandidate {
   qualityScore?: number;
 }
 
+export interface TemporalHistoryOptions {
+  startDate?: string;
+  endDate?: string;
+  maxCloudCover?: number;
+  limit?: number;
+  maxPages?: number;
+}
+
+export interface TemporalHistoryResult {
+  mode: OperatingMode;
+  provider: string;
+  aoi: BoundingBox;
+  constraints: {
+    maxCloudCover: number;
+    startDate: string;
+    endDate: string;
+  };
+  earliestUsable: SatelliteScene | null;
+  latestUsable: SatelliteScene | null;
+  usableObservations: SatelliteScene[];
+  rejectedObservations: {
+    scene: SatelliteScene;
+    reasons: string[];
+  }[];
+  totalFound: number;
+  totalReturned?: number;
+  usableCount: number;
+  rejectedCount: number;
+  recordsExamined?: number;
+  uniqueRecordsExamined?: number;
+  rawRecordsExamined?: number;
+  pagesFollowed?: number;
+  hasMore?: boolean;
+  isExhaustive?: boolean;
+  searchScope?: {
+    startDate: string;
+    endDate: string;
+    sortDirection: string;
+    archiveType: string;
+    scopeDescription: string;
+  };
+  summary: {
+    temporalSpanDays: number;
+    earliestDate: string | null;
+    latestDate: string | null;
+    rejectionBreakdown: Record<string, number>;
+  };
+}
+
 /**
  * Common strongly typed interface for all satellite data access providers.
  */
@@ -174,6 +223,7 @@ export interface SatelliteDataProvider {
   getScene(sceneId: string): Promise<SatelliteScene | null>;
   getThumbnailUrl(sceneId: string): string | null;
   getTemporalPairs(aoi: BoundingBox, constraints?: TemporalConstraints): Promise<TemporalPairCandidate[]>;
+  getTemporalHistory?(aoi: BoundingBox, options?: TemporalHistoryOptions): Promise<TemporalHistoryResult>;
   getMetadata(sceneId: string): Promise<Record<string, unknown>>;
   getSceneAssets(sceneId: string): Promise<Record<string, SatelliteAsset>>;
   getAnalysisAssets(sceneId: string, aoi?: BoundingBox): Promise<AnalysisAsset[]>;

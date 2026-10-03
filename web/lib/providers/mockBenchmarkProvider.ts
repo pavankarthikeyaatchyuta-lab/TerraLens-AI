@@ -12,6 +12,8 @@ import {
   SatelliteScene,
   TemporalConstraints,
   TemporalPairCandidate,
+  TemporalHistoryOptions,
+  TemporalHistoryResult,
   validateSearchQuery,
 } from "./satelliteProvider";
 import { getLocations, getScenes, getLocationById } from "@/lib/data";
@@ -140,6 +142,75 @@ export class MockBenchmarkProvider implements SatelliteDataProvider {
         qualityScore: 1.0,
       },
     ];
+  }
+
+  async getTemporalHistory(
+    aoi: BoundingBox,
+    options?: TemporalHistoryOptions
+  ): Promise<TemporalHistoryResult> {
+    const locations = getLocations();
+    const scenes = getScenes();
+
+    const matchedLoc = locations.find(
+      (loc) =>
+        loc.bounding_box.min_lat <= aoi.max_lat &&
+        loc.bounding_box.max_lat >= aoi.min_lat &&
+        loc.bounding_box.min_lon <= aoi.max_lon &&
+        loc.bounding_box.max_lon >= aoi.min_lon
+    ) || locations[0];
+
+    const locScenes = scenes
+      .filter((s) => s.location_id === matchedLoc.location_id)
+      .map((s) => this.mapToSatelliteScene(s, matchedLoc))
+      .sort((a, b) => new Date(a.acquisitionDate).getTime() - new Date(b.acquisitionDate).getTime());
+
+    const earliestUsable = locScenes.length > 0 ? locScenes[0] : null;
+    const latestUsable = locScenes.length > 0 ? locScenes[locScenes.length - 1] : null;
+
+    let spanDays = 0;
+    if (earliestUsable && latestUsable) {
+      const t1 = new Date(earliestUsable.acquisitionDate).getTime();
+      const t2 = new Date(latestUsable.acquisitionDate).getTime();
+      spanDays = Math.round((t2 - t1) / (1000 * 60 * 60 * 24));
+    }
+
+    return {
+      mode: "CONTROLLED_BENCHMARK",
+      provider: this.providerName,
+      aoi,
+      constraints: {
+        maxCloudCover: options?.maxCloudCover ?? 25,
+        startDate: options?.startDate || "2023-01-01",
+        endDate: options?.endDate || "2025-12-31",
+      },
+      earliestUsable,
+      latestUsable,
+      usableObservations: locScenes,
+      rejectedObservations: [],
+      totalFound: locScenes.length,
+      totalReturned: locScenes.length,
+      usableCount: locScenes.length,
+      rejectedCount: 0,
+      recordsExamined: locScenes.length,
+      uniqueRecordsExamined: locScenes.length,
+      rawRecordsExamined: locScenes.length,
+      pagesFollowed: 1,
+      hasMore: false,
+      isExhaustive: true,
+      searchScope: {
+        startDate: options?.startDate || "2023-01-01",
+        endDate: options?.endDate || "2025-12-31",
+        sortDirection: "asc",
+        archiveType: "Controlled Synthetic Benchmark Catalog",
+        scopeDescription: "Earliest usable observation",
+      },
+      summary: {
+        temporalSpanDays: spanDays,
+        earliestDate: earliestUsable ? earliestUsable.acquisitionDate.slice(0, 10) : null,
+        latestDate: latestUsable ? latestUsable.acquisitionDate.slice(0, 10) : null,
+        rejectionBreakdown: {},
+      },
+    };
   }
 
   async getMetadata(sceneId: string): Promise<Record<string, unknown>> {

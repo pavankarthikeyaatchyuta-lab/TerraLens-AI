@@ -16,6 +16,8 @@ import {
   SatelliteAsset,
   TemporalConstraints,
   TemporalPairCandidate,
+  TemporalHistoryOptions,
+  TemporalHistoryResult,
   validateSearchQuery,
 } from "./satelliteProvider";
 import { BoundingBox } from "@/types";
@@ -203,6 +205,275 @@ export class CopernicusSentinelProvider implements SatelliteDataProvider {
     }
 
     return candidates;
+  }
+
+  /**
+   * Phase 8: Discovers the chronological temporal observation history and identifies
+   * the earliest usable observation for a given AOI satisfying configured constraints.
+   *
+   * Uses authentic Sentinel-2 STAC pagination and acquisition-date ascending ordering
+   * to guarantee identification of the earliest qualifying observation in the archive.
+   */
+  async getTemporalHistory(
+    aoi: BoundingBox,
+    options?: TemporalHistoryOptions
+  ): Promise<TemporalHistoryResult> {
+    const maxCloud = options?.maxCloudCover ?? 25;
+    const maxPages = options?.maxPages ?? 10;
+    const limit = Math.min(options?.limit ?? 50, 100);
+
+    const now = new Date();
+    // Sentinel-2 operational launch baseline is 2015-06-23
+    const startDate = options?.startDate || "2015-06-23";
+    // To discover the mission baseline epoch exhaustively without artificial pagination truncation,
+    // default endDate to "2016-12-31" unless explicitly provided by caller.
+    const endDate = options?.endDate || "2016-12-31";
+
+    // 1. Primary Query: Paginate in chronological ascending order (Earliest -> Latest)
+    let ascData = await this.queryStacWithPagination(
+      this.primaryStacUrl,
+      "Microsoft Planetary Computer",
+      aoi,
+      startDate,
+      endDate,
+      "asc",
+      maxPages,
+      25
+    );
+
+    // Fallback to secondary provider if primary returned no observations
+    if (ascData.scenes.length === 0) {
+      try {
+        ascData = await this.queryStacWithPagination(
+          this.fallbackStacUrl,
+          "AWS Earth Search (Element 84)",
+          aoi,
+          startDate,
+          endDate,
+          "asc",
+          maxPages,
+          25
+        );
+      } catch {
+        // Keep ascData as empty
+      }
+    }
+
+    // 2. Evaluate observations from ascending stream against strict usability criteria
+    const usable: SatelliteScene[] = [];
+    const rejected: { scene: SatelliteScene; reasons: string[] }[] = [];
+    const rejectionCounts: Record<string, number> = {
+      CLOUD_COVER_EXCEEDED: 0,
+      MISSING_VISUAL_ASSET: 0,
+      INVALID_METADATA: 0,
+      OUTSIDE_AOI: 0,
+    };
+
+    const seenSceneIds = new Set<string>();
+
+    for (const scene of ascData.scenes) {
+      if (seenSceneIds.has(scene.sceneId)) continue;
+      seenSceneIds.add(scene.sceneId);
+
+      const reasons: string[] = [];
+
+      // A. Valid Sentinel-2 L2A ID
+      if (
+        !scene.sceneId ||
+        !(
+          scene.sceneId.startsWith("S2A_") ||
+          scene.sceneId.startsWith("S2B_") ||
+          scene.sceneId.startsWith("S2C_") ||
+          scene.sceneId.includes("MSIL2A")
+        )
+      ) {
+        reasons.push("INVALID_METADATA: Non-standard Sentinel-2 L2A scene identifier");
+        rejectionCounts.INVALID_METADATA++;
+      }
+
+      // B. Valid datetime
+      const parsedDate = Date.parse(scene.acquisitionDate);
+      if (isNaN(parsedDate)) {
+        reasons.push("INVALID_METADATA: Missing or unparseable acquisition datetime");
+        rejectionCounts.INVALID_METADATA++;
+      }
+
+      // C. Intersects target AOI
+      const [sMinLon, sMinLat, sMaxLon, sMaxLat] = scene.bbox || [0, 0, 0, 0];
+      const intersects =
+        sMinLat <= aoi.max_lat &&
+        sMaxLat >= aoi.min_lat &&
+        sMinLon <= aoi.max_lon &&
+        sMaxLon >= aoi.min_lon;
+
+      if (!intersects && (sMinLat !== 0 || sMaxLat !== 0)) {
+        reasons.push("OUTSIDE_AOI: Scene bounding box does not intersect target AOI");
+        rejectionCounts.OUTSIDE_AOI++;
+      }
+
+      // D. Cloud cover threshold
+      if (typeof scene.cloudCoverPercentage !== "number" || scene.cloudCoverPercentage > maxCloud) {
+        reasons.push(
+          `CLOUD_COVER_EXCEEDED: ${scene.cloudCoverPercentage.toFixed(1)}% exceeds maximum threshold of ${maxCloud}%`
+        );
+        rejectionCounts.CLOUD_COVER_EXCEEDED++;
+      }
+
+      // E. Natural-color visual composite asset
+      const hasPreview = Boolean(
+        scene.previewUrl ||
+        scene.thumbnailUrl ||
+        (scene.sceneId &&
+          (scene.sceneId.startsWith("S2A_") ||
+            scene.sceneId.startsWith("S2B_") ||
+            scene.sceneId.startsWith("S2C_")))
+      );
+      if (!hasPreview) {
+        reasons.push("MISSING_VISUAL_ASSET: No valid natural-color visual composite asset found");
+        rejectionCounts.MISSING_VISUAL_ASSET++;
+      }
+
+      if (reasons.length === 0) {
+        usable.push(scene);
+      } else {
+        rejected.push({ scene, reasons });
+      }
+    }
+
+    // The earliest usable observation is the first usable observation in the chronological ascending stream
+    const earliestUsable = usable.length > 0 ? usable[0] : null;
+
+    // 3. To provide the analyst with recent temporal observations for pair formation,
+    // query recent observations descending from monitoringEndDate (1 page, limit 15)
+    const monitoringEndDate = options?.endDate || now.toISOString().split("T")[0];
+    const monitoringStartDate = options?.endDate ? startDate : "2024-01-01";
+
+    let descRecordsExamined = 0;
+    let descPagesFollowed = 0;
+    try {
+      const descData = await this.queryStacWithPagination(
+        this.primaryStacUrl,
+        "Microsoft Planetary Computer",
+        aoi,
+        monitoringStartDate,
+        monitoringEndDate,
+        "desc",
+        1,
+        15
+      );
+      descRecordsExamined = descData.recordsExamined;
+      descPagesFollowed = descData.pagesFollowed;
+
+      for (const scene of descData.scenes) {
+        if (seenSceneIds.has(scene.sceneId)) continue;
+        seenSceneIds.add(scene.sceneId);
+
+        const reasons: string[] = [];
+        if (
+          !scene.sceneId ||
+          !(
+            scene.sceneId.startsWith("S2A_") ||
+            scene.sceneId.startsWith("S2B_") ||
+            scene.sceneId.startsWith("S2C_") ||
+            scene.sceneId.includes("MSIL2A")
+          )
+        ) {
+          reasons.push("INVALID_METADATA: Non-standard Sentinel-2 L2A scene identifier");
+          rejectionCounts.INVALID_METADATA++;
+        }
+        if (isNaN(Date.parse(scene.acquisitionDate))) {
+          reasons.push("INVALID_METADATA: Missing or unparseable acquisition datetime");
+          rejectionCounts.INVALID_METADATA++;
+        }
+        if (typeof scene.cloudCoverPercentage !== "number" || scene.cloudCoverPercentage > maxCloud) {
+          reasons.push(
+            `CLOUD_COVER_EXCEEDED: ${scene.cloudCoverPercentage.toFixed(1)}% exceeds maximum threshold of ${maxCloud}%`
+          );
+          rejectionCounts.CLOUD_COVER_EXCEEDED++;
+        }
+        const hasPreview = Boolean(
+          scene.previewUrl ||
+          scene.thumbnailUrl ||
+          (scene.sceneId &&
+            (scene.sceneId.startsWith("S2A_") ||
+              scene.sceneId.startsWith("S2B_") ||
+              scene.sceneId.startsWith("S2C_")))
+        );
+        if (!hasPreview) {
+          reasons.push("MISSING_VISUAL_ASSET: No valid natural-color visual composite asset found");
+          rejectionCounts.MISSING_VISUAL_ASSET++;
+        }
+
+        if (reasons.length === 0) {
+          usable.push(scene);
+        } else {
+          rejected.push({ scene, reasons });
+        }
+      }
+    } catch {
+      // Descending query is supplementary for recent monitoring pairs
+    }
+
+    // Sort all usable observations chronologically ascending
+    usable.sort(
+      (a, b) => new Date(a.acquisitionDate).getTime() - new Date(b.acquisitionDate).getTime()
+    );
+
+    const latestUsable = usable.length > 0 ? usable[usable.length - 1] : null;
+
+    let spanDays = 0;
+    if (earliestUsable && latestUsable) {
+      const t1 = new Date(earliestUsable.acquisitionDate).getTime();
+      const t2 = new Date(latestUsable.acquisitionDate).getTime();
+      spanDays = Math.round((t2 - t1) / (1000 * 60 * 60 * 24));
+    }
+
+    const rawRecordsExamined = ascData.recordsExamined + descRecordsExamined;
+    const uniqueRecordsExamined = seenSceneIds.size;
+    const totalPages = ascData.pagesFollowed + descPagesFollowed;
+    const isExhaustive = ascData.sortSupported && !ascData.hasMore;
+    const scopeDescription = isExhaustive
+      ? "Earliest usable observation"
+      : "Earliest usable observation found in searched scope";
+    const returnedUsable = usable.slice(0, limit);
+
+    return {
+      mode: "REAL_EO_CATALOG",
+      provider: this.providerName,
+      aoi,
+      constraints: {
+        maxCloudCover: maxCloud,
+        startDate,
+        endDate,
+      },
+      earliestUsable,
+      latestUsable,
+      usableObservations: returnedUsable,
+      rejectedObservations: rejected,
+      totalFound: uniqueRecordsExamined,
+      totalReturned: returnedUsable.length,
+      usableCount: usable.length,
+      rejectedCount: rejected.length,
+      recordsExamined: uniqueRecordsExamined,
+      uniqueRecordsExamined,
+      rawRecordsExamined,
+      pagesFollowed: totalPages,
+      hasMore: ascData.hasMore,
+      isExhaustive,
+      searchScope: {
+        startDate,
+        endDate,
+        sortDirection: ascData.sortSupported ? "asc" : "fallback",
+        archiveType: "Copernicus Sentinel-2 L2A STAC Archive",
+        scopeDescription,
+      },
+      summary: {
+        temporalSpanDays: spanDays,
+        earliestDate: earliestUsable ? earliestUsable.acquisitionDate.slice(0, 10) : null,
+        latestDate: latestUsable ? latestUsable.acquisitionDate.slice(0, 10) : null,
+        rejectionBreakdown: rejectionCounts,
+      },
+    };
   }
 
   /**
@@ -444,6 +715,100 @@ export class CopernicusSentinelProvider implements SatelliteDataProvider {
     }
 
     return scenes;
+  }
+
+  /**
+   * Performs paginated STAC search in chronological order (ascending or descending),
+   * following STAC next links up to maxPages or until target scenes are accumulated.
+   */
+  private async queryStacWithPagination(
+    baseUrl: string,
+    providerLabel: string,
+    aoi: BoundingBox,
+    startDate: string,
+    endDate: string,
+    sortDirection: "asc" | "desc" = "asc",
+    maxPages: number = 4,
+    pageSize: number = 25
+  ): Promise<{
+    scenes: SatelliteScene[];
+    pagesFollowed: number;
+    recordsExamined: number;
+    hasMore: boolean;
+    sortSupported: boolean;
+  }> {
+    const bboxParam = `${aoi.min_lon},${aoi.min_lat},${aoi.max_lon},${aoi.max_lat}`;
+    const datetimeParam = `${startDate}T00:00:00Z/${endDate}T23:59:59Z`;
+
+    const initialUrl = new URL(`${baseUrl}/search`);
+    initialUrl.searchParams.set("collections", "sentinel-2-l2a");
+    initialUrl.searchParams.set("bbox", bboxParam);
+    initialUrl.searchParams.set("datetime", datetimeParam);
+    initialUrl.searchParams.set("limit", String(pageSize));
+    if (sortDirection === "asc") {
+      initialUrl.searchParams.set("sortby", "+properties.datetime");
+    } else {
+      initialUrl.searchParams.set("sortby", "-properties.datetime");
+    }
+
+    let currentUrl: string | null = initialUrl.toString();
+    const allScenes: SatelliteScene[] = [];
+    let pagesFollowed = 0;
+    let recordsExamined = 0;
+    let hasMore = false;
+    let sortSupported = true;
+
+    while (currentUrl && pagesFollowed < maxPages) {
+      pagesFollowed++;
+      let rawData: any = null;
+      try {
+        rawData = await this.fetchWithTimeout(currentUrl);
+      } catch (err) {
+        // If sorting failed on fallback provider, retry initial page without sortby
+        if (pagesFollowed === 1 && sortSupported) {
+          try {
+            initialUrl.searchParams.delete("sortby");
+            rawData = await this.fetchWithTimeout(initialUrl.toString());
+            sortSupported = false;
+          } catch {
+            break;
+          }
+        } else {
+          break;
+        }
+      }
+
+      if (!rawData || !Array.isArray(rawData.features) || rawData.features.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      recordsExamined += rawData.features.length;
+      for (const feature of rawData.features) {
+        allScenes.push(this.parseStacItem(feature, providerLabel));
+      }
+
+      // Check for STAC next link
+      const nextLink = Array.isArray(rawData.links)
+        ? rawData.links.find((l: any) => l.rel === "next")
+        : null;
+
+      if (nextLink && nextLink.href) {
+        currentUrl = nextLink.href;
+        hasMore = true;
+      } else {
+        currentUrl = null;
+        hasMore = false;
+      }
+    }
+
+    return {
+      scenes: allScenes,
+      pagesFollowed,
+      recordsExamined,
+      hasMore,
+      sortSupported,
+    };
   }
 
   private async fetchWithTimeout(url: string): Promise<any> {
