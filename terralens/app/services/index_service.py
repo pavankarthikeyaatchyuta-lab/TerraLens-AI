@@ -127,6 +127,63 @@ class IndexService:
         self._records = records
         logger.info(f"Saved FAISS index ({len(records)} vectors) to {self.index_path}")
 
+    def add_incremental(
+        self,
+        vectors: np.ndarray,
+        new_records: List[Dict[str, Any]]
+    ) -> int:
+        """Incrementally adds new vectors and metadata records to an existing FAISS index without rebuilding.
+
+        Args:
+            vectors: (N, D) float32 array of normalized embedding vectors.
+            new_records: List of N metadata dicts corresponding to the new vectors.
+
+        Returns:
+            New total number of indexed vectors.
+        """
+        if not self.is_loaded:
+            if not self.load():
+                raise RuntimeError("Cannot add to index: failed to load existing index from disk.")
+
+        vectors = np.asarray(vectors, dtype=np.float32)
+        if vectors.ndim == 1:
+            vectors = np.expand_dims(vectors, axis=0)
+
+        if len(vectors) != len(new_records):
+            raise ValueError(f"Vector count ({len(vectors)}) must match record count ({len(new_records)})")
+
+        dim = self._index.d
+        if vectors.shape[1] != dim:
+            raise ValueError(f"Vector dimensionality ({vectors.shape[1]}) does not match index dimension ({dim})")
+
+        # Normalize incoming vectors
+        norms = np.linalg.norm(vectors, axis=1, keepdims=True)
+        norms[norms == 0] = 1.0
+        vectors = vectors / norms
+
+        # Add to FAISS index
+        self._index.add(vectors)
+
+        # Update metadata records
+        start_id = len(self._records)
+        for i, rec in enumerate(new_records):
+            rec_copy = dict(rec)
+            if "vector_id" not in rec_copy:
+                rec_copy["vector_id"] = start_id + i
+            self._records.append(rec_copy)
+
+        if self._metadata:
+            self._metadata["total_vectors"] = len(self._records)
+            self._metadata["records"] = self._records
+
+            # Write updated index and metadata back to disk
+            faiss.write_index(self._index, str(self.index_path))
+            with open(self.metadata_path, "w", encoding="utf-8") as f:
+                json.dump(self._metadata, f, indent=2)
+
+        logger.info(f"Incrementally added {len(new_records)} vectors. Total now: {self._index.ntotal}")
+        return self._index.ntotal
+
     def search(
         self,
         query_vector: np.ndarray,

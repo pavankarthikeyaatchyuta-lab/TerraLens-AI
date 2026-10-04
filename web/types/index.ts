@@ -96,3 +96,27 @@ export interface AnalystAdjudication {
   adjudicated_at: string;
   notes: string;
 }
+
+export interface SpatialFilter {
+  bbox: {
+    min_lat: number;
+    min_lon: number;
+    max_lat: number;
+    max_lon: number;
+  };
+}
+
+export interface TemporalFilter {
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface PlatformFilter {
+  platform?: string;
+}
+
+export interface SearchFilters {
+  spatialFilter?: SpatialFilter;
+  temporalFilter?: TemporalFilter;
+  platformFilter?: PlatformFilter;
+}

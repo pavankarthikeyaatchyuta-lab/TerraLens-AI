@@ -65,3 +65,56 @@ def test_index_validation_mismatch():
         is_valid, msg = service.validate_index_files()
         assert is_valid is False
         assert "missing" in msg.lower()
+
+
+def test_index_incremental_addition():
+    """Verify that new observations can be incrementally ingested without a full index rebuild."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_path = Path(tmpdir)
+        index_file = tmp_path / "incremental.index"
+        meta_file = tmp_path / "incremental_meta.json"
+
+        service = IndexService(index_path=index_file, metadata_path=meta_file)
+        dim = 64
+
+        # Initial build with 2 vectors
+        v0 = np.zeros(dim, dtype=np.float32)
+        v0[0] = 1.0
+        v1 = np.zeros(dim, dtype=np.float32)
+        v1[1] = 1.0
+
+        service.build_and_save(
+            np.array([v0, v1], dtype=np.float32),
+            [
+                {"scene_id": "SCENE_INIT_1", "location_id": "LOC_1"},
+                {"scene_id": "SCENE_INIT_2", "location_id": "LOC_2"},
+            ],
+            model_name="test-clip",
+            dimension=dim,
+        )
+
+        assert service.get_summary()["total_vectors"] == 2
+
+        # Incremental addition of a 3rd vector
+        v2 = np.zeros(dim, dtype=np.float32)
+        v2[0] = 0.95
+        v2[1] = 0.3122  # normalized: ~1.0
+
+        new_total = service.add_incremental(
+            np.array([v2], dtype=np.float32),
+            [{"scene_id": "SCENE_NEW_3", "location_id": "LOC_3"}],
+        )
+
+        assert new_total == 3
+        assert service.get_summary()["total_vectors"] == 3
+
+        # Validate index file on disk
+        reloaded_service = IndexService(index_path=index_file, metadata_path=meta_file)
+        assert reloaded_service.load() is True
+        assert reloaded_service.get_summary()["total_vectors"] == 3
+
+        # Search for v0: top match should be v0, second match should be newly ingested v2
+        results = reloaded_service.search(query_vector=v0, top_k=2)
+        assert len(results) == 2
+        assert results[0][0]["scene_id"] == "SCENE_INIT_1"
+        assert results[1][0]["scene_id"] == "SCENE_NEW_3"

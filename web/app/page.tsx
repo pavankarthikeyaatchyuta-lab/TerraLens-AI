@@ -8,7 +8,8 @@ import { CompareStage } from "@/components/stages/CompareStage";
 import { VerifyStage } from "@/components/stages/VerifyStage";
 import { ExportStage } from "@/components/stages/ExportStage";
 import { EvaluationModal } from "@/components/EvaluationModal";
-import { Location, Scene, SearchResult, ChangeDetectionResult } from "@/types";
+import { Location, Scene, SearchResult, ChangeDetectionResult, SearchFilters } from "@/types";
+import { encodeQueryClient } from "@/lib/clipTextEncoder";
 
 const DEFAULT_BHADLA_LOCATION: Location = {
   location_id: "LOC_EO_01_BHADLA_SOLAR",
@@ -162,17 +163,44 @@ export default function HomePage() {
   const [activeQuery, setActiveQuery] = useState<string>("solar park development in Rajasthan");
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [clusterNeighbors, setClusterNeighbors] = useState<{ location: Location; similarity: number; rank: number }[]>([]);
   const [lastLatencyMs, setLastLatencyMs] = useState<number | undefined>(21.4);
 
   // Temporal Scenes & Analysis State
   const [analysisResult, setAnalysisResult] = useState<any>(DEFAULT_BHADLA_ANALYSIS);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
 
-  // Analyst Adjudication State
-  const [verdict, setVerdict] = useState<"TRUE_CHANGE" | "FALSE_ALARM" | "UNCERTAIN" | null>("TRUE_CHANGE");
-  const [analystNotes, setAnalystNotes] = useState<string>(
+  // Analyst Adjudication State (with localStorage persistence)
+  const [verdict, setVerdictState] = useState<"TRUE_CHANGE" | "FALSE_ALARM" | "UNCERTAIN" | null>("TRUE_CHANGE");
+  const [analystNotes, setAnalystNotesState] = useState<string>(
     "Confirmed bi-temporal surface change across Bhadla monitoring zone. Algorithmic spectral analysis indicates seasonal biomass/vegetation expansion around facility perimeters and access corridors between dry and post-monsoon observations."
   );
+
+  const setVerdict = (v: "TRUE_CHANGE" | "FALSE_ALARM" | "UNCERTAIN" | null) => {
+    setVerdictState(v);
+    if (typeof window !== "undefined" && selectedLocationId) {
+      try {
+        const stored = JSON.parse(localStorage.getItem("terralens_adjudications") || "{}");
+        stored[selectedLocationId] = { ...(stored[selectedLocationId] || {}), verdict: v, updatedAt: new Date().toISOString() };
+        localStorage.setItem("terralens_adjudications", JSON.stringify(stored));
+      } catch (e) {
+        console.warn("Storage notice", e);
+      }
+    }
+  };
+
+  const setAnalystNotes = (notes: string) => {
+    setAnalystNotesState(notes);
+    if (typeof window !== "undefined" && selectedLocationId) {
+      try {
+        const stored = JSON.parse(localStorage.getItem("terralens_adjudications") || "{}");
+        stored[selectedLocationId] = { ...(stored[selectedLocationId] || {}), notes, updatedAt: new Date().toISOString() };
+        localStorage.setItem("terralens_adjudications", JSON.stringify(stored));
+      } catch (e) {
+        console.warn("Storage notice", e);
+      }
+    }
+  };
 
   // Evaluation Suite Modal State
   const [isEvaluationOpen, setIsEvaluationOpen] = useState<boolean>(false);
@@ -192,9 +220,26 @@ export default function HomePage() {
       .catch((err) => console.warn("Notice: Using local catalog fallback", err));
   }, []);
 
-  // Fetch change analysis when selectedLocationId changes
+  // Fetch change analysis and restore analyst state when selectedLocationId changes
   useEffect(() => {
     if (!selectedLocationId) return;
+
+    // Restore analyst adjudication from localStorage if present
+    if (typeof window !== "undefined") {
+      try {
+        const stored = JSON.parse(localStorage.getItem("terralens_adjudications") || "{}");
+        if (stored[selectedLocationId]) {
+          if (stored[selectedLocationId].verdict !== undefined) {
+            setVerdictState(stored[selectedLocationId].verdict);
+          }
+          if (stored[selectedLocationId].notes !== undefined) {
+            setAnalystNotesState(stored[selectedLocationId].notes);
+          }
+        }
+      } catch (e) {
+        console.warn("Storage notice", e);
+      }
+    }
 
     if (selectedLocationId === "LOC_EO_01_BHADLA_SOLAR") {
       setAnalysisResult(DEFAULT_BHADLA_ANALYSIS);
@@ -222,6 +267,42 @@ export default function HomePage() {
       });
   }, [selectedLocationId]);
 
+  // Dynamic semantic clustering: calculate real cosine similarity neighbors for selectedLocation
+  useEffect(() => {
+    if (!selectedLocationId) return;
+
+    const targetSceneId =
+      selectedLocation?.before_scene_id ||
+      scenes.find((s) => s.location_id === selectedLocationId)?.scene_id ||
+      (selectedLocationId === "LOC_EO_01_BHADLA_SOLAR" ? "SCENE_EO_01_01" : undefined);
+
+    if (!targetSceneId) return;
+
+    fetch("/api/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        imageSceneId: targetSceneId,
+        top_k: 5,
+        catalog: "real-eo",
+        groupBy: "location",
+        excludeLocationId: selectedLocationId,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.results && data.results.length > 0) {
+          const alts = data.results.slice(0, 4).map((r: SearchResult, idx: number) => ({
+            location: r.location,
+            similarity: r.similarity_score,
+            rank: idx + 2,
+          }));
+          setClusterNeighbors(alts);
+        }
+      })
+      .catch((err) => console.warn("Semantic clustering notice", err));
+  }, [selectedLocationId, scenes]);
+
   // Authoritative Selected Location Object
   const selectedLocation: Location = useMemo(() => {
     return (
@@ -240,7 +321,7 @@ export default function HomePage() {
 
     const sampleLocId =
       selectedLocation.location_id === "LOC_EO_01_BHADLA_SOLAR" || selectedLocation.location_id === "LOC_005_THAR_SOLAR_PARK"
-        ? "LOC_005_THAR_SOLAR_PARK"
+        ? "LOC_EO_01_BHADLA_SOLAR"
         : selectedLocation.location_id;
 
     return {
@@ -264,7 +345,7 @@ export default function HomePage() {
 
     const sampleLocId =
       selectedLocation.location_id === "LOC_EO_01_BHADLA_SOLAR" || selectedLocation.location_id === "LOC_005_THAR_SOLAR_PARK"
-        ? "LOC_005_THAR_SOLAR_PARK"
+        ? "LOC_EO_01_BHADLA_SOLAR"
         : selectedLocation.location_id;
 
     return {
@@ -278,7 +359,7 @@ export default function HomePage() {
     };
   }, [scenes, selectedLocation, beforeScene]);
 
-  // Derived Alternatives for Discover Stage
+  // Derived Alternatives for Discover Stage: Prioritizes active search results, falls back to true cosine cluster neighbors
   const { topLocation, alternatives } = useMemo(() => {
     if (searchResults.length > 0) {
       const top = searchResults[0].location;
@@ -290,6 +371,10 @@ export default function HomePage() {
       return { topLocation: top, alternatives: alts };
     }
 
+    if (clusterNeighbors.length > 0) {
+      return { topLocation: selectedLocation, alternatives: clusterNeighbors };
+    }
+
     // Default alternatives when no explicit search result is active
     const otherLocs = locations.filter((l) => l.location_id !== selectedLocation.location_id);
     const alts = otherLocs.slice(0, 4).map((loc, idx) => ({
@@ -298,7 +383,7 @@ export default function HomePage() {
       rank: idx + 2,
     }));
     return { topLocation: selectedLocation, alternatives: alts };
-  }, [searchResults, locations, selectedLocation]);
+  }, [searchResults, clusterNeighbors, locations, selectedLocation]);
 
   // Stage Progression Handlers
   const handleStageChange = (stage: WorkflowStage) => {
@@ -309,21 +394,62 @@ export default function HomePage() {
     }
   };
 
-  // 1. Search Execution
-  const handleExecuteSearch = async (query: string) => {
+  // 1. Multimodal Search Execution (Arbitrary Text with Client ONNX CLIP, Image Upload, or Reference Scene)
+  const handleExecuteSearch = async (
+    query: string,
+    options?: {
+      imageFile?: File | null;
+      imageSceneId?: string;
+      filters?: SearchFilters;
+    }
+  ) => {
     setIsSearching(true);
     setActiveQuery(query);
 
     try {
+      const bodyPayload: any = {
+        top_k: 5,
+        catalog: "real-eo",
+        groupBy: "location",
+      };
+
+      if (options?.filters) {
+        if (options.filters.spatialFilter) bodyPayload.spatialFilter = options.filters.spatialFilter;
+        if (options.filters.temporalFilter) bodyPayload.temporalFilter = options.filters.temporalFilter;
+        if (options.filters.platformFilter) bodyPayload.platformFilter = options.filters.platformFilter;
+      }
+
+      if (options?.imageSceneId) {
+        bodyPayload.imageSceneId = options.imageSceneId;
+      } else if (options?.imageFile) {
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const res = reader.result as string;
+            const b64Data = res.split(",")[1] || res;
+            resolve(b64Data);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(options.imageFile!);
+        });
+        bodyPayload.image = base64;
+      } else if (query) {
+        bodyPayload.query = query;
+        // Client-side ONNX Runtime Web CLIP ViT-B/32 text inference
+        try {
+          const clientVector = await encodeQueryClient(query);
+          if (clientVector && clientVector.length === 512) {
+            bodyPayload.vector = clientVector;
+          }
+        } catch (encErr) {
+          console.warn("Client ONNX encoder notice (fallback to server vector/query):", encErr);
+        }
+      }
+
       const res = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query,
-          top_k: 5,
-          catalog: "real-eo",
-          groupBy: "location",
-        }),
+        body: JSON.stringify(bodyPayload),
       });
       const data = await res.json();
       if (data.results && data.results.length > 0) {
@@ -367,9 +493,22 @@ export default function HomePage() {
       );
       setAnalysisResult(DEFAULT_BHADLA_ANALYSIS);
     } else {
-      // Invalidate verdict, notes, and analysis immediately for newly selected targets
-      setVerdict(null);
-      setAnalystNotes("");
+      // Check stored adjudication
+      let prevVerdict: "TRUE_CHANGE" | "FALSE_ALARM" | "UNCERTAIN" | null = null;
+      let prevNotes = "";
+      if (typeof window !== "undefined") {
+        try {
+          const stored = JSON.parse(localStorage.getItem("terralens_adjudications") || "{}");
+          if (stored[id]) {
+            prevVerdict = stored[id].verdict ?? null;
+            prevNotes = stored[id].notes ?? "";
+          }
+        } catch (e) {
+          console.warn("Storage notice", e);
+        }
+      }
+      setVerdictState(prevVerdict);
+      setAnalystNotesState(prevNotes);
       setAnalysisResult(null);
     }
   };

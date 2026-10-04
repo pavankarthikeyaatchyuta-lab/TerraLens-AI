@@ -118,9 +118,14 @@ export function DiscoverStage({
 
           {/* Compact Ranked Alternatives */}
           <div className="bg-tactical-900/80 border border-tactical-750 rounded-xl p-3.5 space-y-2.5">
-            <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block">
-              Ranked Alternatives in Indian Regional Catalog:
-            </span>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block">
+                Semantic Cluster Neighbors:
+              </span>
+              <span className="text-[9px] text-sky-400 font-bold uppercase tracking-wider">
+                512-D Cosine Similarity
+              </span>
+            </div>
 
             <div className="space-y-1.5">
               {alternatives.map((alt) => {
