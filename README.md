@@ -3,9 +3,9 @@
 **Smart India Hackathon 2026 (SIH 2026)**  
 **Problem Statement ID:** SIH26227  
 **Team Name:** The Limit Breakers  
-**Operational Status:** Phase 11 Complete (Analyst Export & Provenance Suite) + SIH26227 Audit Compliance  
+**Operational Status:** Production-Ready & Evaluated (SIH26227 Benchmark & Offline Hardened)  
 **Live Public Demo:** [https://terra-lens-ai.vercel.app/](https://terra-lens-ai.vercel.app/)  
-**Automated Tests:** 208/208 Python Passing | 17/17 Web Passing (225 total automated tests) | Next.js 14/14 Routes Compiled (0 errors)  
+**Automated Tests:** 218/218 Python Passing | 17/17 Web Passing (235 total automated tests) | Next.js 14/14 Routes Compiled (0 errors)  
 **Model Payload:** 63.97 MB on disk (47.16 MB gzipped / Vercel-friendly)  
 **Official SIH Submission:** [SUBMISSION.md](SUBMISSION.md)
 
@@ -21,23 +21,58 @@ Manual and coordinate-restricted analysis of multi-temporal satellite imagery pr
 
 ---
 
-## 2. Solution: The TerraLens Workflow
+## 2. Solution & Competitive Positioning: The TerraLens Workflow
 
-TerraLens AI bridges natural language semantic retrieval and multi-temporal change verification through an end-to-end intelligence cycle:
+> **Core Philosophy:**  
+> *"TerraLens doesn't stop at detecting change. It makes that change searchable, explainable, verifiable and auditable."*  
+> Evidence-first satellite intelligence for finding, explaining, verifying and documenting temporal change.
+
+The platform executes an end-to-end 5-stage operational loop:
 
 ```
-SEARCH (Natural language query / reference image)
+SEARCH (Natural language query or reference visual example)
    ↓
-DISCOVER (Semantic retrieval + similar candidate locations via FAISS)
+DISCOVER (512-D CLIP semantic vector retrieval + candidate ranking in <25ms)
    ↓
-COMPARE (Multi-temporal satellite imagery alignment & dimension normalization)
+COMPARE (Multi-temporal Sentinel-2 observation timeline + spatial alignment)
    ↓
-ANALYZE (Deterministic change detection + morphological false-alarm mitigation)
+VERIFY (Multi-stage radiometric & morphological false-alarm suppression + analyst adjudication)
    ↓
-VERIFY (Measurable confidence scoring + provenance audit + analyst adjudication)
-   ↓
-EVALUATE & EXPORT (Precision/Recall/IoU verification + JSON dossier + Markdown report)
+EXPORT (Auditable PKZIP Evidence Dossier + RFC 7946 GeoJSON + structured provenance)
 ```
+
+### The 5 Architectural Differentiators
+
+| Capability | Generic Change Detection / Competitor | TerraLens AI Evidence-First Approach |
+|:---|:---|:---|
+| **1. Site Discovery** | Requires exact GPS coordinates or manual map-panning | **Semantic Discovery:** Zero-shot natural-language search (`"solar park development in Rajasthan"`, `"drying reservoir"`) mapped to 512-D vector space in **<25 ms**. |
+| **2. Temporal Selection** | Arbitrary pair selection ($T_1$ vs $T_2$) regardless of cloud cover or seasonal drift | **Observation History Reconstructed:** Identifies *Earliest Usable*, *First Supported Change*, *Subsequent Confirmation*, and *Latest Observation* across multi-year archives. |
+| **3. False-Alarm Suppression** | Naive pixel differencing or black-box segmentation vulnerable to clouds, haze, and seasonal grass | **Multi-Stage Pipeline:** Raw Difference $\to$ SCL Quality Masking (water, snow, cloud, shadow) $\to$ Radiometric Normalization ($\mu + 1.8\sigma \in [0.15, 0.45]$) $\to$ $3\times3$ Morphological Filtering $\to$ Minimum Cluster Area Filter ($\ge 900\,\text{m}^2$ / 9 px). |
+| **4. Human Oversight** | Black-box AI overlay presented as absolute fact | **Analyst-in-the-Loop Adjudication:** AI generates candidate evidence; human analyst adjudicates verdict (`UNREVIEWED` $\to$ `TRUE CHANGE`, `FALSE ALARM`, or `UNCERTAIN`) with domain interpretation notes. |
+| **5. Deliverable & Audit** | Static PNG/JPEG map screenshot with no audit trail | **Auditable Evidence Dossier:** PKZIP package containing `manifest.json`, `analysis.json`, `provenance.json` (structured processing history, scene identifiers, analysis parameters, outputs, analyst decisions, and machine-readable evidence artifacts), RFC 7946 `change_clusters.geojson`, and executive Markdown report. |
+
+---
+
+### The 3-Minute Hackathon Judge Demo Script
+
+1. **Minute 1 — Search & Semantic Discovery:**
+   - Open [TerraLens AI](https://terra-lens-ai.vercel.app/).
+   - Type `"solar park development in Rajasthan"` into the semantic query bar or select **Bhadla Solar Park**.
+   - Show sub-25ms vector retrieval ranking candidate satellite scenes across 40 monitored locations without typing any coordinates.
+   - Explain: *"Analysts start with an operational hypothesis, not raw bounding boxes."*
+
+2. **Minute 2 — Temporal Intelligence & Multi-Stage False-Alarm Suppression:**
+   - Navigate to the **Temporal Comparison** workstation.
+   - Show the production-validated Sentinel-2 multi-temporal observation sequence: *Earliest Usable Observation* (2023-04-05) $\to$ *First Supported Change* (2025-03-12) $\to$ *Subsequent Confirmation* (as available in the temporal history) $\to$ *Latest Observation*.
+   - Click **Run Quantitative Sentinel-2 Change Detection**.
+   - Point out the multi-stage false-alarm suppression: Scene Classification Layer (SCL) masks out clouds and shadows; morphological opening removes isolated single-pixel noise; only clusters $\ge 900\,\text{m}^2$ are retained, isolating **14.28 ha** of detected change classified as CONSTRUCTION (operational demonstration at 0.91 engineered confidence and 99.2% valid pixels; supervised accuracy evaluated on controlled benchmark).
+
+3. **Minute 3 — Analyst Adjudication & Evidence Dossier Export:**
+   - Scroll to the **Evidence Panel**.
+   - Highlight the analyst-in-the-loop station: Mark verdict as **TRUE CHANGE** and enter domain notes.
+   - Click **EXPORT EVIDENCE DOSSIER (ZIP)**.
+   - Open or inspect the downloaded bundle to reveal the complete dossier manifest: `manifest.json`, `analysis.json`, `provenance.json` (structured processing history, scene identifiers, parameters, and analyst decisions), and `change_clusters.geojson` ready for immediate GIS ingestion.
+   - Conclude with the punchline: *"TerraLens doesn't stop at detecting change. It makes that change searchable, explainable, verifiable and auditable."*
 
 ---
 

@@ -370,7 +370,7 @@ export function EvidencePanel({
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 uppercase flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-                <span>Analyst Adjudication</span>
+                <span>Analyst-in-the-Loop Adjudication</span>
               </h4>
               <span
                 className={`text-[10px] font-mono px-2 py-0.5 rounded border transition-colors ${
@@ -431,7 +431,7 @@ export function EvidencePanel({
 
             {/* Notes textarea */}
             <label className="block text-[11px] font-mono text-slate-500 dark:text-slate-400 mb-1">
-              Analyst Verification Notes:
+              Analyst Verification Notes (Baked into Export Dossier):
             </label>
             <textarea
               rows={2}
@@ -442,15 +442,15 @@ export function EvidencePanel({
             />
           </div>
 
-          {/* Phase 11: Dedicated Analysis Export Card */}
+          {/* Phase 11: Dedicated Evidence Dossier Export Card */}
           <div className="bg-tactical-950 p-3 rounded-lg border border-tactical-750 font-mono space-y-2.5">
             <div className="flex items-center justify-between pb-1.5 border-b border-tactical-800 text-xs">
               <div className="flex items-center gap-1.5 text-sky-400 font-bold">
                 <Archive className="w-3.5 h-3.5" />
-                <span>ANALYSIS EXPORT</span>
+                <span>EVIDENCE DOSSIER EXPORT</span>
               </div>
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-500/30">
-                PORTABLE BUNDLE
+                AUDITABLE PROVENANCE DOSSIER
               </span>
             </div>
 
@@ -481,6 +481,20 @@ export function EvidencePanel({
               </div>
             </div>
 
+            {/* Dossier Artifact Inventory */}
+            <div className="text-[10px] text-slate-400 bg-tactical-900/90 p-1.5 rounded border border-tactical-800 flex items-center gap-1.5 flex-wrap">
+              <span className="text-sky-400 font-bold">INCLUDED ARTIFACTS:</span>
+              <span className="text-slate-300">manifest.json</span>
+              <span className="text-slate-500">•</span>
+              <span className="text-slate-300">analysis.json</span>
+              <span className="text-slate-500">•</span>
+              <span className="text-slate-300">provenance.json</span>
+              <span className="text-slate-500">•</span>
+              <span className="text-slate-300">change_clusters.geojson</span>
+              <span className="text-slate-500">•</span>
+              <span className="text-slate-300">report.md</span>
+            </div>
+
             {/* Actions: Primary Bundle + Individual Actions */}
             <div className="pt-2 border-t border-tactical-800 flex flex-wrap items-center justify-between gap-2">
               <button
@@ -490,7 +504,7 @@ export function EvidencePanel({
                 className="py-1.5 px-3 rounded bg-sky-600 hover:bg-sky-500 text-white font-mono font-bold text-xs transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50"
               >
                 {isExporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Archive className="w-3.5 h-3.5" />}
-                <span>EXPORT ANALYSIS BUNDLE</span>
+                <span>EXPORT EVIDENCE DOSSIER (ZIP)</span>
               </button>
 
               <div className="flex items-center gap-1.5">

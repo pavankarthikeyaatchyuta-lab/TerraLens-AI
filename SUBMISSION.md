@@ -4,7 +4,7 @@
 **Problem Statement Title:** Semantic Retrieval and Multi-Temporal Change Analysis of Satellite Imagery  
 **Team Name:** The Limit Breakers (Project: TerraLens AI)  
 **Repository:** [https://github.com/pavankarthikeyaatchyuta-lab/TerraLens-AI](https://github.com/pavankarthikeyaatchyuta-lab/TerraLens-AI)  
-**Verification Status:** 208/208 Python Passing | 17/17 Web Passing (225 total automated tests) | Next.js 14/14 Routes Compiled (0 errors) | Phase 11 Analyst Export & Provenance Complete  
+**Verification Status:** 218/218 Python Passing | 17/17 Web Passing (235 total automated tests) | Next.js 14/14 Routes Compiled (0 errors) | Phase 11 Analyst Export & Provenance Complete  
 
 ### Team Roster & Domain Roles
 - **Baddireddy Leela Krishna** ([@leelakrishna18](https://github.com/leelakrishna18)) — Team Leader, Semantic Retrieval & Embedding Pipeline
@@ -28,9 +28,9 @@ The system is designed around semantic representation, multi-temporal analysis, 
 
 TerraLens AI is a semantic satellite-imagery retrieval and multi-temporal change-analysis platform designed for analyst-driven Earth-observation discovery.
 
-The system follows the workflow:
+The system follows the 5-stage evidence-first workflow:
 
-$$\text{SEARCH} \longrightarrow \text{DISCOVER} \longrightarrow \text{COMPARE} \longrightarrow \text{VERIFY}$$
+$$\text{SEARCH} \longrightarrow \text{DISCOVER} \longrightarrow \text{COMPARE} \longrightarrow \text{VERIFY} \longrightarrow \text{EXPORT}$$
 
 ### 1. Semantic and Multimodal Retrieval
 
@@ -202,14 +202,18 @@ The current implementation has **218 Python tests passing** and **17 Web tests p
 
 ---
 
-## 2.5 Innovation
+## 2.5 Innovation & Competitive Positioning
 
-The key differentiator of TerraLens AI is the combination of:
+> **Core Philosophy:**  
+> *"TerraLens doesn't stop at detecting change. It makes that change searchable, explainable, verifiable and auditable."*  
+> Evidence-first satellite intelligence for finding, explaining, verifying and documenting temporal change.
 
-$$\mathbf{Semantic\ Discovery} \;+\; \mathbf{Multi\text{-}Temporal\ Verification} \;+\; \mathbf{Evidence\ Provenance}$$
+The key architectural differentiators of TerraLens AI are structured across the 5-stage loop ($\text{SEARCH} \to \text{DISCOVER} \to \text{COMPARE} \to \text{VERIFY} \to \text{EXPORT}$):
 
-1. **Natural Language Geospatial Discovery:** Instead of requiring an analyst to know the exact coordinates or bounding box before inspecting imagery, TerraLens allows the analyst to begin with a semantic description (e.g., *"rapid reservoir shoreline retreat"*).
-2. **Deterministic & Quality-Aware Verification:** Pairs semantic candidates with multi-temporal imagery, applies radiometric illumination matching, and filters out atmospheric/phenological false alarms through morphological clustering.
-3. **Audit Trail & Human-in-the-Loop Sovereign Lineage:** Every analytical conclusion is accompanied by a granular provenance trace and an analyst adjudication station (`TRUE CHANGE`, `FALSE ALARM`, `UNCERTAIN`), exportable as signed intelligence dossiers.
+1. **Semantic Discovery vs. Known Coordinates:** Instead of forcing an analyst to know exact bounding boxes or lat/long coordinates, TerraLens enables zero-shot natural-language search (`"solar park development in Rajasthan"`, `"rapid reservoir shoreline retreat"`) mapped to 512-dimensional CLIP embeddings with sub-25ms vector retrieval across regional catalogs.
+2. **Usable Observation History vs. Arbitrary Pair Selection:** Rather than picking arbitrary bi-temporal snapshots that risk comparing seasonal clouds or snow, TerraLens reconstructs the complete observation history across Sentinel-2 archives, automatically identifying *Earliest Usable Observation*, *First Supported Change*, *Subsequent Confirmation*, and *Latest Observation*.
+3. **Multi-Stage False-Alarm Suppression vs. Naive Differencing:** Replaces uncalibrated pixel differencing or black-box overlays with an auditable multi-stage pipeline: Raw Spectral Difference $\to$ Scene Classification Layer (SCL) Quality Masking $\to$ Radiometric Normalization ($\mu + 1.8\sigma$ clamped $[0.15, 0.45]$) $\to$ $3\times3$ Morphological Filtering $\to$ Minimum Cluster Area Filter ($\ge 900\,\text{m}^2$ / 9 px).
+4. **Analyst-in-the-Loop Adjudication vs. Black-Box AI Overlay:** AI generates candidate evidence rather than asserting definitive conclusions. The human analyst reviews signal-to-noise ratio, coherence, and cloud mask coverage, and adjudicates the verdict (`UNREVIEWED` $\to$ `TRUE CHANGE`, `FALSE ALARM`, `UNCERTAIN`) with domain interpretation notes.
+5. **Auditable Evidence Dossier vs. Static Screenshots:** Instead of exporting a lossy PNG/JPEG screenshot, TerraLens generates a portable, auditable PKZIP Evidence Dossier containing `manifest.json`, `analysis.json`, `provenance.json` (structured processing history, scene identifiers, analysis parameters, outputs, analyst decisions, and machine-readable evidence artifacts), RFC 7946 Polygon `change_clusters.geojson` for instant GIS ingestion, and an operational Markdown brief.
 
-The system therefore treats satellite-image retrieval and change analysis as a connected, auditable intelligence workflow rather than as isolated search and change-detection components.
+The system therefore treats satellite-image retrieval and change analysis as a connected, auditable intelligence workflow rather than as disconnected search and vision prototypes.

@@ -47,11 +47,13 @@ export function HeroBanner({ onOpenEvaluation, onLaunchConsole }: HeroBannerProp
           <span>COMPARE</span>
           <span className="text-slate-400">→</span>
           <span>VERIFY</span>
+          <span className="text-slate-400">→</span>
+          <span>EXPORT</span>
         </div>
 
         {/* Description */}
         <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
-          Autonomous multi-temporal satellite change intelligence workstation. Natural-language semantic discovery powered by 512-dimensional CLIP embeddings coupled with deterministic bi-temporal radiometric normalization, morphological false-alarm suppression, and auditable evidence provenance.
+          Evidence-first satellite intelligence for finding, explaining, verifying and documenting temporal change. TerraLens doesn't stop at detecting change — it makes that change searchable, explainable, verifiable and auditable through 512-D semantic discovery, multi-stage false-alarm suppression, and auditable evidence dossiers.
         </p>
 
         {/* Call to Actions */}
