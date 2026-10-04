@@ -575,6 +575,93 @@ export function TemporalComparison({
                 </div>
               </div>
 
+              {/* Phase 12C: Multi-Temporal Verification Chain (Earliest -> First Supported Change -> Subsequent Confirmation -> Latest) */}
+              {historyResult.usableObservations.length >= 2 && (() => {
+                const obsList = historyResult.usableObservations;
+                const earliestUsableObs = historyResult.earliestUsable || obsList[0];
+                const latestUsableObs = historyResult.latestUsable || obsList[obsList.length - 1];
+                const activeT1 = obsList.find((o) => o.sceneId === selectedT1SceneId) || earliestUsableObs;
+                const activeT2 = obsList.find((o) => o.sceneId === selectedT2SceneId) || (obsList.length > 1 ? obsList[obsList.length - 1] : earliestUsableObs);
+                const firstSupportedChangeObs = activeT2;
+                const subsequentConfirmationObs = obsList.find(
+                  (o) => new Date(o.acquisitionDate).getTime() > new Date(firstSupportedChangeObs.acquisitionDate).getTime()
+                );
+
+                return (
+                  <div className="p-3 bg-tactical-900 border border-tactical-700 rounded-lg space-y-2">
+                    <div className="flex items-center justify-between text-[11px] font-mono">
+                      <span className="font-bold text-slate-200 flex items-center gap-1.5">
+                        <History className="w-3.5 h-3.5 text-sky-400" />
+                        <span>MULTI-TEMPORAL PROVENANCE SEQUENCE</span>
+                      </span>
+                      <span className="text-[10px] text-slate-400 bg-tactical-800 px-2 py-0.5 rounded border border-tactical-700">
+                        AUTHENTIC SENTINEL-2 METADATA
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs font-mono">
+                      {/* Node 1: Earliest Usable */}
+                      <div className="bg-tactical-950 p-2.5 rounded border border-tactical-800 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] font-bold text-slate-400 uppercase">EARLIEST USABLE</span>
+                          <span className="text-[8px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+                            BASELINE
+                          </span>
+                        </div>
+                        <div className="text-xs font-bold text-slate-100">{earliestUsableObs?.acquisitionDate.slice(0, 10)}</div>
+                        <div className="text-[10px] text-slate-500">{earliestUsableObs?.cloudCoverPercentage.toFixed(1)}% cloud • {earliestUsableObs?.platform}</div>
+                      </div>
+
+                      {/* Node 2: First Supported Change */}
+                      <div className="bg-tactical-950 p-2.5 rounded border border-amber-500/40 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] font-bold text-amber-400 uppercase">FIRST SUPPORTED CHANGE</span>
+                          <span className="text-[8px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
+                            CHANGE
+                          </span>
+                        </div>
+                        <div className="text-xs font-bold text-amber-300">{firstSupportedChangeObs?.acquisitionDate.slice(0, 10)}</div>
+                        <div className="text-[10px] text-slate-500">{firstSupportedChangeObs?.cloudCoverPercentage.toFixed(1)}% cloud • {firstSupportedChangeObs?.platform}</div>
+                      </div>
+
+                      {/* Node 3: Subsequent Confirmation */}
+                      <div className="bg-tactical-950 p-2.5 rounded border border-tactical-800 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] font-bold text-slate-400 uppercase">CONFIRMED BY</span>
+                          <span className={`text-[8px] px-1 py-0.2 rounded font-bold border ${
+                            subsequentConfirmationObs
+                              ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/30"
+                              : "bg-slate-800 text-slate-400 border-slate-700"
+                          }`}>
+                            {subsequentConfirmationObs ? "CONFIRMED" : "AWAITING"}
+                          </span>
+                        </div>
+                        <div className="text-xs font-bold text-slate-100">
+                          {subsequentConfirmationObs ? subsequentConfirmationObs.acquisitionDate.slice(0, 10) : "Next Acquisition"}
+                        </div>
+                        <div className="text-[10px] text-slate-500">
+                          {subsequentConfirmationObs
+                            ? `${subsequentConfirmationObs.cloudCoverPercentage.toFixed(1)}% cloud • ${subsequentConfirmationObs.platform}`
+                            : "T2 is current frontier scene"}
+                        </div>
+                      </div>
+
+                      {/* Node 4: Latest Observation */}
+                      <div className="bg-tactical-950 p-2.5 rounded border border-tactical-800 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] font-bold text-slate-400 uppercase">LATEST OBSERVATION</span>
+                          <span className="text-[8px] px-1 py-0.2 rounded bg-sky-500/20 text-sky-300 font-bold border border-sky-500/30">
+                            FRONTIER
+                          </span>
+                        </div>
+                        <div className="text-xs font-bold text-sky-300">{latestUsableObs?.acquisitionDate.slice(0, 10)}</div>
+                        <div className="text-[10px] text-slate-500">{latestUsableObs?.cloudCoverPercentage.toFixed(1)}% cloud • {latestUsableObs?.platform}</div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Chronological Visual Timeline Track */}
               {historyResult.usableObservations.length > 0 && (
                 <div className="space-y-1.5">

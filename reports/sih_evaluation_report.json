@@ -1,0 +1,14 @@
+{
+  "report_name": "SIH26227 Comprehensive Evaluation Report",
+  "timestamp": "2026-10-04T04:29:14.602737+00:00",
+  "offline_validation_status": "PASS",
+  "staged_scenes_count": 80,
+  "staged_locations_count": 40,
+  "controlled_benchmark_iou": 0.9985,
+  "controlled_benchmark_f1": 0.9992,
+  "retrieval_mrr": 0.6667,
+  "retrieval_recall_at_1": 0.2,
+  "retrieval_recall_at_3": 0.5,
+  "warm_retrieval_latency_ms": 21.47,
+  "sih_heldout_status": "BLOCKED BY EXTERNAL INPUT \u2014 organiser-held-out evaluation data is not present in the repository."
+}

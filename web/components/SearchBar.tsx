@@ -21,11 +21,12 @@ interface SearchBarProps {
 }
 
 const PRESET_QUERIES = [
+  { label: "SIH Demo (Solar)", query: "solar park development in Rajasthan" },
   { label: "Urban Expansion", query: "urban expansion and new construction near river" },
   { label: "Reservoir Drought", query: "water reservoir shoreline drying and lake shrinkage" },
   { label: "Forest Corridor", query: "forest road clearing corridor and tree removal" },
   { label: "Coastal Port", query: "coastal port reclamation and ocean harbor pier" },
-  { label: "Solar Park", query: "solar panel farm photovoltaic arrays in desert terrain" },
+  { label: "Solar Arrays", query: "solar panel farm photovoltaic arrays in desert terrain" },
 ];
 
 export function SearchBar({ onSearch, isLoading, activeQuery, catalogMode = "benchmark" }: SearchBarProps) {

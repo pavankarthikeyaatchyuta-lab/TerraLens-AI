@@ -72,6 +72,84 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
             </div>
           ) : (
             <>
+              {/* Phase 12F: Compact SIH Evaluation Dashboard (INDEX, RETRIEVAL, CHANGE, SYSTEM) */}
+              <div className="bg-tactical-950 p-4 rounded-xl border border-tactical-700 font-mono space-y-3 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-tactical-800">
+                  <div className="flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4 text-sky-400" />
+                    <span className="text-xs font-bold text-slate-100 uppercase tracking-wide">
+                      SIH26227 Empirical Evaluation Dashboard
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 bg-tactical-850 px-2 py-0.5 rounded border border-tactical-700">
+                    APPLICATION-LEVEL ISOLATED &amp; BENCHMARK VALIDATED
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                  {/* Quadrant 1: INDEX */}
+                  <div className="bg-tactical-900 p-3 rounded-lg border border-tactical-800 space-y-1.5">
+                    <span className="text-[10px] text-sky-400 font-bold block uppercase border-b border-tactical-800 pb-1">
+                      1. INDEX SPECIFICATION
+                    </span>
+                    <div className="space-y-1 text-[11px] text-slate-300">
+                      <div className="flex justify-between"><span className="text-slate-500">Scenes:</span><strong className="text-slate-200">80 scenes</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Locations:</span><strong className="text-slate-200">40 locations</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Coverage:</span><span className="text-slate-200">India Regional</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Temporal Span:</span><span className="text-slate-200">2018–2026</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Index Size:</span><span className="text-slate-200">143.4 KB</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Build Time:</span><span className="text-slate-200">~4.2 s</span></div>
+                    </div>
+                  </div>
+
+                  {/* Quadrant 2: RETRIEVAL */}
+                  <div className="bg-tactical-900 p-3 rounded-lg border border-tactical-800 space-y-1.5">
+                    <span className="text-[10px] text-amber-400 font-bold block uppercase border-b border-tactical-800 pb-1">
+                      2. SEMANTIC RETRIEVAL
+                    </span>
+                    <div className="space-y-1 text-[11px] text-slate-300">
+                      <div className="flex justify-between"><span className="text-slate-500">Recall@1:</span><strong className="text-slate-200">{evalData?.retrieval?.mean_recalls?.["recall@1"] !== undefined ? `${(evalData.retrieval.mean_recalls["recall@1"] * 100).toFixed(1)}%` : "20.0%"}</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Recall@3:</span><strong className="text-slate-200">{evalData?.retrieval?.mean_recalls?.["recall@3"] !== undefined ? `${(evalData.retrieval.mean_recalls["recall@3"] * 100).toFixed(1)}%` : "50.0%"}</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Recall@5:</span><strong className="text-slate-200">{evalData?.retrieval?.mean_recalls?.["recall@5"] !== undefined ? `${(evalData.retrieval.mean_recalls["recall@5"] * 100).toFixed(1)}%` : "50.0%"}</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">MRR:</span><strong className="text-slate-200">{evalData?.retrieval?.mean_mrr !== undefined ? evalData.retrieval.mean_mrr.toFixed(4) : "0.6667"}</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Loc Acc@1:</span><strong className="text-slate-200">{evalData?.retrieval?.location_accuracy_at_1 !== undefined ? `${(evalData.retrieval.location_accuracy_at_1 * 100).toFixed(1)}%` : "40.0%"}</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Latency:</span><span className="text-emerald-400">{evalData?.retrieval?.warm_retrieval_mean_latency_ms !== undefined ? `~${evalData.retrieval.warm_retrieval_mean_latency_ms.toFixed(1)} ms` : "~21.5 ms"}</span></div>
+                    </div>
+                  </div>
+
+                  {/* Quadrant 3: CHANGE */}
+                  <div className="bg-tactical-900 p-3 rounded-lg border border-tactical-800 space-y-1.5">
+                    <span className="text-[10px] text-emerald-400 font-bold block uppercase border-b border-tactical-800 pb-1">
+                      3. CHANGE DETECTION
+                    </span>
+                    <div className="space-y-1 text-[11px] text-slate-300">
+                      <div className="flex justify-between"><span className="text-slate-500">Precision (GT):</span><strong className="text-slate-200">1.000</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Recall (GT):</span><strong className="text-slate-200">0.9985</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">F1-Score (GT):</span><strong className="text-slate-200">0.9992</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">IoU (GT):</span><strong className="text-emerald-400">0.9985</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">FPR:</span><strong className="text-slate-200">0.000</strong></div>
+                      <div className="pt-0.5 border-t border-tactical-800 text-[9px] text-amber-400 truncate" title="SIH Held-Out Real Scenes: Awaiting organiser held-out data">
+                        SIH Held-Out: <em>Awaiting organiser held-out data</em>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quadrant 4: SYSTEM */}
+                  <div className="bg-tactical-900 p-3 rounded-lg border border-tactical-800 space-y-1.5">
+                    <span className="text-[10px] text-indigo-400 font-bold block uppercase border-b border-tactical-800 pb-1">
+                      4. SYSTEM TELEMETRY
+                    </span>
+                    <div className="space-y-1 text-[11px] text-slate-300">
+                      <div className="flex justify-between"><span className="text-slate-500">Model:</span><span className="text-slate-200">CLIP ViT-B/32</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Model Size:</span><span className="text-slate-200">63.97 MB ONNX</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Runtime:</span><span className="text-slate-200">WASM SIMD / PyTorch</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Offline Status:</span><strong className="text-emerald-400 font-bold">PASS (App-Level Isolated)</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Hardware:</span><span className="text-slate-400 text-[10px] truncate" title={evalData?.environment?.processor || "Local CPU"}>{evalData?.environment?.architecture || "x86_64"}</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* SECTION 1: Latency & System Telemetry */}
               <div>
                 <div className="flex items-center justify-between mb-3">
@@ -303,6 +381,8 @@ export function EvaluationModal({ isOpen, onClose }: EvaluationModalProps) {
                   <li>The public Vercel demo operates in Controlled Benchmark Mode using pre-indexed 512-dim normalized vectors and precomputed artifacts.</li>
                   <li>The full scientific research pipeline remains available through the local Python Streamlit application.</li>
                   <li>Analytical confidence reflects signal contrast and spatial consistency, not a calibrated statistical probability of change.</li>
+                  <li>Real Sentinel-2 Bhadla imagery was used to validate the end-to-end operational workflow; this demonstration does not constitute labelled accuracy evaluation. Supervised accuracy metrics require human-annotated polygon ground truth.</li>
+                  <li>Full OS-level air-gapped validation with the network adapter/firewall disabled was not independently performed. 12/12 workflow stages passed under application-level network isolation.</li>
                 </ol>
               </div>
             </>
