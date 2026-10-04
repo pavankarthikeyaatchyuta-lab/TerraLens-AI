@@ -4,7 +4,7 @@
 **Problem Statement Title:** Semantic Retrieval and Multi-Temporal Change Analysis of Satellite Imagery  
 **Team Name:** The Limit Breakers (Project: TerraLens AI)  
 **Repository:** [https://github.com/pavankarthikeyaatchyuta-lab/TerraLens-AI](https://github.com/pavankarthikeyaatchyuta-lab/TerraLens-AI)  
-**Verification Status:** 126/126 Automated Tests Passing | Next.js 17/17 Routes Compiled | Phase 6 Final Hardening & Verification Complete  
+**Verification Status:** 208/208 Python Passing | 17/17 Web Passing (225 total automated tests) | Next.js 14/14 Routes Compiled (0 errors) | Phase 11 Analyst Export & Provenance Complete  
 
 ### Team Roster & Domain Roles
 - **Baddireddy Leela Krishna** ([@leelakrishna18](https://github.com/leelakrishna18)) — Team Leader, Semantic Retrieval & Embedding Pipeline
@@ -188,9 +188,17 @@ TerraLens AI provides reproducible evaluation of both retrieval and controlled c
 | **Robustness Suite** | **7 / 7 (100%)** | All 7 environmental stress scenarios passing |
 | **Bi-Temporal Analysis Latency** | **32.64 ms** | Real-time edge inference latency |
 
-*Scientific Integrity Notice:* Real-scene polygon-level ground truth is explicitly identified as unavailable where applicable, and those metrics are therefore not presented as measured real-scene performance.
+### Evaluation Data Status & SIH26227 Reproducibility
 
-The current implementation has **126 automated tests passing** (100% pass rate across Python, geospatial, and end-to-end workflow test suites), with the Next.js production build compiling all **17 routes successfully** including Phase 4B real bi-temporal Sentinel-2 change analysis (`/api/satellite/analyze`), Phase 5A end-to-end analyst workflow with interactive cluster selection, adjudication, and signed intelligence dossier export (`/api/export`), and Phase 5B comprehensive scientific, geodesic, and geometric validation.
+TerraLens AI uses publicly available Sentinel-2 imagery for its real Earth-observation workflow and maintains a controlled synthetic benchmark for deterministic regression testing. The SIH organiser's held-out evaluation imagery is treated as an external evaluation input and is not claimed as part of the team's benchmark unless officially provided.
+
+1. **Public Real EO Demonstration Data (Sentinel-2 L2A):** Used for end-to-end operational workflow validation (e.g., Bhadla Solar Park). Real Sentinel-2 Bhadla imagery was used to validate the end-to-end operational workflow; this demonstration does not constitute labelled accuracy evaluation.
+2. **Internal Controlled Synthetic Benchmark:** Used for deterministic algorithmic regression testing, invariant checks, and 7 environmental stress tests against explicit pixel ground truth. These numbers validate algorithm code, not real satellite accuracy.
+3. **Locally Staged Offline Evaluation Data:** Ingested via `scripts/stage_local_dataset.py` with GeoTIFF/COG support, deterministic SHA-256 checksums, and standard manifest generation.
+4. **SIH Organiser Held-Out Evaluation Data:** **BLOCKED BY EXTERNAL INPUT** — organiser-held-out evaluation data is not present in the repository. The staging pipeline and evaluation harness (`scripts/run_evaluation.py`) are fully architected to consume organizer data upon delivery.
+5. **Offline Execution Readiness (PARTIAL):** Offline staging, local model assets, local vector catalog, and offline-capable benchmark paths are implemented. Full end-to-end air-gapped execution with network access physically disabled has NOT been independently validated in this environment.
+
+The current implementation has **208 Python tests passing** and **17 Web tests passing** (225 total automated tests, 100% pass rate across Python, geospatial, change engine, export bundles, and end-to-end workflow test suites), with the Next.js production build compiling all **14 routes successfully** including real Sentinel-2 change analysis (`/api/satellite/analyze`), full analyst export bundle suite (`/api/export`), and complete provenance validation.
 
 ---
 

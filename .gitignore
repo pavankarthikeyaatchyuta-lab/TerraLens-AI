@@ -66,3 +66,4 @@ next-env.d.ts
 scratch/
 *.onnx.data
 web/tests/output/
+data/staged/

@@ -3,9 +3,9 @@
 **Smart India Hackathon 2026 (SIH 2026)**  
 **Problem Statement ID:** SIH26227  
 **Team Name:** The Limit Breakers  
-**Operational Status:** Phase 7A-Lite Complete (Lightweight Local CLIP Semantic Retrieval)  
+**Operational Status:** Phase 11 Complete (Analyst Export & Provenance Suite) + SIH26227 Audit Compliance  
 **Live Public Demo:** [https://terra-lens-ai.vercel.app/](https://terra-lens-ai.vercel.app/)  
-**Automated Tests:** 126/126 Passing (100% Pass Rate) | Next.js 14 Routes Compiled (0 errors) | Phase 7A-Lite Parity PASS (0.998+ Cosine)  
+**Automated Tests:** 208/208 Python Passing | 17/17 Web Passing (225 total automated tests) | Next.js 14/14 Routes Compiled (0 errors)  
 **Model Payload:** 63.97 MB on disk (47.16 MB gzipped / Vercel-friendly)  
 **Official SIH Submission:** [SUBMISSION.md](SUBMISSION.md)
 
@@ -526,3 +526,97 @@ The Phase 5B comprehensive audit verified the complete TerraLens AI workflow geo
 | **Divija Jangam** | [@divijajangam](https://github.com/divijajangam) | Full-Stack Web Application & UI/UX | Full-stack Next.js web application, client-side STAC API SDK, interactive Leaflet integration |
 | **Anjana Janyavula** | [@Anjana-Janyavula](https://github.com/Anjana-Janyavula) | QA, Evaluation Suite & Benchmarking | QA & evaluation suite, benchmark verification, robustness testing, documentation |
 | **Busireddy Mohan Narayana Reddy** | [@Mohanreddy-lab](https://github.com/Mohanreddy-lab) | Backend Engineering & Systems Auditing | Backend architecture, server-side data pipeline integration, network boundary security, pre-flight auditing |
+
+---
+
+## 13. Evaluation Data Status & SIH26227 Reproducibility
+
+TerraLens AI uses publicly available Sentinel-2 imagery for its real Earth-observation workflow and maintains a controlled synthetic benchmark for deterministic regression testing. The SIH organiser's held-out evaluation imagery is treated as an external evaluation input and is not claimed as part of the team's benchmark unless officially provided.
+
+### SIH26227 Requirements Compliance Matrix
+
+| Requirement | SIH26227 Requirement | TerraLens Implementation | Evidence in Repository | Status | Action Needed |
+|:---|:---|:---|:---|:---:|:---|
+| **Semantic Query Retrieval** | Natural language text queries to retrieve relevant satellite scenes | In-browser ONNX CLIP text encoder + Python CLIP with FAISS cosine similarity | `web/lib/clipTextEncoder.ts`, `terralens/app/services/embedding_service.py` | **PASS** | Operational in production |
+| **Image-Based Retrieval** | Visual query by example to surface similar geographic locations | 512-D L2-normalized image embedding similarity search across catalog scenes | `web/components/LiveAOISearch.tsx`, `terralens/app/services/retrieval_service.py` | **PASS** | Operational in production |
+| **Multi-Temporal Change Detection** | Bi-temporal image comparison to detect surface change | Multi-spectral differencing (ΔNDVI, ΔRed, ΔNIR) with spatial alignment | `web/lib/services/changeAnalysisEngine.ts`, `terralens/app/services/change_analysis_engine.py` | **PASS** | Operational in production |
+| **False-Alarm Suppression** | Eliminate imaging artifacts (clouds, shadows, illumination, noise) | SCL quality masking (classes 0, 1, 3, 8, 9, 10, 11), radiometric matching, 3×3 morphology | `web/lib/services/changeAnalysisEngine.ts`, `web/tests/test_change_analysis_engine.ts` | **PASS** | Invariant preserved (μ + 1.8σ clamped [0.15, 0.45]) |
+| **Spatial Clustering & Area** | Group changed pixels into geographic polygons with area telemetry | 8-connectivity clustering, ≥ 900 m² (9 px) filter, RFC 7946 GeoJSON export | `web/lib/services/exportBundleService.ts`, `terralens/app/services/change_analysis_engine.py` | **PASS** | Minimum cluster area invariant enforced |
+| **Public EO Data (Sentinel-2)** | Ingest and analyze real open-access satellite data | Planetary Computer and AWS Earth Search STAC integration (Level-2A BOA surface reflectance) | `web/lib/providers/copernicusSentinelProvider.ts`, `web/public/data/eo_locations.json` | **PASS** | Live demonstrations (e.g. Bhadla Solar Park) |
+| **GeoTIFF / COG Ingestion** | Accept local / staged GeoTIFF and COG imagery | `LocalDatasetStagingService` reads GeoTIFF tags (33550, 33922, 34737), pixel scale, CRS, and sidecars | `terralens/app/services/staging_service.py`, `scripts/stage_local_dataset.py` | **PASS** | Implemented and verified |
+| **Offline Execution Readiness** | Operate locally with network access disabled after staging | Staging pipeline, local ONNX WASM model, local vector index, and offline benchmark provider implemented | `web/lib/clipTextEncoder.ts`, `terralens/app/services/staging_service.py` | **PARTIAL** | Offline staging, local model assets, local vector catalog, and offline-capable benchmark paths are implemented. Full end-to-end air-gapped execution with network access physically disabled has NOT been independently validated in this environment. |
+| **Auditable Provenance** | Lineage preservation, analyst review, verifiable export | Phase 11 ZIP bundle with `manifest.json`, `provenance.json`, `change_clusters.geojson`, Markdown report | `web/lib/services/exportBundleService.ts`, `web/tests/test_phase11_export.ts` | **PASS** | Tested in production and regression suites |
+| **SIH Organiser Held-Out Evaluation** | Benchmark against official SIH26227 evaluation test set | Evaluation runner supports `--sih-heldout-dir`, `--queries`, and `--pairs`. When held-out data is absent, cleanly outputs explicit status | `scripts/run_evaluation.py`, `tests/test_data_staging_and_heldout_eval.py` | **BLOCKED BY EXTERNAL INPUT** | Organiser-held-out evaluation data is not present in the repository; awaiting official dataset from SIH organisers |
+
+### Evaluation Data Status Matrix
+
+| Data Category | Dataset / Origin | Purpose | Ground Truth Status | Evaluated Metrics |
+|:---|:---|:---|:---|:---|
+| **A. Public Real EO Demonstration** | Copernicus Sentinel-2 L2A via Planetary Computer STAC (e.g. Bhadla Solar Park, Pavagada, Kurnool) | End-to-end operational workflow validation, SCL quality masking, multi-year temporal history | **No Labelled Ground Truth** (unannotated public imagery) | Operational change telemetry, cluster geometries, spectral deltas. *Zero supervised Precision/Recall/F1 claims made.* |
+| **B. Internal Controlled Benchmark** | Synthetic controlled imagery pairs (`data/samples/`, `data/evaluation/`) | Algorithmic regression verification, mathematical invariant checks, 7 environmental stress tests | **Explicit Pixel-Level Ground Truth** (`data/evaluation/change_ground_truth/`) | Precision (1.000), Recall (0.9985), F1 (0.9992), IoU (0.9985), FPR (0.0). *Validates detector code, not real satellite accuracy.* |
+| **C. Locally Staged Offline Data** | User/organizer supplied scenes staged via `scripts/stage_local_dataset.py` (GeoTIFF/COG/TIFF/PNG) | Air-gapped / offline ingestion, local indexing, reproducible sovereign operations | Derived from sidecar metadata (`.json`) or file tags | Metadata manifest, SHA-256 integrity, local vector search |
+| **D. SIH Organiser Held-Out Data** | Official SIH26227 held-out evaluation imagery | Final official hackathon evaluation | **BLOCKED BY EXTERNAL INPUT** — organiser-held-out evaluation data is not present in the repository | Staging and evaluation pipeline is fully architected and ready to ingest organizer data upon delivery |
+
+> **Scientific Disclosure:** Real Sentinel-2 Bhadla imagery was used to validate the end-to-end operational workflow; this demonstration does not constitute labelled accuracy evaluation. Supervised accuracy metrics require human-annotated polygon ground truth.
+
+---
+
+## 14. Model and Dataset Provenance
+
+### Model Inventory
+- **Vision-Language Model:** `openai/clip-vit-base-patch32`
+  - **Source:** HuggingFace / OpenAI
+  - **License:** MIT License
+  - **Local Packaging:** Exported as ONNX model (`web/public/models/clip-text-encoder.onnx`, 63.97 MB) with local BPE tokenizer assets for 100% browser-side inference via `onnxruntime-web` WASM.
+  - **Embedding Dimension:** 512-D L2-normalized float32 vectors.
+  - **Role:** Text query and image candidate semantic embedding.
+- **Change Detection Engine:** Deterministic Bi-Temporal Change Engine
+  - **Architecture:** Multi-spectral differencing ($\Delta\text{NDVI}$, $\Delta\text{Red}$, $\Delta\text{NIR}$) with SCL atmospheric quality masking.
+  - **Threshold Formulation:** $\mu + 1.8\sigma$ clamped to $[0.15, 0.45]$. Strictly deterministic, zero Otsu or arbitrary magic numbers.
+  - **Morphology:** $3\times3$ morphological opening (noise suppression) followed by $3\times3$ closing (boundary consolidation).
+  - **Cluster Filtering:** 8-connected components with minimum cluster area threshold of $900\text{ m}^2$ (9 pixels at 10m GSD).
+  - **Confidence Metric:** Analytical heuristic score in $[0.0, 1.0]$ based on signal contrast and spatial consistency (explicitly not a calibrated Bayesian probability).
+
+### Dataset Inventory
+- **Copernicus Sentinel-2 L2A:** Open-access multi-spectral imagery distributed by the European Space Agency (ESA) through Microsoft Planetary Computer and AWS Earth Search. Free and open data policy.
+- **Internal Synthetic Benchmark:** Custom synthetic controlled pairs created for algorithmic unit testing and regression verification. CC0 / Open Domain.
+- **Export Bundle Lineage:** All exported bundles (ZIP, GeoJSON, JSON, Markdown) retain structured auditable lineage, scene identifiers, bounding boxes, and analyst adjudication status without claiming unverified cryptographic/blockchain signatures.
+
+---
+
+## 15. Offline Execution & Staging Guide
+
+TerraLens AI provides dedicated offline staging tools and local execution paths. **Status: PARTIAL.** Offline staging, local model assets, local vector catalog, and offline-capable benchmark paths are implemented. Full end-to-end air-gapped execution with network access physically disabled has NOT been independently validated in this environment.
+
+### Offline Staging Step-by-Step Workflow:
+
+1. **Stage Local Satellite Imagery (GeoTIFF, COG, TIFF, PNG):**
+   ```bash
+   python scripts/stage_local_dataset.py --source-dir /path/to/raw/satellite_scenes --staging-dir data/staged
+   ```
+   *Validates file headers, extracts resolution and CRS, computes deterministic SHA-256 checksums, and updates `data/staged/staged_scenes_manifest.json` with zero network calls.*
+
+2. **Build / Update Local Vector Index:**
+   ```bash
+   python scripts/build_embedding_index.py
+   ```
+
+3. **Verify Local Web Assets & Models:**
+   - Confirm `web/public/models/clip-text-encoder.onnx` is present.
+   - Confirm `web/public/models/bpe_ranks.json` and `vocab.json` are present.
+   - Confirm `web/public/onnx/ort.min.js` and WASM binaries are present.
+
+4. **Launch Application in Offline / Staged Mode:**
+   ```bash
+   cd web
+   npm run dev
+   ```
+
+5. **Execute External / Held-Out Evaluation Harness:**
+   ```bash
+   # Run against custom query set and ground truth pairs:
+   python scripts/run_evaluation.py --queries /path/to/queries.json --pairs /path/to/pairs.json
+
+   # Test external held-out directory readiness:
+   python scripts/run_evaluation.py --sih-heldout-dir /path/to/sih_heldout_dataset
+   ```
