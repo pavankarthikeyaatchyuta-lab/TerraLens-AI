@@ -372,7 +372,37 @@ export function searchScenes(
     }
 
     const score = cosineSimilarity(activeVector, sceneRec.vector);
-    scored.push({ sceneRecord: sceneRec, score });
+
+    // Tag-relevance boost: when the user's text query contains words that match
+    // location/scene tags, boost that scene's score so thematically relevant
+    // locations rank higher in the results (e.g. "river" query → river-tagged locations)
+    let tagBoost = 0;
+    if (normalizedQuery && normalizedQuery.length > 2) {
+      const queryTokens = normalizedQuery.split(/\s+/).filter((t) => t.length > 2);
+      const combinedTags = [
+        ...(sceneRec.tags || []),
+        ...(loc?.tags || []),
+      ].map((t) => t.toLowerCase());
+      const locName = (loc?.name || "").toLowerCase();
+      const locDesc = (loc?.description || "").toLowerCase();
+
+      for (const qToken of queryTokens) {
+        // Direct tag match (strongest signal)
+        if (combinedTags.some((tag) => tag.includes(qToken) || qToken.includes(tag))) {
+          tagBoost += 0.06;
+        }
+        // Location name match
+        if (locName.includes(qToken)) {
+          tagBoost += 0.04;
+        }
+        // Description match (weaker signal)
+        if (locDesc.includes(qToken)) {
+          tagBoost += 0.02;
+        }
+      }
+    }
+
+    scored.push({ sceneRecord: sceneRec, score: score + tagBoost });
   }
 
   // Sort descending by exact cosine score

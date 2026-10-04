@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
       }
 
       const outcome = searchScenes(
-        imageSceneId,
+        query || imageSceneId,
         topK,
         matchedRecord.vector,
         "catalog-scene-visual",
