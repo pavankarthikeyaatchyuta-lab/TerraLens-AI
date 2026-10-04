@@ -100,7 +100,7 @@ export function DiscoverStage({
               <div className="bg-tactical-950 p-2 rounded border border-tactical-800">
                 <span className="text-slate-500 text-[10px] block">ARCHIVE BASELINE:</span>
                 <span className="text-slate-200 font-bold">
-                  {topLocation.available_dates?.[0] || "2023-04-05"} &rarr; {topLocation.available_dates?.[1] || "2025-03-12"}
+                  {topLocation.available_dates?.[0] || "2023-04-05"} &rarr; {topLocation.available_dates?.[1] || "2025-03-15"}
                 </span>
               </div>
             </div>

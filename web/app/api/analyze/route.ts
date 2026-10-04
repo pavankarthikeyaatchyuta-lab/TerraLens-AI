@@ -49,26 +49,31 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Fallback if not cached
+    // If not cached, return honest UNAVAILABLE state rather than fabricating results
     return NextResponse.json({
-      status: "NO_SIGNIFICANT_CHANGE",
-      change_type: "No Significant Change",
+      status: "UNAVAILABLE",
+      change_type: "Analysis Unavailable",
       detector_name: "DeterministicBiTemporalChangeDetector",
       detector_label: "Deterministic Bi-Temporal Baseline",
+      message: "Analysis unavailable for selected observations",
+      details: "Insufficient verified bi-temporal imagery cached for this target location.",
       changed_pixels: 0,
       total_pixels: 262144,
       change_ratio: 0.0,
+      changed_area_m2: 0,
+      changed_area_ha: 0,
       change_regions: [],
-      confidence_score: 0.95,
-      confidence_breakdown: {
-        signal_contrast: 0.0,
-        spatial_coherence: 1.0,
-        alignment_penalty: 0.0,
-        quality_penalty: 0.0,
-        raw_confidence: 0.95,
-        penalized_confidence: 0.95,
+      clusters: [],
+      cluster_count: 0,
+      confidence_score: null,
+      confidence: null,
+      valid_pixel_count: 0,
+      valid_pixel_percentage: "N/A",
+      quality: {
+        validPercentage: "N/A",
+        status: "Insufficient valid observations",
       },
-      alignment_status: "Aligned (identity)",
+      alignment_status: "No observation pair available",
       location: {
         location_id: location.location_id,
         name: location.name,

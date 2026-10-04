@@ -93,7 +93,7 @@ export function SearchStage({
             &ldquo;solar park development in Rajasthan&rdquo;
           </h3>
           <p className="text-xs text-slate-400 font-sans">
-            Resolves directly to Bhadla Solar Park • 707-day Sentinel-2 observation baseline (2023-04-05 &rarr; 2025-03-12) • 14.28 ha detected expansion.
+            Resolves directly to Bhadla Solar Park • 710-day Sentinel-2 observation baseline (2023-04-05 &rarr; 2025-03-15) • 60.22 ha detected change.
           </p>
         </div>
 

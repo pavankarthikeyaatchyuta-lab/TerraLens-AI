@@ -114,7 +114,6 @@ export function getChangeAnalysis(locationId: string): ChangeDetectionResult | n
     }
   }
   if (cachedAnalyses?.[locationId]) return cachedAnalyses[locationId];
-  if (locationId === "LOC_EO_01_BHADLA_SOLAR") return cachedAnalyses?.["LOC_005_THAR_SOLAR_PARK"] || null;
   return null;
 }
 

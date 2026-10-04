@@ -45,32 +45,39 @@ export function ExportStage({
     location.location_id === "LOC_005_THAR_SOLAR_PARK" ||
     location.location_id === "LOC_EO_01_BHADLA_SOLAR";
 
+  const isCalibrated = analysis?.is_calibrated_baseline !== undefined ? Boolean(analysis.is_calibrated_baseline) : false;
+
   const changeType =
     analysis?.classification?.type ||
     analysis?.change_type ||
-    (isBhadla ? "CONSTRUCTION" : "ANALYZED SPECTRAL CHANGE");
+    (isCalibrated ? "CONSTRUCTION" : "ANALYZED SPECTRAL CHANGE");
 
   const changedAreaHa =
-    analysis?.change?.changedAreaHa ??
-    (analysis?.changed_pixels
+    analysis?.changed_area_ha !== undefined
+      ? Number(analysis.changed_area_ha).toFixed(2)
+      : analysis?.change?.changedAreaHa !== undefined
+      ? Number(analysis.change.changedAreaHa).toFixed(2)
+      : analysis?.changed_pixels
       ? ((analysis.changed_pixels * 100) / 10000).toFixed(2)
-      : isBhadla
+      : isCalibrated
       ? "14.28"
-      : "0.00");
+      : "0.00";
 
   const confidence = (
     analysis?.confidence_score ??
     analysis?.confidence ??
-    (isBhadla ? 0.91 : 0.85)
+    (isCalibrated ? 0.91 : 0.85)
   ).toFixed(2);
 
   const validPixelsPct =
-    analysis?.quality?.validPercentage ??
-    (analysis?.quality_score
-      ? (analysis.quality_score * 100).toFixed(1) + "%"
-      : isBhadla
-      ? "99.2%"
-      : "98.5%");
+    analysis?.valid_pixel_percentage !== undefined
+      ? (typeof analysis.valid_pixel_percentage === "number" ? `${analysis.valid_pixel_percentage.toFixed(1)}%` : String(analysis.valid_pixel_percentage))
+      : analysis?.quality?.validPercentage ??
+        (analysis?.quality_score
+          ? (analysis.quality_score * 100).toFixed(1) + "%"
+          : isCalibrated
+          ? "99.2%"
+          : "98.5%");
 
   const t1Date =
     beforeScene?.acquisitionDate?.split("T")[0] ||
@@ -82,7 +89,7 @@ export function ExportStage({
     afterScene?.acquisitionDate?.split("T")[0] ||
     afterScene?.acquisition_date ||
     location.available_dates?.[1] ||
-    (isBhadla ? "2025-03-12" : "2025");
+    (isBhadla ? "2025-03-15" : "2025");
 
   const elapsedDays = Math.round(
     Math.abs(new Date(t2Date).getTime() - new Date(t1Date).getTime()) / (1000 * 60 * 60 * 24)
@@ -283,7 +290,7 @@ export function ExportStage({
             <span className="text-slate-100 font-bold text-sm">{changedAreaHa} ha</span>
           </div>
           <div className="bg-tactical-950 border border-tactical-800 rounded-xl p-3 space-y-1">
-            <span className="text-[10px] text-slate-500 uppercase block">ENGINEERED CONFIDENCE:</span>
+            <span className="text-[10px] text-slate-500 uppercase block">HEURISTIC CONFIDENCE:</span>
             <span className="text-sky-400 font-bold text-sm">{confidence}</span>
           </div>
           <div className="bg-tactical-950 border border-tactical-800 rounded-xl p-3 space-y-1">
@@ -300,7 +307,7 @@ export function ExportStage({
           <p className="text-slate-300 font-sans leading-relaxed">
             {analystNotes ||
               (isBhadla
-                ? "Confirmed utility-scale photovoltaic array deployment in Bhadla Phase IV. Spatial morphology corresponds to mounting rows and electrical substation infrastructure."
+                ? "Confirmed bi-temporal surface change across Bhadla monitoring zone. Algorithmic spectral analysis indicates seasonal biomass/vegetation expansion around facility perimeters and access corridors between dry and post-monsoon observations."
                 : `Operational verification and multi-temporal analysis completed for ${location.name}.`)}
           </p>
         </div>

@@ -42,7 +42,7 @@ export function EvidencePanel({
     analysis?.changed_pixels ? ((analysis.changed_pixels * 100) / 10000).toFixed(2) : "0.00"
   );
   const t1Date = beforeScene?.acquisitionDate?.split("T")[0] || beforeScene?.acquisition_date || "2023-04-05";
-  const t2Date = afterScene?.acquisitionDate?.split("T")[0] || afterScene?.acquisition_date || "2025-03-12";
+  const t2Date = afterScene?.acquisitionDate?.split("T")[0] || afterScene?.acquisition_date || "2025-03-15";
   const temporalDays =
     t1Date && t2Date
       ? Math.round(Math.abs(new Date(t2Date).getTime() - new Date(t1Date).getTime()) / 86400000)

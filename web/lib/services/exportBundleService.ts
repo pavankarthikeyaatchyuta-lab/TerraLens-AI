@@ -339,9 +339,9 @@ export function assembleExportBundle(options: ExportBundleOptions): ExportBundle
 
   const afterScene = options.afterScene || live?.scenes?.after || {
     sceneId: "T2_SCENE_MONITORING",
-    acquisitionDate: "2025-03-12",
+    acquisitionDate: "2025-03-15",
     instrument: "Sentinel-2 MSI",
-    platform: "Sentinel-2B",
+    platform: "Sentinel-2C",
     cloudCoverPercentage: 0.8,
   };
 
@@ -367,25 +367,32 @@ export function assembleExportBundle(options: ExportBundleOptions): ExportBundle
   }
 
   // Derive change metrics
-  const changedPixels = Number(live?.change?.changedPixels ?? benchmark?.changed_pixels ?? 0);
-  const totalPixels = Number(live?.quality?.totalPixels ?? live?.change?.totalPixels ?? benchmark?.total_pixels ?? 262144);
-  const rawAreaHa = live?.change?.changedAreaHa ?? ((changedPixels * 100) / 10000.0);
+  const changedPixels = Number(live?.changed_pixels ?? live?.change?.changedPixels ?? benchmark?.changed_pixels ?? 0);
+  const totalPixels = Number(live?.total_pixels ?? live?.quality?.totalPixels ?? live?.change?.totalPixels ?? benchmark?.total_pixels ?? 262144);
+  const rawAreaHa = live?.changed_area_ha ?? live?.change?.changedAreaHa ?? ((changedPixels * 100) / 10000.0);
   const changedAreaHa = typeof rawAreaHa === "number" ? rawAreaHa : parseFloat(String(rawAreaHa) || "0");
-  const changedAreaM2 = Number(live?.change?.changedAreaM2 ?? (changedPixels * 100));
-  const thresholdVal = live?.change?.threshold ?? 0.285;
-  const thresholdMethod = live?.change?.thresholdMethod ?? "Adaptive Statistical Distribution (mean + 1.8*std, clamped [0.15, 0.45])";
+  const changedAreaM2 = Number(live?.changed_area_m2 ?? live?.change?.changedAreaM2 ?? (changedPixels * 100));
+  const thresholdVal = live?.threshold ?? live?.change?.threshold ?? 0.285;
+  const thresholdMethod = live?.threshold_method ?? live?.change?.thresholdMethod ?? "Adaptive Statistical Distribution (mean + 1.8*std, clamped [0.15, 0.45])";
 
   // Derive confidence stats
   const confScores = rawClusters.map((c) => c.confidenceScore ?? c.confidence_score ?? 0.70);
-  const minConf = confScores.length ? Math.min(...confScores) : (live?.change?.meanConfidence ?? benchmark?.confidence_score ?? 0.70);
-  const maxConf = confScores.length ? Math.max(...confScores) : (live?.change?.meanConfidence ?? benchmark?.confidence_score ?? 0.70);
-  const meanConf = confScores.length ? confScores.reduce((a, b) => a + b, 0) / confScores.length : (live?.change?.meanConfidence ?? benchmark?.confidence_score ?? 0.70);
+  const minConf = confScores.length ? Math.min(...confScores) : (live?.confidence_score ?? live?.confidence ?? live?.change?.meanConfidence ?? benchmark?.confidence_score ?? 0.70);
+  const maxConf = confScores.length ? Math.max(...confScores) : (live?.confidence_score ?? live?.confidence ?? live?.change?.meanConfidence ?? benchmark?.confidence_score ?? 0.70);
+  const meanConf = live?.confidence_score ?? (confScores.length ? confScores.reduce((a, b) => a + b, 0) / confScores.length : (live?.confidence ?? live?.change?.meanConfidence ?? benchmark?.confidence_score ?? 0.70));
 
   // Analysis mode
   const analysisMode = options.analysisMode || (live ? "REAL_EO_CATALOG" : "CONTROLLED_BENCHMARK");
-  const dataSource = analysisMode === "CONTROLLED_BENCHMARK"
-    ? "TerraLens Controlled Benchmark Synthetic Sentinel-2 MSI Archive"
-    : "Copernicus Sentinel-2 Level-2A BOA via Microsoft Planetary Computer STAC";
+  const isCalibratedBaseline = live?.is_calibrated_baseline !== undefined
+    ? Boolean(live.is_calibrated_baseline)
+    : benchmark?.is_calibrated_baseline !== undefined
+    ? Boolean(benchmark.is_calibrated_baseline)
+    : false;
+  const dataSource = live?.data_source || (isCalibratedBaseline
+    ? "Calibrated Demo Baseline (Simulated SCL & Radiometric Pipeline)"
+    : (analysisMode === "CONTROLLED_BENCHMARK"
+      ? "TerraLens Controlled Benchmark Synthetic Sentinel-2 MSI Archive"
+      : "Copernicus Sentinel-2 Level-2A BOA via Microsoft Planetary Computer STAC"));
 
   // Determine overall analyst status
   const adjudicatedClusterCount = Object.keys(analystReviews).length;
@@ -423,6 +430,10 @@ export function assembleExportBundle(options: ExportBundleOptions): ExportBundle
     t2_cloud_percentage: afterScene.cloudCoverPercentage ?? null,
     analysis_mode: analysisMode,
     data_source: dataSource,
+    is_calibrated_baseline: isCalibratedBaseline,
+    provenance_statement: isCalibratedBaseline
+      ? "Observation dates from Copernicus Sentinel-2 STAC; change metrics from calibrated baseline."
+      : undefined,
     number_of_detected_clusters: rawClusters.length,
     changed_pixel_count: changedPixels,
     change_area: {
@@ -441,6 +452,10 @@ export function assembleExportBundle(options: ExportBundleOptions): ExportBundle
       min_confidence: parseFloat(minConf.toFixed(3)),
       max_confidence: parseFloat(maxConf.toFixed(3)),
       metric_type: "deterministic_heuristic_score_not_probability",
+    },
+    quality: {
+      valid_percentage: live?.valid_pixel_percentage ?? (live?.quality?.validPercentage ? parseFloat(String(live.quality.validPercentage)) : (benchmark?.quality_score ? parseFloat((benchmark.quality_score * 100).toFixed(1)) : 99.2)),
+      cloud_cover: live?.quality?.cloudCover ?? "0.8%",
     },
     analyst_status: overallAnalystStatus,
     included_artifacts: [
@@ -529,8 +544,13 @@ export function assembleExportBundle(options: ExportBundleOptions): ExportBundle
       cluster_adjudications: analystReviews,
       review_count: Object.keys(analystReviews).length,
     },
-    scientific_disclosure:
-      "Structured auditable processing lineage for analytical reproducibility. Analytical confidence is a deterministic heuristic indicator and is not a calibrated probability.",
+    is_calibrated_baseline: isCalibratedBaseline,
+    provenance_statement: isCalibratedBaseline
+      ? "Observation dates from Copernicus Sentinel-2 STAC; change metrics from calibrated baseline."
+      : undefined,
+    scientific_disclosure: isCalibratedBaseline
+      ? "Observation dates from Copernicus Sentinel-2 STAC; change metrics from calibrated baseline. Structured auditable processing lineage for analytical reproducibility. Analytical confidence is a deterministic heuristic indicator and is not a calibrated probability."
+      : "Structured auditable processing lineage for analytical reproducibility. Analytical confidence is a deterministic heuristic indicator and is not a calibrated probability.",
   };
 
   // 3. GEOJSON
@@ -661,7 +681,7 @@ export function assembleExportBundle(options: ExportBundleOptions): ExportBundle
 - **Data Source:** ${dataSource}
 
 ## Detection
-- **Changed Pixels:** ${changedPixels.toLocaleString()} / ${totalPixels.toLocaleString()} px
+${isCalibratedBaseline ? `> [!NOTE]\n> **Calibration Disclosure:** Observation dates from Copernicus Sentinel-2 STAC; change metrics (${changedPixels.toLocaleString()} px, ${changedAreaHa} ha, ${meanConf.toFixed(2)} confidence) are from the calibrated demo baseline.\n\n` : ""}- **Changed Pixels:** ${changedPixels.toLocaleString()} / ${totalPixels.toLocaleString()} px
 - **Change Area:** ${changedAreaHa} ha (${(changedAreaM2).toLocaleString()} m²)
 - **Number of Clusters:** ${rawClusters.length} detected sites
 - **Threshold Strategy:** ${thresholdMethod} (Computed Cutoff: **${thresholdVal}**)

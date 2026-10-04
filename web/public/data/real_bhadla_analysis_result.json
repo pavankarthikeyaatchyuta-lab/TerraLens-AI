@@ -1,0 +1,2437 @@
+{
+  "location_id": "LOC_EO_01_BHADLA_SOLAR",
+  "status": "CHANGE_DETECTED",
+  "change_type": "VEGETATION_GAIN",
+  "before_scene_id": "S2A_MSIL2A_20230405T054641_R048_T42RYR_20240807T150732",
+  "after_scene_id": "S2C_MSIL2A_20250315T054701_R048_T42RYR_20250315T091913",
+  "before_acquisition_date": "2023-04-05",
+  "after_acquisition_date": "2025-03-15",
+  "delta_days": 710,
+  "detector_name": "ChangeAnalysisEngine",
+  "detector_label": "Sentinel-2 L2A Multi-Spectral Pipeline",
+  "changed_pixels": 6022,
+  "total_pixels": 262144,
+  "change_ratio": 0.02297,
+  "changed_area_m2": 602200,
+  "changed_area_ha": 60.22,
+  "cluster_count": 107,
+  "confidence_score": 0.55,
+  "confidence": 0.55,
+  "valid_pixel_count": 262144,
+  "valid_pixel_percentage": "100.0%",
+  "threshold": 0.15,
+  "threshold_method": "Adaptive Statistical Distribution (mean + 1.8*std, clamped [0.15, 0.45])",
+  "is_calibrated_baseline": false,
+  "data_source": "Copernicus Sentinel-2 L2A B04/B08/SCL",
+  "metric_type": "analysis_derived",
+  "classification": {
+    "type": "VEGETATION_GAIN",
+    "confidence": 0.55,
+    "rationale": "NDVI increase indicating biomass expansion."
+  },
+  "change": {
+    "changedAreaHa": "60.22",
+    "changedAreaM2": 602200,
+    "changedPixels": 6022,
+    "changeType": "VEGETATION_GAIN",
+    "threshold": 0.15,
+    "thresholdMethod": "Adaptive Statistical Distribution (mean + 1.8*std, clamped [0.15, 0.45])"
+  },
+  "quality": {
+    "validPercentage": "100.0%",
+    "cloudCover": "0.1%",
+    "validPixels": 262144,
+    "totalPixels": 262144,
+    "maskedPixels": 0,
+    "status": "PASS",
+    "sclUsed": true
+  },
+  "quality_score": 1.0,
+  "clusters": [
+    {
+      "cluster_id": "CLUST_001",
+      "pixel_count": 16,
+      "area_m2": 1600,
+      "area_ha": 0.16,
+      "centroid": [
+        27.576451,
+        71.957171
+      ],
+      "bounding_box": [
+        71.956962,
+        27.57623,
+        71.957478,
+        27.576579
+      ],
+      "mean_change_score": 0.1988,
+      "mean_dndvi": 0.1615,
+      "mean_dred": -0.0331,
+      "change_class": "VEGETATION_GAIN",
+      "confidence_score": 0.52,
+      "classification_rationale": "NDVI increase indicating biomass expansion."
+    },
+    {
+      "cluster_id": "CLUST_002",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.576511,
+        71.94796
+      ],
+      "bounding_box": [
+        71.947854,
+        27.576333,
+        71.948165,
+        27.576597
+      ],
+      "mean_change_score": 0.1873,
+      "mean_dndvi": 0.1076,
+      "mean_dred": -0.0832,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.49,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_003",
+      "pixel_count": 78,
+      "area_m2": 7800,
+      "area_ha": 0.78,
+      "centroid": [
+        27.575748,
+        71.945532
+      ],
+      "bounding_box": [
+        71.944684,
+        27.575138,
+        71.94643,
+        27.576093
+      ],
+      "mean_change_score": 0.2092,
+      "mean_dndvi": 0.1657,
+      "mean_dred": -0.0274,
+      "change_class": "VEGETATION_GAIN",
+      "confidence_score": 0.61,
+      "classification_rationale": "NDVI increase indicating biomass expansion."
+    },
+    {
+      "cluster_id": "CLUST_004",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.57435,
+        71.943549
+      ],
+      "bounding_box": [
+        71.943443,
+        27.574172,
+        71.943754,
+        27.574436
+      ],
+      "mean_change_score": 0.2309,
+      "mean_dndvi": -0.1694,
+      "mean_dred": 0.0357,
+      "change_class": "VEGETATION_LOSS",
+      "confidence_score": 0.52,
+      "classification_rationale": "Substantial NDVI loss indicating vegetation removal."
+    },
+    {
+      "cluster_id": "CLUST_005",
+      "pixel_count": 12,
+      "area_m2": 1200,
+      "area_ha": 0.12,
+      "centroid": [
+        27.573311,
+        71.943623
+      ],
+      "bounding_box": [
+        71.943515,
+        27.573088,
+        71.943829,
+        27.573442
+      ],
+      "mean_change_score": 0.1934,
+      "mean_dndvi": 0.1316,
+      "mean_dred": -0.0817,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.5,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_006",
+      "pixel_count": 48,
+      "area_m2": 4800,
+      "area_ha": 0.48,
+      "centroid": [
+        27.572947,
+        71.940144
+      ],
+      "bounding_box": [
+        71.939449,
+        27.572452,
+        71.940991,
+        27.573321
+      ],
+      "mean_change_score": 0.3693,
+      "mean_dndvi": -0.2667,
+      "mean_dred": 0.046,
+      "change_class": "VEGETATION_LOSS",
+      "confidence_score": 0.69,
+      "classification_rationale": "Substantial NDVI loss indicating vegetation removal."
+    },
+    {
+      "cluster_id": "CLUST_007",
+      "pixel_count": 71,
+      "area_m2": 7100,
+      "area_ha": 0.71,
+      "centroid": [
+        27.571667,
+        71.937684
+      ],
+      "bounding_box": [
+        71.936983,
+        27.571061,
+        71.93863,
+        27.572109
+      ],
+      "mean_change_score": 0.2916,
+      "mean_dndvi": -0.2231,
+      "mean_dred": 0.0492,
+      "change_class": "VEGETATION_LOSS",
+      "confidence_score": 0.66,
+      "classification_rationale": "Substantial NDVI loss indicating vegetation removal."
+    },
+    {
+      "cluster_id": "CLUST_008",
+      "pixel_count": 273,
+      "area_m2": 27300,
+      "area_ha": 2.73,
+      "centroid": [
+        27.570085,
+        71.93391
+      ],
+      "bounding_box": [
+        71.932977,
+        27.56889,
+        71.935055,
+        27.570921
+      ],
+      "mean_change_score": 0.2065,
+      "mean_dndvi": -0.0941,
+      "mean_dred": -0.0269,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.67,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_009",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.570284,
+        71.935342
+      ],
+      "bounding_box": [
+        71.935236,
+        27.570105,
+        71.935547,
+        27.57037
+      ],
+      "mean_change_score": 0.335,
+      "mean_dndvi": -0.2445,
+      "mean_dred": 0.0365,
+      "change_class": "VEGETATION_LOSS",
+      "confidence_score": 0.58,
+      "classification_rationale": "Substantial NDVI loss indicating vegetation removal."
+    },
+    {
+      "cluster_id": "CLUST_010",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.568691,
+        71.933882
+      ],
+      "bounding_box": [
+        71.933777,
+        27.568513,
+        71.934087,
+        27.568777
+      ],
+      "mean_change_score": 0.1694,
+      "mean_dndvi": 0.1427,
+      "mean_dred": -0.0477,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.47,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_011",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.562163,
+        71.922574
+      ],
+      "bounding_box": [
+        71.922468,
+        27.561985,
+        71.922779,
+        27.562249
+      ],
+      "mean_change_score": 0.2184,
+      "mean_dndvi": 0.1808,
+      "mean_dred": -0.0631,
+      "change_class": "VEGETATION_GAIN",
+      "confidence_score": 0.51,
+      "classification_rationale": "NDVI increase indicating biomass expansion."
+    },
+    {
+      "cluster_id": "CLUST_012",
+      "pixel_count": 38,
+      "area_m2": 3800,
+      "area_ha": 0.38,
+      "centroid": [
+        27.561688,
+        71.924866
+      ],
+      "bounding_box": [
+        71.924578,
+        27.5614,
+        71.925301,
+        27.561926
+      ],
+      "mean_change_score": 0.176,
+      "mean_dndvi": 0.0456,
+      "mean_dred": -0.0824,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.55,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_013",
+      "pixel_count": 19,
+      "area_m2": 1900,
+      "area_ha": 0.19,
+      "centroid": [
+        27.561517,
+        71.917182
+      ],
+      "bounding_box": [
+        71.916984,
+        27.561289,
+        71.917499,
+        27.561639
+      ],
+      "mean_change_score": 0.1963,
+      "mean_dndvi": 0.1482,
+      "mean_dred": -0.0251,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.53,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_014",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.560956,
+        71.915659
+      ],
+      "bounding_box": [
+        71.915553,
+        27.560778,
+        71.915864,
+        27.561042
+      ],
+      "mean_change_score": 0.1876,
+      "mean_dndvi": 0.1598,
+      "mean_dred": -0.0326,
+      "change_class": "VEGETATION_GAIN",
+      "confidence_score": 0.49,
+      "classification_rationale": "NDVI increase indicating biomass expansion."
+    },
+    {
+      "cluster_id": "CLUST_015",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.560368,
+        71.91787
+      ],
+      "bounding_box": [
+        71.917764,
+        27.56019,
+        71.918075,
+        27.560454
+      ],
+      "mean_change_score": 0.2069,
+      "mean_dndvi": 0.1697,
+      "mean_dred": -0.0533,
+      "change_class": "VEGETATION_GAIN",
+      "confidence_score": 0.5,
+      "classification_rationale": "NDVI increase indicating biomass expansion."
+    },
+    {
+      "cluster_id": "CLUST_016",
+      "pixel_count": 12,
+      "area_m2": 1200,
+      "area_ha": 0.12,
+      "centroid": [
+        27.559362,
+        71.946287
+      ],
+      "bounding_box": [
+        71.94618,
+        27.559139,
+        71.946493,
+        27.559493
+      ],
+      "mean_change_score": 0.1755,
+      "mean_dndvi": -0.0593,
+      "mean_dred": 0.0855,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.49,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_017",
+      "pixel_count": 32,
+      "area_m2": 3200,
+      "area_ha": 0.32,
+      "centroid": [
+        27.558924,
+        71.948442
+      ],
+      "bounding_box": [
+        71.948188,
+        27.558555,
+        71.948812,
+        27.559173
+      ],
+      "mean_change_score": 0.1884,
+      "mean_dndvi": -0.0694,
+      "mean_dred": 0.0916,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.55,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_018",
+      "pixel_count": 20,
+      "area_m2": 2000,
+      "area_ha": 0.2,
+      "centroid": [
+        27.557848,
+        71.950027
+      ],
+      "bounding_box": [
+        71.949882,
+        27.557526,
+        71.950301,
+        27.558059
+      ],
+      "mean_change_score": 0.1901,
+      "mean_dndvi": -0.0659,
+      "mean_dred": 0.0923,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.53,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_019",
+      "pixel_count": 12,
+      "area_m2": 1200,
+      "area_ha": 0.12,
+      "centroid": [
+        27.558554,
+        71.914027
+      ],
+      "bounding_box": [
+        71.91387,
+        27.558377,
+        71.914282,
+        27.558639
+      ],
+      "mean_change_score": 0.2019,
+      "mean_dndvi": 0.0743,
+      "mean_dred": 0.034,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.51,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_020",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.558016,
+        71.935319
+      ],
+      "bounding_box": [
+        71.935213,
+        27.557837,
+        71.935524,
+        27.558101
+      ],
+      "mean_change_score": 0.2097,
+      "mean_dndvi": -0.1032,
+      "mean_dred": 0.1,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.5,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_021",
+      "pixel_count": 14,
+      "area_m2": 1400,
+      "area_ha": 0.14,
+      "centroid": [
+        27.558344,
+        71.913312
+      ],
+      "bounding_box": [
+        71.913155,
+        27.558122,
+        71.913569,
+        27.558474
+      ],
+      "mean_change_score": 0.195,
+      "mean_dndvi": 0.1204,
+      "mean_dred": -0.0005,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.51,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_022",
+      "pixel_count": 12,
+      "area_m2": 1200,
+      "area_ha": 0.12,
+      "centroid": [
+        27.557635,
+        71.944773
+      ],
+      "bounding_box": [
+        71.944616,
+        27.557458,
+        71.945028,
+        27.55772
+      ],
+      "mean_change_score": 0.1717,
+      "mean_dndvi": -0.0571,
+      "mean_dred": 0.0839,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.49,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_023",
+      "pixel_count": 91,
+      "area_m2": 9100,
+      "area_ha": 0.91,
+      "centroid": [
+        27.556817,
+        71.940293
+      ],
+      "bounding_box": [
+        71.939821,
+        27.556026,
+        71.940873,
+        27.557537
+      ],
+      "mean_change_score": 0.1776,
+      "mean_dndvi": -0.0565,
+      "mean_dred": 0.0868,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.6,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_024",
+      "pixel_count": 17,
+      "area_m2": 1700,
+      "area_ha": 0.17,
+      "centroid": [
+        27.557327,
+        71.920684
+      ],
+      "bounding_box": [
+        71.920516,
+        27.557065,
+        71.920932,
+        27.557507
+      ],
+      "mean_change_score": 0.1754,
+      "mean_dndvi": 0.1438,
+      "mean_dred": -0.0629,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.51,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_025",
+      "pixel_count": 21,
+      "area_m2": 2100,
+      "area_ha": 0.21,
+      "centroid": [
+        27.557431,
+        71.90676
+      ],
+      "bounding_box": [
+        71.906449,
+        27.55718,
+        71.907169,
+        27.557616
+      ],
+      "mean_change_score": 0.1881,
+      "mean_dndvi": 0.1628,
+      "mean_dred": -0.0439,
+      "change_class": "VEGETATION_GAIN",
+      "confidence_score": 0.53,
+      "classification_rationale": "NDVI increase indicating biomass expansion."
+    },
+    {
+      "cluster_id": "CLUST_026",
+      "pixel_count": 64,
+      "area_m2": 6400,
+      "area_ha": 0.64,
+      "centroid": [
+        27.556223,
+        71.942708
+      ],
+      "bounding_box": [
+        71.942237,
+        27.555524,
+        71.943284,
+        27.556855
+      ],
+      "mean_change_score": 0.184,
+      "mean_dndvi": -0.0604,
+      "mean_dred": 0.0898,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.58,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_027",
+      "pixel_count": 21,
+      "area_m2": 2100,
+      "area_ha": 0.21,
+      "centroid": [
+        27.556714,
+        71.944423
+      ],
+      "bounding_box": [
+        71.944284,
+        27.556382,
+        71.944703,
+        27.556915
+      ],
+      "mean_change_score": 0.1728,
+      "mean_dndvi": -0.0624,
+      "mean_dred": 0.0842,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.52,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_028",
+      "pixel_count": 29,
+      "area_m2": 2900,
+      "area_ha": 0.29,
+      "centroid": [
+        27.556478,
+        71.938004
+      ],
+      "bounding_box": [
+        71.937694,
+        27.555981,
+        71.938424,
+        27.556777
+      ],
+      "mean_change_score": 0.1643,
+      "mean_dndvi": -0.0526,
+      "mean_dred": 0.0802,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.53,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_029",
+      "pixel_count": 372,
+      "area_m2": 37200,
+      "area_ha": 3.72,
+      "centroid": [
+        27.555637,
+        71.911158
+      ],
+      "bounding_box": [
+        71.909418,
+        27.554591,
+        71.912616,
+        27.55687
+      ],
+      "mean_change_score": 0.1894,
+      "mean_dndvi": 0.137,
+      "mean_dred": -0.0322,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.68,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_030",
+      "pixel_count": 85,
+      "area_m2": 8500,
+      "area_ha": 0.85,
+      "centroid": [
+        27.554755,
+        71.923272
+      ],
+      "bounding_box": [
+        71.922764,
+        27.55404,
+        71.923912,
+        27.555369
+      ],
+      "mean_change_score": 0.1971,
+      "mean_dndvi": 0.1202,
+      "mean_dred": -0.0896,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.61,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_031",
+      "pixel_count": 18,
+      "area_m2": 1800,
+      "area_ha": 0.18,
+      "centroid": [
+        27.555261,
+        71.909047
+      ],
+      "bounding_box": [
+        71.908823,
+        27.555055,
+        71.909338,
+        27.555405
+      ],
+      "mean_change_score": 0.1844,
+      "mean_dndvi": 0.1377,
+      "mean_dred": -0.0706,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.52,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_032",
+      "pixel_count": 66,
+      "area_m2": 6600,
+      "area_ha": 0.66,
+      "centroid": [
+        27.554219,
+        71.909713
+      ],
+      "bounding_box": [
+        71.90929,
+        27.553602,
+        71.910335,
+        27.554843
+      ],
+      "mean_change_score": 0.1971,
+      "mean_dndvi": 0.1125,
+      "mean_dred": -0.0896,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.59,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_033",
+      "pixel_count": 12,
+      "area_m2": 1200,
+      "area_ha": 0.12,
+      "centroid": [
+        27.554219,
+        71.935674
+      ],
+      "bounding_box": [
+        71.935517,
+        27.554042,
+        71.935929,
+        27.554304
+      ],
+      "mean_change_score": 0.1588,
+      "mean_dndvi": -0.0521,
+      "mean_dred": 0.0779,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.48,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_034",
+      "pixel_count": 63,
+      "area_m2": 6300,
+      "area_ha": 0.63,
+      "centroid": [
+        27.553476,
+        71.954657
+      ],
+      "bounding_box": [
+        71.954209,
+        27.552834,
+        71.955146,
+        27.553806
+      ],
+      "mean_change_score": 0.1807,
+      "mean_dndvi": -0.0656,
+      "mean_dred": 0.0873,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.58,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_035",
+      "pixel_count": 20,
+      "area_m2": 2000,
+      "area_ha": 0.2,
+      "centroid": [
+        27.554112,
+        71.911222
+      ],
+      "bounding_box": [
+        71.911017,
+        27.553836,
+        71.911535,
+        27.554276
+      ],
+      "mean_change_score": 0.1839,
+      "mean_dndvi": 0.141,
+      "mean_dred": -0.0453,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.52,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_036",
+      "pixel_count": 28,
+      "area_m2": 2800,
+      "area_ha": 0.28,
+      "centroid": [
+        27.553588,
+        71.927437
+      ],
+      "bounding_box": [
+        71.927097,
+        27.553318,
+        71.927817,
+        27.553754
+      ],
+      "mean_change_score": 0.1742,
+      "mean_dndvi": 0.1216,
+      "mean_dred": -0.0725,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.53,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_037",
+      "pixel_count": 42,
+      "area_m2": 4200,
+      "area_ha": 0.42,
+      "centroid": [
+        27.553088,
+        71.925761
+      ],
+      "bounding_box": [
+        71.925262,
+        27.552815,
+        71.926386,
+        27.553243
+      ],
+      "mean_change_score": 0.1727,
+      "mean_dndvi": 0.1307,
+      "mean_dred": -0.0646,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.55,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_038",
+      "pixel_count": 41,
+      "area_m2": 4100,
+      "area_ha": 0.41,
+      "centroid": [
+        27.552748,
+        71.928247
+      ],
+      "bounding_box": [
+        71.927875,
+        27.552129,
+        71.928713,
+        27.553193
+      ],
+      "mean_change_score": 0.2047,
+      "mean_dndvi": 0.12,
+      "mean_dred": -0.0878,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.57,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_039",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.553252,
+        71.908775
+      ],
+      "bounding_box": [
+        71.908669,
+        27.553074,
+        71.90898,
+        27.553338
+      ],
+      "mean_change_score": 0.1728,
+      "mean_dndvi": 0.1314,
+      "mean_dred": -0.0455,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.48,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_040",
+      "pixel_count": 12,
+      "area_m2": 1200,
+      "area_ha": 0.12,
+      "centroid": [
+        27.552612,
+        71.932746
+      ],
+      "bounding_box": [
+        71.932639,
+        27.552389,
+        71.932952,
+        27.552743
+      ],
+      "mean_change_score": 0.1756,
+      "mean_dndvi": 0.0661,
+      "mean_dred": -0.0818,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.49,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_041",
+      "pixel_count": 67,
+      "area_m2": 6700,
+      "area_ha": 0.67,
+      "centroid": [
+        27.551684,
+        71.946352
+      ],
+      "bounding_box": [
+        71.945758,
+        27.550938,
+        71.947008,
+        27.552265
+      ],
+      "mean_change_score": 0.1822,
+      "mean_dndvi": 0.1336,
+      "mean_dred": -0.0735,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.58,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_042",
+      "pixel_count": 301,
+      "area_m2": 30100,
+      "area_ha": 3.01,
+      "centroid": [
+        27.551828,
+        71.907052
+      ],
+      "bounding_box": [
+        71.906269,
+        27.550327,
+        71.90806,
+        27.552996
+      ],
+      "mean_change_score": 0.2034,
+      "mean_dndvi": 0.1348,
+      "mean_dred": -0.0753,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.67,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_043",
+      "pixel_count": 12,
+      "area_m2": 1200,
+      "area_ha": 0.12,
+      "centroid": [
+        27.552884,
+        71.90912
+      ],
+      "bounding_box": [
+        71.908963,
+        27.552707,
+        71.909375,
+        27.552969
+      ],
+      "mean_change_score": 0.1605,
+      "mean_dndvi": 0.1182,
+      "mean_dred": -0.0375,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.48,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_044",
+      "pixel_count": 323,
+      "area_m2": 32300,
+      "area_ha": 3.23,
+      "centroid": [
+        27.550871,
+        71.948931
+      ],
+      "bounding_box": [
+        71.947555,
+        27.549998,
+        71.950337,
+        27.551834
+      ],
+      "mean_change_score": 0.2285,
+      "mean_dndvi": 0.1628,
+      "mean_dred": -0.093,
+      "change_class": "VEGETATION_GAIN",
+      "confidence_score": 0.7,
+      "classification_rationale": "NDVI increase indicating biomass expansion."
+    },
+    {
+      "cluster_id": "CLUST_045",
+      "pixel_count": 12,
+      "area_m2": 1200,
+      "area_ha": 0.12,
+      "centroid": [
+        27.551444,
+        71.928262
+      ],
+      "bounding_box": [
+        71.928155,
+        27.551221,
+        71.928468,
+        27.551575
+      ],
+      "mean_change_score": 0.1697,
+      "mean_dndvi": 0.125,
+      "mean_dred": -0.0686,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.49,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_046",
+      "pixel_count": 29,
+      "area_m2": 2900,
+      "area_ha": 0.29,
+      "centroid": [
+        27.550237,
+        71.953575
+      ],
+      "bounding_box": [
+        71.953323,
+        27.549966,
+        71.953942,
+        27.550404
+      ],
+      "mean_change_score": 0.3701,
+      "mean_dndvi": -0.0167,
+      "mean_dred": 0.1666,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.67,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_047",
+      "pixel_count": 184,
+      "area_m2": 18400,
+      "area_ha": 1.84,
+      "centroid": [
+        27.550378,
+        71.915815
+      ],
+      "bounding_box": [
+        71.914855,
+        27.549696,
+        71.916813,
+        27.551008
+      ],
+      "mean_change_score": 0.2046,
+      "mean_dndvi": 0.1554,
+      "mean_dred": -0.0741,
+      "change_class": "VEGETATION_GAIN",
+      "confidence_score": 0.65,
+      "classification_rationale": "NDVI increase indicating biomass expansion."
+    },
+    {
+      "cluster_id": "CLUST_048",
+      "pixel_count": 140,
+      "area_m2": 14000,
+      "area_ha": 1.4,
+      "centroid": [
+        27.54909,
+        71.936055
+      ],
+      "bounding_box": [
+        71.935154,
+        27.548006,
+        71.937138,
+        27.550309
+      ],
+      "mean_change_score": 0.2035,
+      "mean_dndvi": 0.0971,
+      "mean_dred": -0.0969,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.64,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_049",
+      "pixel_count": 45,
+      "area_m2": 4500,
+      "area_ha": 0.45,
+      "centroid": [
+        27.549128,
+        71.949551
+      ],
+      "bounding_box": [
+        71.949236,
+        27.548519,
+        71.949975,
+        27.549676
+      ],
+      "mean_change_score": 0.2154,
+      "mean_dndvi": 0.1158,
+      "mean_dred": -0.0996,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.59,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_050",
+      "pixel_count": 68,
+      "area_m2": 6800,
+      "area_ha": 0.68,
+      "centroid": [
+        27.548842,
+        71.928907
+      ],
+      "bounding_box": [
+        71.928278,
+        27.548241,
+        71.929624,
+        27.549385
+      ],
+      "mean_change_score": 0.1764,
+      "mean_dndvi": 0.1304,
+      "mean_dred": -0.0706,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.58,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_051",
+      "pixel_count": 227,
+      "area_m2": 22700,
+      "area_ha": 2.27,
+      "centroid": [
+        27.547665,
+        71.957016
+      ],
+      "bounding_box": [
+        71.955977,
+        27.547023,
+        71.958034,
+        27.548242
+      ],
+      "mean_change_score": 0.2444,
+      "mean_dndvi": 0.134,
+      "mean_dred": -0.1102,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.69,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_052",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.548287,
+        71.921802
+      ],
+      "bounding_box": [
+        71.921696,
+        27.548109,
+        71.922006,
+        27.548373
+      ],
+      "mean_change_score": 0.1813,
+      "mean_dndvi": 0.1344,
+      "mean_dred": -0.07,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.48,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_053",
+      "pixel_count": 288,
+      "area_m2": 28800,
+      "area_ha": 2.88,
+      "centroid": [
+        27.546767,
+        71.913226
+      ],
+      "bounding_box": [
+        71.912318,
+        27.5456,
+        71.914198,
+        27.547816
+      ],
+      "mean_change_score": 0.2422,
+      "mean_dndvi": 0.1689,
+      "mean_dred": -0.102,
+      "change_class": "VEGETATION_GAIN",
+      "confidence_score": 0.7,
+      "classification_rationale": "NDVI increase indicating biomass expansion."
+    },
+    {
+      "cluster_id": "CLUST_054",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.547231,
+        71.937664
+      ],
+      "bounding_box": [
+        71.937558,
+        27.547053,
+        71.937868,
+        27.547317
+      ],
+      "mean_change_score": 0.2192,
+      "mean_dndvi": 0.0344,
+      "mean_dred": -0.1018,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.51,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_055",
+      "pixel_count": 49,
+      "area_m2": 4900,
+      "area_ha": 0.49,
+      "centroid": [
+        27.546938,
+        71.927582
+      ],
+      "bounding_box": [
+        71.927219,
+        27.546459,
+        71.928049,
+        27.547254
+      ],
+      "mean_change_score": 0.1962,
+      "mean_dndvi": 0.1489,
+      "mean_dred": -0.0755,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.58,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_056",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.546735,
+        71.948277
+      ],
+      "bounding_box": [
+        71.948171,
+        27.546557,
+        71.948482,
+        27.546821
+      ],
+      "mean_change_score": 0.1828,
+      "mean_dndvi": -0.0653,
+      "mean_dred": 0.0887,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.48,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_057",
+      "pixel_count": 47,
+      "area_m2": 4700,
+      "area_ha": 0.47,
+      "centroid": [
+        27.546496,
+        71.938673
+      ],
+      "bounding_box": [
+        71.938242,
+        27.546136,
+        71.939272,
+        27.546836
+      ],
+      "mean_change_score": 0.2228,
+      "mean_dndvi": 0.0298,
+      "mean_dred": -0.1045,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.59,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_058",
+      "pixel_count": 149,
+      "area_m2": 14900,
+      "area_ha": 1.49,
+      "centroid": [
+        27.546376,
+        71.916365
+      ],
+      "bounding_box": [
+        71.914842,
+        27.545366,
+        71.918129,
+        27.547192
+      ],
+      "mean_change_score": 0.2527,
+      "mean_dndvi": 0.1498,
+      "mean_dred": -0.1129,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.67,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_059",
+      "pixel_count": 82,
+      "area_m2": 8200,
+      "area_ha": 0.82,
+      "centroid": [
+        27.545595,
+        71.94079
+      ],
+      "bounding_box": [
+        71.940339,
+        27.545099,
+        71.941375,
+        27.54598
+      ],
+      "mean_change_score": 0.2784,
+      "mean_dndvi": -0.0773,
+      "mean_dred": 0.1374,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.66,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_060",
+      "pixel_count": 108,
+      "area_m2": 10800,
+      "area_ha": 1.08,
+      "centroid": [
+        27.545277,
+        71.912231
+      ],
+      "bounding_box": [
+        71.911786,
+        27.544618,
+        71.912831,
+        27.54586
+      ],
+      "mean_change_score": 0.2682,
+      "mean_dndvi": 0.1645,
+      "mean_dred": -0.1198,
+      "change_class": "VEGETATION_GAIN",
+      "confidence_score": 0.67,
+      "classification_rationale": "NDVI increase indicating biomass expansion."
+    },
+    {
+      "cluster_id": "CLUST_061",
+      "pixel_count": 45,
+      "area_m2": 4500,
+      "area_ha": 0.45,
+      "centroid": [
+        27.544747,
+        71.941639
+      ],
+      "bounding_box": [
+        71.941132,
+        27.544451,
+        71.942259,
+        27.544969
+      ],
+      "mean_change_score": 0.1786,
+      "mean_dndvi": -0.0667,
+      "mean_dred": 0.0861,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.56,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_062",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.544634,
+        71.949537
+      ],
+      "bounding_box": [
+        71.949431,
+        27.544456,
+        71.949742,
+        27.54472
+      ],
+      "mean_change_score": 0.2022,
+      "mean_dndvi": 0.0637,
+      "mean_dred": -0.0953,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.5,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_063",
+      "pixel_count": 13,
+      "area_m2": 1300,
+      "area_ha": 0.13,
+      "centroid": [
+        27.545186,
+        71.906219
+      ],
+      "bounding_box": [
+        71.906126,
+        27.544917,
+        71.906442,
+        27.545362
+      ],
+      "mean_change_score": 0.1702,
+      "mean_dndvi": 0.1241,
+      "mean_dred": -0.0698,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.49,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_064",
+      "pixel_count": 26,
+      "area_m2": 2600,
+      "area_ha": 0.26,
+      "centroid": [
+        27.543635,
+        71.942138
+      ],
+      "bounding_box": [
+        71.941912,
+        27.543352,
+        71.942533,
+        27.54388
+      ],
+      "mean_change_score": 0.1796,
+      "mean_dndvi": -0.0586,
+      "mean_dred": 0.0866,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.53,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_065",
+      "pixel_count": 15,
+      "area_m2": 1500,
+      "area_ha": 0.15,
+      "centroid": [
+        27.543626,
+        71.952789
+      ],
+      "bounding_box": [
+        71.952641,
+        27.543395,
+        71.953055,
+        27.543747
+      ],
+      "mean_change_score": 0.201,
+      "mean_dndvi": -0.0614,
+      "mean_dred": 0.0972,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.52,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_066",
+      "pixel_count": 21,
+      "area_m2": 2100,
+      "area_ha": 0.21,
+      "centroid": [
+        27.543954,
+        71.910916
+      ],
+      "bounding_box": [
+        71.910748,
+        27.543648,
+        71.911167,
+        27.54418
+      ],
+      "mean_change_score": 0.2177,
+      "mean_dndvi": 0.1174,
+      "mean_dred": -0.0993,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.55,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_067",
+      "pixel_count": 64,
+      "area_m2": 6400,
+      "area_ha": 0.64,
+      "centroid": [
+        27.543171,
+        71.937027
+      ],
+      "bounding_box": [
+        71.93653,
+        27.542654,
+        71.937669,
+        27.543622
+      ],
+      "mean_change_score": 0.1943,
+      "mean_dndvi": -0.0741,
+      "mean_dred": 0.0936,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.59,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_068",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.542824,
+        71.949792
+      ],
+      "bounding_box": [
+        71.949686,
+        27.542646,
+        71.949997,
+        27.54291
+      ],
+      "mean_change_score": 0.1762,
+      "mean_dndvi": -0.065,
+      "mean_dred": 0.0852,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.48,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_069",
+      "pixel_count": 12,
+      "area_m2": 1200,
+      "area_ha": 0.12,
+      "centroid": [
+        27.543341,
+        71.910336
+      ],
+      "bounding_box": [
+        71.910228,
+        27.543118,
+        71.910541,
+        27.543472
+      ],
+      "mean_change_score": 0.1767,
+      "mean_dndvi": 0.0613,
+      "mean_dred": -0.0833,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.49,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_070",
+      "pixel_count": 55,
+      "area_m2": 5500,
+      "area_ha": 0.55,
+      "centroid": [
+        27.542336,
+        71.939149
+      ],
+      "bounding_box": [
+        71.938834,
+        27.541793,
+        71.939569,
+        27.54277
+      ],
+      "mean_change_score": 0.1718,
+      "mean_dndvi": -0.0584,
+      "mean_dred": 0.0829,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.57,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_071",
+      "pixel_count": 36,
+      "area_m2": 3600,
+      "area_ha": 0.36,
+      "centroid": [
+        27.542016,
+        71.936833
+      ],
+      "bounding_box": [
+        71.936602,
+        27.54157,
+        71.937231,
+        27.542369
+      ],
+      "mean_change_score": 0.1878,
+      "mean_dndvi": -0.0732,
+      "mean_dred": 0.0905,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.56,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_072",
+      "pixel_count": 19,
+      "area_m2": 1900,
+      "area_ha": 0.19,
+      "centroid": [
+        27.541998,
+        71.950899
+      ],
+      "bounding_box": [
+        71.950673,
+        27.541723,
+        71.951191,
+        27.542163
+      ],
+      "mean_change_score": 0.1912,
+      "mean_dndvi": -0.0669,
+      "mean_dred": 0.0926,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.53,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_073",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.541807,
+        71.942478
+      ],
+      "bounding_box": [
+        71.942372,
+        27.541628,
+        71.942683,
+        27.541892
+      ],
+      "mean_change_score": 0.1881,
+      "mean_dndvi": -0.0606,
+      "mean_dred": 0.0907,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.49,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_074",
+      "pixel_count": 12,
+      "area_m2": 1200,
+      "area_ha": 0.12,
+      "centroid": [
+        27.541127,
+        71.940487
+      ],
+      "bounding_box": [
+        71.94033,
+        27.54095,
+        71.940742,
+        27.541212
+      ],
+      "mean_change_score": 0.1746,
+      "mean_dndvi": -0.0615,
+      "mean_dred": 0.0845,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.49,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_075",
+      "pixel_count": 78,
+      "area_m2": 7800,
+      "area_ha": 0.78,
+      "centroid": [
+        27.540459,
+        71.937281
+      ],
+      "bounding_box": [
+        71.936956,
+        27.539668,
+        71.937705,
+        27.541186
+      ],
+      "mean_change_score": 0.1951,
+      "mean_dndvi": -0.0642,
+      "mean_dred": 0.0941,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.6,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_076",
+      "pixel_count": 12,
+      "area_m2": 1200,
+      "area_ha": 0.12,
+      "centroid": [
+        27.540509,
+        71.944113
+      ],
+      "bounding_box": [
+        71.943957,
+        27.540332,
+        71.944369,
+        27.540594
+      ],
+      "mean_change_score": 0.1766,
+      "mean_dndvi": -0.0556,
+      "mean_dred": 0.0853,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.49,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_077",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.540273,
+        71.929686
+      ],
+      "bounding_box": [
+        71.92958,
+        27.540095,
+        71.92989,
+        27.540359
+      ],
+      "mean_change_score": 0.1777,
+      "mean_dndvi": -0.0706,
+      "mean_dred": 0.0854,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.48,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_078",
+      "pixel_count": 30,
+      "area_m2": 3000,
+      "area_ha": 0.3,
+      "centroid": [
+        27.539709,
+        71.940294
+      ],
+      "bounding_box": [
+        71.940082,
+        27.539241,
+        71.940609,
+        27.540042
+      ],
+      "mean_change_score": 0.1941,
+      "mean_dndvi": -0.0619,
+      "mean_dred": 0.0936,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.55,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_079",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.539287,
+        71.907901
+      ],
+      "bounding_box": [
+        71.907795,
+        27.539109,
+        71.908106,
+        27.539373
+      ],
+      "mean_change_score": 0.246,
+      "mean_dndvi": 0.2021,
+      "mean_dred": -0.0662,
+      "change_class": "VEGETATION_GAIN",
+      "confidence_score": 0.53,
+      "classification_rationale": "NDVI increase indicating biomass expansion."
+    },
+    {
+      "cluster_id": "CLUST_080",
+      "pixel_count": 23,
+      "area_m2": 2300,
+      "area_ha": 0.23,
+      "centroid": [
+        27.538543,
+        71.940812
+      ],
+      "bounding_box": [
+        71.940564,
+        27.538329,
+        71.94118,
+        27.538677
+      ],
+      "mean_change_score": 0.1784,
+      "mean_dndvi": -0.063,
+      "mean_dred": 0.0863,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.53,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_081",
+      "pixel_count": 17,
+      "area_m2": 1700,
+      "area_ha": 0.17,
+      "centroid": [
+        27.537946,
+        71.932803
+      ],
+      "bounding_box": [
+        71.932653,
+        27.537684,
+        71.93307,
+        27.538126
+      ],
+      "mean_change_score": 0.1839,
+      "mean_dndvi": -0.0583,
+      "mean_dred": 0.0889,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.52,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_082",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.537616,
+        71.94439
+      ],
+      "bounding_box": [
+        71.944285,
+        27.537438,
+        71.944595,
+        27.537702
+      ],
+      "mean_change_score": 0.1598,
+      "mean_dndvi": -0.0476,
+      "mean_dred": 0.0779,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.47,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_083",
+      "pixel_count": 33,
+      "area_m2": 3300,
+      "area_ha": 0.33,
+      "centroid": [
+        27.537327,
+        71.946447
+      ],
+      "bounding_box": [
+        71.946194,
+        27.536947,
+        71.94682,
+        27.537655
+      ],
+      "mean_change_score": 0.1858,
+      "mean_dndvi": -0.0602,
+      "mean_dred": 0.0903,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.55,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_084",
+      "pixel_count": 178,
+      "area_m2": 17800,
+      "area_ha": 1.78,
+      "centroid": [
+        27.536467,
+        71.925356
+      ],
+      "bounding_box": [
+        71.924706,
+        27.535687,
+        71.926368,
+        27.537276
+      ],
+      "mean_change_score": 0.2004,
+      "mean_dndvi": -0.0431,
+      "mean_dred": 0.0958,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.65,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_085",
+      "pixel_count": 60,
+      "area_m2": 6000,
+      "area_ha": 0.6,
+      "centroid": [
+        27.536837,
+        71.929131
+      ],
+      "bounding_box": [
+        71.928771,
+        27.536323,
+        71.929604,
+        27.537207
+      ],
+      "mean_change_score": 0.2239,
+      "mean_dndvi": 0.147,
+      "mean_dred": -0.0996,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.61,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_086",
+      "pixel_count": 84,
+      "area_m2": 8400,
+      "area_ha": 0.84,
+      "centroid": [
+        27.536593,
+        71.932741
+      ],
+      "bounding_box": [
+        71.931998,
+        27.535894,
+        71.933448,
+        27.537126
+      ],
+      "mean_change_score": 0.1782,
+      "mean_dndvi": -0.0544,
+      "mean_dred": 0.0862,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.59,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_087",
+      "pixel_count": 17,
+      "area_m2": 1700,
+      "area_ha": 0.17,
+      "centroid": [
+        27.536264,
+        71.944354
+      ],
+      "bounding_box": [
+        71.944145,
+        27.535998,
+        71.944663,
+        27.536438
+      ],
+      "mean_change_score": 0.1817,
+      "mean_dndvi": -0.0641,
+      "mean_dred": 0.0882,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.51,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_088",
+      "pixel_count": 19,
+      "area_m2": 1900,
+      "area_ha": 0.19,
+      "centroid": [
+        27.536076,
+        71.947194
+      ],
+      "bounding_box": [
+        71.946974,
+        27.535848,
+        71.94749,
+        27.536197
+      ],
+      "mean_change_score": 0.1894,
+      "mean_dndvi": -0.0678,
+      "mean_dred": 0.0921,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.53,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_089",
+      "pixel_count": 22,
+      "area_m2": 2200,
+      "area_ha": 0.22,
+      "centroid": [
+        27.536079,
+        71.934671
+      ],
+      "bounding_box": [
+        71.934524,
+        27.53575,
+        71.934943,
+        27.536283
+      ],
+      "mean_change_score": 0.1812,
+      "mean_dndvi": -0.063,
+      "mean_dred": 0.0882,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.53,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_090",
+      "pixel_count": 41,
+      "area_m2": 4100,
+      "area_ha": 0.41,
+      "centroid": [
+        27.536174,
+        71.911154
+      ],
+      "bounding_box": [
+        71.910941,
+        27.535615,
+        71.911473,
+        27.536596
+      ],
+      "mean_change_score": 0.1833,
+      "mean_dndvi": -0.056,
+      "mean_dred": 0.0887,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.56,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_091",
+      "pixel_count": 33,
+      "area_m2": 3300,
+      "area_ha": 0.33,
+      "centroid": [
+        27.535298,
+        71.942314
+      ],
+      "bounding_box": [
+        71.942093,
+        27.534959,
+        71.942717,
+        27.535577
+      ],
+      "mean_change_score": 0.1803,
+      "mean_dndvi": -0.0597,
+      "mean_dred": 0.0873,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.55,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_092",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.535526,
+        71.945144
+      ],
+      "bounding_box": [
+        71.945038,
+        27.535347,
+        71.945349,
+        27.535611
+      ],
+      "mean_change_score": 0.1937,
+      "mean_dndvi": -0.0865,
+      "mean_dred": 0.093,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.49,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_093",
+      "pixel_count": 41,
+      "area_m2": 4100,
+      "area_ha": 0.41,
+      "centroid": [
+        27.535494,
+        71.923193
+      ],
+      "bounding_box": [
+        71.922566,
+        27.5351,
+        71.923799,
+        27.535796
+      ],
+      "mean_change_score": 0.1884,
+      "mean_dndvi": -0.0602,
+      "mean_dred": 0.0915,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.56,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_094",
+      "pixel_count": 149,
+      "area_m2": 14900,
+      "area_ha": 1.49,
+      "centroid": [
+        27.534667,
+        71.934727
+      ],
+      "bounding_box": [
+        71.933964,
+        27.533687,
+        71.935635,
+        27.535637
+      ],
+      "mean_change_score": 0.1894,
+      "mean_dndvi": -0.056,
+      "mean_dred": 0.0915,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.63,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_095",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.535962,
+        71.907307
+      ],
+      "bounding_box": [
+        71.907201,
+        27.535784,
+        71.907512,
+        27.536048
+      ],
+      "mean_change_score": 0.1904,
+      "mean_dndvi": 0.0183,
+      "mean_dred": -0.0871,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.49,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_096",
+      "pixel_count": 20,
+      "area_m2": 2000,
+      "area_ha": 0.2,
+      "centroid": [
+        27.535435,
+        71.921664
+      ],
+      "bounding_box": [
+        71.921456,
+        27.535214,
+        71.921971,
+        27.535564
+      ],
+      "mean_change_score": 0.2639,
+      "mean_dndvi": -0.0612,
+      "mean_dred": 0.1269,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.58,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_097",
+      "pixel_count": 477,
+      "area_m2": 47700,
+      "area_ha": 4.77,
+      "centroid": [
+        27.533472,
+        71.93093
+      ],
+      "bounding_box": [
+        71.929374,
+        27.532341,
+        71.933092,
+        27.535149
+      ],
+      "mean_change_score": 0.1891,
+      "mean_dndvi": -0.0594,
+      "mean_dred": 0.0916,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.69,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_098",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.535333,
+        71.90719
+      ],
+      "bounding_box": [
+        71.907084,
+        27.535155,
+        71.907394,
+        27.535419
+      ],
+      "mean_change_score": 0.1923,
+      "mean_dndvi": 0.0232,
+      "mean_dred": -0.0891,
+      "change_class": "ANALYZED_SPECTRAL_CHANGE",
+      "confidence_score": 0.49,
+      "classification_rationale": "Multi-spectral surface reflectance displacement above adaptive statistical threshold."
+    },
+    {
+      "cluster_id": "CLUST_099",
+      "pixel_count": 163,
+      "area_m2": 16300,
+      "area_ha": 1.63,
+      "centroid": [
+        27.534049,
+        71.923757
+      ],
+      "bounding_box": [
+        71.922819,
+        27.533201,
+        71.92468,
+        27.534695
+      ],
+      "mean_change_score": 0.1807,
+      "mean_dndvi": -0.0622,
+      "mean_dred": 0.0872,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.63,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_100",
+      "pixel_count": 69,
+      "area_m2": 6900,
+      "area_ha": 0.69,
+      "centroid": [
+        27.533918,
+        71.926135
+      ],
+      "bounding_box": [
+        71.925856,
+        27.533227,
+        71.926599,
+        27.534564
+      ],
+      "mean_change_score": 0.1704,
+      "mean_dndvi": -0.0466,
+      "mean_dred": 0.0803,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.58,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_101",
+      "pixel_count": 9,
+      "area_m2": 900,
+      "area_ha": 0.09,
+      "centroid": [
+        27.534414,
+        71.929429
+      ],
+      "bounding_box": [
+        71.929323,
+        27.534236,
+        71.929634,
+        27.5345
+      ],
+      "mean_change_score": 0.1872,
+      "mean_dndvi": -0.0691,
+      "mean_dred": 0.0907,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.49,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_102",
+      "pixel_count": 12,
+      "area_m2": 1200,
+      "area_ha": 0.12,
+      "centroid": [
+        27.533885,
+        71.939535
+      ],
+      "bounding_box": [
+        71.939428,
+        27.533662,
+        71.939741,
+        27.534016
+      ],
+      "mean_change_score": 0.1896,
+      "mean_dndvi": -0.0822,
+      "mean_dred": 0.091,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.5,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_103",
+      "pixel_count": 30,
+      "area_m2": 3000,
+      "area_ha": 0.3,
+      "centroid": [
+        27.533302,
+        71.935117
+      ],
+      "bounding_box": [
+        71.934657,
+        27.533131,
+        71.935676,
+        27.53338
+      ],
+      "mean_change_score": 0.1756,
+      "mean_dndvi": -0.0446,
+      "mean_dred": 0.0846,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.54,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_104",
+      "pixel_count": 38,
+      "area_m2": 3800,
+      "area_ha": 0.38,
+      "centroid": [
+        27.533081,
+        71.936499
+      ],
+      "bounding_box": [
+        71.936066,
+        27.532831,
+        71.936988,
+        27.533263
+      ],
+      "mean_change_score": 0.2009,
+      "mean_dndvi": -0.0568,
+      "mean_dred": 0.0966,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.57,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_105",
+      "pixel_count": 46,
+      "area_m2": 4600,
+      "area_ha": 0.46,
+      "centroid": [
+        27.532618,
+        71.933253
+      ],
+      "bounding_box": [
+        71.932712,
+        27.53227,
+        71.933846,
+        27.533058
+      ],
+      "mean_change_score": 0.1967,
+      "mean_dndvi": -0.0733,
+      "mean_dred": 0.0949,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.58,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_106",
+      "pixel_count": 12,
+      "area_m2": 1200,
+      "area_ha": 0.12,
+      "centroid": [
+        27.532666,
+        71.924626
+      ],
+      "bounding_box": [
+        71.924519,
+        27.532443,
+        71.924832,
+        27.532797
+      ],
+      "mean_change_score": 0.1705,
+      "mean_dndvi": -0.0617,
+      "mean_dred": 0.0824,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.49,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    },
+    {
+      "cluster_id": "CLUST_107",
+      "pixel_count": 12,
+      "area_m2": 1200,
+      "area_ha": 0.12,
+      "centroid": [
+        27.532406,
+        71.936965
+      ],
+      "bounding_box": [
+        71.936858,
+        27.532183,
+        71.937171,
+        27.532537
+      ],
+      "mean_change_score": 0.1764,
+      "mean_dndvi": -0.0292,
+      "mean_dred": 0.0836,
+      "change_class": "CONSTRUCTION",
+      "confidence_score": 0.49,
+      "classification_rationale": "High red spectral reflectance increase with bare ground excavation indicating photovoltaic array ground mounting."
+    }
+  ],
+  "mask_path": "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_change_mask.png",
+  "heatmap_path": "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_diff_heatmap.png",
+  "overlay_path": "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_overlay.png",
+  "change_mask_path": "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_change_mask.png",
+  "difference_image_path": "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_diff_heatmap.png",
+  "overlay_image_path": "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_overlay.png",
+  "processing_metadata": {
+    "algorithm": "Sentinel-2 L2A Multi-Spectral Pipeline",
+    "resolution_meters": 10.0,
+    "morphology_kernel": 3,
+    "illumination_matched": true,
+    "data_source": "Copernicus Sentinel-2 L2A B04/B08/SCL",
+    "metric_type": "analysis_derived",
+    "is_calibrated_baseline": false,
+    "performance": {
+      "stac_lookup_sec": 1.7349939346313477,
+      "asset_signing_sec": 0.6835706233978271,
+      "raster_fetch_sec": 15.860473871231079,
+      "b04_decode_sec": 0.6724739074707031,
+      "b08_decode_sec": 0.6168577671051025,
+      "scl_decode_sec": 0.002287149429321289,
+      "alignment_sec": 0.008033514022827148,
+      "change_analysis_sec": 0.1477060317993164,
+      "total_pipeline_sec": 19.76653528213501
+    },
+    "t1_stac_id": "S2A_MSIL2A_20230405T054641_R048_T42RYR_20240807T150732",
+    "t2_stac_id": "S2C_MSIL2A_20250315T054701_R048_T42RYR_20250315T091913",
+    "tile_10m": 215,
+    "tile_20m": 52,
+    "epsg": 32642
+  }
+}

@@ -4,10 +4,10 @@
  * Freezes the 3-minute reproducible evaluation path for SIH26227 judges:
  * 1. Query: "solar park development in Rajasthan"
  * 2. Candidate Scene: Bhadla Solar Park (LOC_EO_01_BHADLA_SOLAR / EO_BHADLA_SOLAR_PARK)
- * 3. Multi-temporal baseline: 2023-04-05 (Earliest usable) vs 2025-03-12 (Latest monitoring)
+ * 3. Multi-temporal baseline: 2023-04-05 (Earliest usable) vs 2025-03-15 (Latest monitoring)
  * 4. Temporal comparison: Side-by-side & swipe
  * 5. Change analysis: Multi-spectral differencing with SCL atmospheric quality masking
- * 6. Detected change: Construction of new solar array clusters (classification: CONSTRUCTION)
+ * 6. Detected change: Bi-temporal surface change across perimeter boundaries (classification: VEGETATION_GAIN)
  * 7. False-alarm suppression: SCL cloud/shadow mask eliminates atmospheric artifacts
  * 8. Analyst adjudication: Adjudicate verdict as TRUE CHANGE with domain notes
  * 9. Export bundle: Export full PKZIP bundle with manifest, provenance, GeoJSON, and report
@@ -52,12 +52,12 @@ export const SIH_DEMO_CONFIG: DemoConfig = {
   locationName: "Bhadla Solar Park, Rajasthan",
   coordinates: { lat: 27.539, lon: 71.918 },
   t1Date: "2023-04-05",
-  t2Date: "2025-03-12",
-  expectedClassification: "CONSTRUCTION",
-  expectedChangedAreaHa: "14.28",
-  expectedConfidence: "0.91",
-  expectedQuality: "99.2% valid pixels (SCL Cloud & Shadow Suppressed)",
-  expectedClusterCount: 3,
+  t2Date: "2025-03-15",
+  expectedClassification: "VEGETATION_GAIN",
+  expectedChangedAreaHa: "60.22",
+  expectedConfidence: "0.55",
+  expectedQuality: "100.0% valid pixels (Real SCL Quality Masked)",
+  expectedClusterCount: 107,
   expectedSteps: [
     {
       step: 1,
@@ -75,13 +75,13 @@ export const SIH_DEMO_CONFIG: DemoConfig = {
       step: 3,
       name: "Multi-Temporal Sequence Navigation",
       durationEstSec: 25,
-      description: "Navigate from Earliest Usable Observation (2023-04-05) to Latest Observation Frontier (2025-03-12) to isolate multi-year photovoltaic infrastructure expansion."
+      description: "Navigate from Earliest Usable Observation (2023-04-05) to Latest Observation Frontier (2025-03-15) across a 710-day Sentinel-2 monitoring baseline."
     },
     {
       step: 4,
       name: "Interactive Bi-Temporal Comparison",
       durationEstSec: 30,
-      description: "Examine multi-spectral imagery in split side-by-side and interactive swipe viewports to inspect physical solar array construction."
+      description: "Examine multi-spectral imagery in split side-by-side and interactive swipe viewports to inspect physical ground conditions."
     },
     {
       step: 5,
@@ -99,7 +99,7 @@ export const SIH_DEMO_CONFIG: DemoConfig = {
       step: 7,
       name: "Analyst Adjudication & Notes Capture",
       durationEstSec: 20,
-      description: "Analyst adjudicates verdict as 'TRUE CHANGE', classifies event as 'CONSTRUCTION', and records domain notes into the permanent audit trail."
+      description: "Analyst adjudicates verdict as 'TRUE CHANGE', verifies event attribution, and records domain notes into the permanent audit trail."
     },
     {
       step: 8,
@@ -109,12 +109,12 @@ export const SIH_DEMO_CONFIG: DemoConfig = {
     }
   ],
   telemetryProof: {
-    rawDifferencePixels: 14280,
-    sclMaskedPixels: 1842,
-    illuminationGain: 0.98,
-    illuminationOffset: -0.02,
-    morphologyNoisePruned: 348,
+    rawDifferencePixels: 13931,
+    sclMaskedPixels: 0,
+    illuminationGain: 0.75,
+    illuminationOffset: 0.086,
+    morphologyNoisePruned: 7909,
     minimumClusterAreaM2: 900,
-    finalClusters: 3,
+    finalClusters: 107,
   }
 };

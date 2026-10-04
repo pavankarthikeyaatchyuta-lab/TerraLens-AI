@@ -60,33 +60,46 @@ export function VerifyStage({
     location.location_id === "LOC_005_THAR_SOLAR_PARK" ||
     location.location_id === "LOC_EO_01_BHADLA_SOLAR";
 
-  // Dynamic values derived from actual analysis or calibrated demo baseline
+  const isCalibrated = analysis?.is_calibrated_baseline !== undefined ? Boolean(analysis.is_calibrated_baseline) : false;
+
+  // Dynamic values derived from authoritative analysis contract
   const changeType =
     analysis?.classification?.type ||
     analysis?.change_type ||
-    (isBhadla ? "CONSTRUCTION" : "ANALYZED SPECTRAL CHANGE");
+    (isCalibrated ? "CONSTRUCTION" : "ANALYZED SPECTRAL CHANGE");
 
   const changedAreaHa =
-    analysis?.change?.changedAreaHa ??
-    (analysis?.changed_pixels
+    analysis?.changed_area_ha !== undefined
+      ? Number(analysis.changed_area_ha).toFixed(2)
+      : analysis?.change?.changedAreaHa !== undefined
+      ? Number(analysis.change.changedAreaHa).toFixed(2)
+      : analysis?.changed_pixels
       ? ((analysis.changed_pixels * 100) / 10000).toFixed(2)
-      : isBhadla
+      : isCalibrated
       ? "14.28"
-      : "0.00");
+      : "0.00";
 
   const confidence = (
     analysis?.confidence_score ??
     analysis?.confidence ??
-    (isBhadla ? 0.91 : 0.85)
+    (isCalibrated ? 0.91 : 0.85)
   ).toFixed(2);
 
   const validPixelsPct =
-    analysis?.quality?.validPercentage ??
-    (analysis?.quality_score
-      ? (analysis.quality_score * 100).toFixed(1) + "%"
-      : isBhadla
-      ? "99.2%"
-      : "98.5%");
+    analysis?.valid_pixel_percentage !== undefined
+      ? (typeof analysis.valid_pixel_percentage === "number" ? `${analysis.valid_pixel_percentage.toFixed(1)}%` : String(analysis.valid_pixel_percentage))
+      : analysis?.quality?.validPercentage ??
+        (analysis?.quality_score
+          ? (analysis.quality_score * 100).toFixed(1) + "%"
+          : isCalibrated
+          ? "99.2%"
+          : "98.5%");
+
+  const clusterCount =
+    analysis?.clusters?.length ??
+    analysis?.cluster_count ??
+    analysis?.change_regions?.length ??
+    (isCalibrated ? 3 : 1);
 
   const t1Date =
     beforeScene?.acquisitionDate?.split("T")[0] ||
@@ -98,7 +111,7 @@ export function VerifyStage({
     afterScene?.acquisitionDate?.split("T")[0] ||
     afterScene?.acquisition_date ||
     location.available_dates?.[1] ||
-    (isBhadla ? "2025-03-12" : "2025");
+    (isBhadla ? "2025-03-15" : "2025");
 
   const elapsedDays = Math.round(
     Math.abs(new Date(t2Date).getTime() - new Date(t1Date).getTime()) / (1000 * 60 * 60 * 24)
@@ -162,6 +175,49 @@ export function VerifyStage({
       status: "PASS",
     },
   ];
+
+  if (analysis?.status === "UNAVAILABLE" || analysis?.status === "INSUFFICIENT_VALID_DATA") {
+    return (
+      <div className="space-y-6 font-mono">
+        <div className="flex items-center justify-between bg-tactical-900/90 border border-tactical-750 rounded-xl px-4 py-2.5 text-xs">
+          <button
+            type="button"
+            onClick={onBackToCompare}
+            className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>BACK TO COMPARE</span>
+          </button>
+          <div className="text-slate-400">
+            Target AOI: <strong className="text-sky-400">{location.name}</strong>
+          </div>
+        </div>
+
+        <div className="bg-tactical-900 border-2 border-amber-500/40 rounded-2xl p-8 text-center space-y-4 shadow-xl">
+          <div className="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center mx-auto text-amber-400">
+            <AlertCircle className="w-6 h-6" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-slate-100 uppercase tracking-tight">
+              Analysis Unavailable for Selected Observations
+            </h2>
+            <p className="text-xs text-slate-400 max-w-lg mx-auto mt-2">
+              {analysis?.details || "Insufficient verified bi-temporal imagery or clear-sky observation pixels cached for this target location. Select a monitored hub with verified multi-temporal observation data."}
+            </p>
+          </div>
+          <div className="pt-2">
+            <button
+              onClick={onBackToCompare}
+              className="px-5 py-2.5 rounded-xl bg-tactical-800 border border-tactical-700 text-xs font-bold text-slate-200 hover:bg-tactical-750 transition-colors inline-flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Return to Bi-Temporal Navigation</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 font-mono">
@@ -235,18 +291,18 @@ export function VerifyStage({
               CHANGED AREA:
             </span>
             <div className="text-2xl font-black text-slate-100">{changedAreaHa} ha</div>
-            <div className="text-[10px] text-emerald-400 font-sans">
-              {isBhadla ? "Utility-Scale Expansion" : "Calculated Surface Area"}
+            <div className="text-[10px] text-emerald-400 font-sans truncate">
+              {isCalibrated ? "14.28 ha · calibrated demo baseline" : `${changedAreaHa} ha · real Sentinel-2 analysis`}
             </div>
           </div>
 
           <div className="bg-tactical-950 border border-tactical-800 rounded-xl p-3.5 space-y-1">
             <span className="text-[10px] text-slate-500 uppercase font-semibold block">
-              ENGINEERED CONFIDENCE:
+              HEURISTIC CONFIDENCE:
             </span>
             <div className="text-2xl font-black text-sky-400">{confidence}</div>
-            <div className="text-[10px] text-slate-400 font-sans">
-              Heuristic Multi-Factor
+            <div className="text-[10px] text-slate-400 font-sans truncate">
+              {isCalibrated ? "0.91 · calibrated demo baseline" : `Heuristic multi-factor · ${confidence}`}
             </div>
           </div>
 
@@ -255,8 +311,8 @@ export function VerifyStage({
               SCL QUALITY VALIDITY:
             </span>
             <div className="text-2xl font-black text-emerald-400">{validPixelsPct}</div>
-            <div className="text-[10px] text-slate-400 font-sans">
-              Cloud & Shadow Suppressed
+            <div className="text-[10px] text-slate-400 font-sans truncate">
+              {isCalibrated ? "99.2% · calibrated demo baseline" : `${validPixelsPct} · real SCL quality`}
             </div>
           </div>
 
@@ -265,10 +321,10 @@ export function VerifyStage({
               PRIMARY CLUSTER COUNT:
             </span>
             <div className="text-2xl font-black text-slate-100">
-              {analysis?.clusters?.length || 1} Cluster
+              {clusterCount} {clusterCount === 1 ? "Cluster" : "Clusters"}
             </div>
-            <div className="text-[10px] text-slate-400 font-sans">
-              ≥ 900 m² Contiguous Area
+            <div className="text-[10px] text-slate-400 font-sans truncate">
+              {isCalibrated ? "3 clusters · calibrated demo baseline" : `${clusterCount} clusters · analysis-derived`}
             </div>
           </div>
         </div>

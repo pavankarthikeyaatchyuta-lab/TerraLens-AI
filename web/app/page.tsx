@@ -11,53 +11,128 @@ import { EvaluationModal } from "@/components/EvaluationModal";
 import { Location, Scene, SearchResult, ChangeDetectionResult } from "@/types";
 
 const DEFAULT_BHADLA_LOCATION: Location = {
-  location_id: "LOC_005_THAR_SOLAR_PARK",
+  location_id: "LOC_EO_01_BHADLA_SOLAR",
   name: "Bhadla Solar Park, Rajasthan",
-  latitude: 27.53,
-  longitude: 71.91,
+  latitude: 27.539,
+  longitude: 71.918,
   bounding_box: {
     min_lat: 27.48,
     min_lon: 71.86,
     max_lat: 27.58,
     max_lon: 71.96,
   },
-  description: "One of the world's largest operational photovoltaic solar installations, situated in Phalodi tehsil, Jodhpur district, Rajasthan. Shows expansive multi-phase panel cluster expansion across Thar desert terrain.",
+  description: "World's largest operational photovoltaic solar installation, situated in Phalodi tehsil, Jodhpur district, Rajasthan. Analyzed via Copernicus Sentinel-2 Level-2A multi-spectral pipeline.",
   primary_sensor: "Sentinel-2 MSI L2A",
-  available_dates: ["2023-04-05", "2025-03-12"],
+  available_dates: ["2023-04-05", "2025-03-15"],
   tags: ["solar", "energy", "rajasthan", "desert", "photovoltaic", "infrastructure"],
-  before_scene_id: "S2A_MSIL2A_20230405T054641_N0509_R062_T43RER_20230405T094034",
-  after_scene_id: "S2B_MSIL2A_20250312T054639_N0511_R062_T43RER_20250312T092815",
+  before_scene_id: "S2A_MSIL2A_20230405T054641_R048_T42RYR_20240807T150732",
+  after_scene_id: "S2C_MSIL2A_20250315T054701_R048_T42RYR_20250315T091913",
 };
 
 const DEFAULT_BHADLA_ANALYSIS: any = {
-  location_id: "LOC_005_THAR_SOLAR_PARK",
-  changed_pixels: 1428,
-  total_pixels: 1000000,
-  confidence_score: 0.91,
-  confidence: 0.91,
+  location_id: "LOC_EO_01_BHADLA_SOLAR",
+  before_scene_id: "S2A_MSIL2A_20230405T054641_R048_T42RYR_20240807T150732",
+  after_scene_id: "S2C_MSIL2A_20250315T054701_R048_T42RYR_20250315T091913",
+  before_acquisition_date: "2023-04-05",
+  after_acquisition_date: "2025-03-15",
+  delta_days: 710,
+  status: "CHANGE_DETECTED",
+  change_type: "VEGETATION_GAIN",
+  detector_name: "ChangeAnalysisEngine",
+  detector_label: "Sentinel-2 L2A Multi-Spectral Pipeline",
+  changed_pixels: 6022,
+  total_pixels: 262144,
+  change_ratio: 0.02297,
+  changed_area_m2: 602200,
+  changed_area_ha: 60.22,
+  cluster_count: 107,
+  confidence_score: 0.55,
+  confidence: 0.55,
+  valid_pixel_count: 262144,
+  valid_pixel_percentage: "100.0%",
+  threshold: 0.15,
+  threshold_method: "Adaptive Statistical Distribution (mean + 1.8*std, clamped [0.15, 0.45])",
+  is_calibrated_baseline: false,
+  data_source: "Copernicus Sentinel-2 L2A B04/B08/SCL",
+  metric_type: "analysis_derived",
   change: {
-    changedAreaHa: "14.28",
-    changeType: "CONSTRUCTION",
+    changedAreaHa: "60.22",
+    changedAreaM2: 602200,
+    changedPixels: 6022,
+    changeType: "VEGETATION_GAIN",
+    threshold: 0.15,
+    thresholdMethod: "Adaptive Statistical Distribution (mean + 1.8*std, clamped [0.15, 0.45])",
   },
   classification: {
-    type: "CONSTRUCTION",
-    confidence: 0.91,
+    type: "VEGETATION_GAIN",
+    confidence: 0.55,
+    rationale: "NDVI increase indicating biomass expansion.",
   },
   quality: {
-    validPercentage: "99.2%",
-    cloudCover: "0.8%",
+    validPercentage: "100.0%",
+    cloudCover: "0.1%",
+    validPixels: 262144,
+    totalPixels: 262144,
+    maskedPixels: 0,
+    status: "PASS",
+    sclUsed: true,
   },
   clusters: [
     {
+      cluster_id: "CLUST_001",
       id: "cluster-1",
-      area_ha: 14.28,
-      type: "CONSTRUCTION",
-      confidence: 0.91,
+      pixel_count: 297,
+      area_m2: 29700,
+      area_ha: 2.97,
+      centroid: [27.5342, 71.9145],
+      bounding_box: [71.9100, 27.5300, 71.9190, 27.5384],
+      change_class: "VEGETATION_GAIN",
+      type: "VEGETATION_GAIN",
+      confidence_score: 0.58,
+      confidence: 0.58,
+      classification_rationale: "Perimeter biomass and vegetation expansion near drainage boundary.",
+    },
+    {
+      cluster_id: "CLUST_002",
+      id: "cluster-2",
+      pixel_count: 245,
+      area_m2: 24500,
+      area_ha: 2.45,
+      centroid: [27.5410, 71.9210],
+      bounding_box: [71.9170, 27.5375, 71.9250, 27.5445],
+      change_class: "VEGETATION_GAIN",
+      type: "VEGETATION_GAIN",
+      confidence_score: 0.56,
+      confidence: 0.56,
+      classification_rationale: "Vegetative regrowth adjacent to panel array service road.",
+    },
+    {
+      cluster_id: "CLUST_003",
+      id: "cluster-3",
+      pixel_count: 189,
+      area_m2: 18900,
+      area_ha: 1.89,
+      centroid: [27.5285, 71.9080],
+      bounding_box: [71.9040, 27.5250, 71.9120, 27.5320],
+      change_class: "VEGETATION_GAIN",
+      type: "VEGETATION_GAIN",
+      confidence_score: 0.54,
+      confidence: 0.54,
+      classification_rationale: "Surface moisture retention and scrub development.",
     },
   ],
-  mask_path: "/outputs/change_masks/LOC_005_THAR_SOLAR_PARK_2023_2025_change_mask.png",
-  heatmap_path: "/outputs/change_masks/LOC_005_THAR_SOLAR_PARK_2023_2025_diff_heatmap.png",
-  overlay_path: "/outputs/change_masks/LOC_005_THAR_SOLAR_PARK_2023_2025_overlay.png",
+  mask_path: "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_change_mask.png",
+  heatmap_path: "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_diff_heatmap.png",
+  overlay_path: "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_overlay.png",
+  processing_metadata: {
+    algorithm: "Sentinel-2 L2A Multi-Spectral Pipeline",
+    resolution_meters: 10.0,
+    morphology_kernel: 3,
+    illumination_matched: true,
+    data_source: "Copernicus Sentinel-2 L2A B04/B08/SCL",
+    metric_type: "analysis_derived",
+    is_calibrated_baseline: false,
+  },
 };
 
 export default function HomePage() {
@@ -81,7 +156,7 @@ export default function HomePage() {
   // Authoritative Location & Catalog State
   const [locations, setLocations] = useState<Location[]>([DEFAULT_BHADLA_LOCATION]);
   const [scenes, setScenes] = useState<Scene[]>([]);
-  const [selectedLocationId, setSelectedLocationId] = useState<string>("LOC_005_THAR_SOLAR_PARK");
+  const [selectedLocationId, setSelectedLocationId] = useState<string>("LOC_EO_01_BHADLA_SOLAR");
   
   // Search & Query State
   const [activeQuery, setActiveQuery] = useState<string>("solar park development in Rajasthan");
@@ -96,7 +171,7 @@ export default function HomePage() {
   // Analyst Adjudication State
   const [verdict, setVerdict] = useState<"TRUE_CHANGE" | "FALSE_ALARM" | "UNCERTAIN" | null>("TRUE_CHANGE");
   const [analystNotes, setAnalystNotes] = useState<string>(
-    "Confirmed utility-scale photovoltaic array deployment in Bhadla Phase IV. Spatial morphology corresponds to mounting rows and electrical substation infrastructure."
+    "Confirmed bi-temporal surface change across Bhadla monitoring zone. Algorithmic spectral analysis indicates seasonal biomass/vegetation expansion around facility perimeters and access corridors between dry and post-monsoon observations."
   );
 
   // Evaluation Suite Modal State
@@ -121,10 +196,7 @@ export default function HomePage() {
   useEffect(() => {
     if (!selectedLocationId) return;
 
-    if (
-      selectedLocationId === "LOC_005_THAR_SOLAR_PARK" ||
-      selectedLocationId === "LOC_EO_01_BHADLA_SOLAR"
-    ) {
+    if (selectedLocationId === "LOC_EO_01_BHADLA_SOLAR") {
       setAnalysisResult(DEFAULT_BHADLA_ANALYSIS);
       return;
     }
@@ -198,9 +270,9 @@ export default function HomePage() {
     return {
       scene_id: selectedLocation.after_scene_id || `SCENE_${selectedLocation.location_id}_T2`,
       location_id: selectedLocation.location_id,
-      acquisition_date: selectedLocation.available_dates?.[1] || selectedLocation.available_dates?.[0] || "2025-03-12",
-      cloud_percentage: 0.1,
-      platform: "Sentinel-2B",
+      acquisition_date: selectedLocation.available_dates?.[1] || selectedLocation.available_dates?.[0] || "2025-03-15",
+      cloud_percentage: 0.0,
+      platform: "Sentinel-2C",
       sensor: selectedLocation.primary_sensor || "MSI L2A",
       image_path: `/samples/${sampleLocId}/after_2025.jpg`,
     };
@@ -274,17 +346,13 @@ export default function HomePage() {
   const handleSelectSihDemo = () => {
     setActiveQuery("solar park development in Rajasthan");
     const bhadla =
-      locations.find(
-        (l) =>
-          l.location_id === "LOC_005_THAR_SOLAR_PARK" ||
-          l.location_id === "LOC_EO_01_BHADLA_SOLAR"
-      ) || DEFAULT_BHADLA_LOCATION;
+      locations.find((l) => l.location_id === "LOC_EO_01_BHADLA_SOLAR") || DEFAULT_BHADLA_LOCATION;
 
     setSelectedLocationId(bhadla.location_id);
     setAnalysisResult(DEFAULT_BHADLA_ANALYSIS);
     setVerdict("TRUE_CHANGE");
     setAnalystNotes(
-      "Confirmed utility-scale photovoltaic array deployment in Bhadla Phase IV. Spatial morphology corresponds to mounting rows and electrical substation infrastructure."
+      "Confirmed bi-temporal surface change across Bhadla monitoring zone. Algorithmic spectral analysis indicates seasonal biomass/vegetation expansion around facility perimeters and access corridors between dry and post-monsoon observations."
     );
     handleStageChange("DISCOVER");
   };
@@ -292,10 +360,10 @@ export default function HomePage() {
   // Location selection on map or alternatives
   const handleSelectLocation = (id: string) => {
     setSelectedLocationId(id);
-    if (id === "LOC_005_THAR_SOLAR_PARK" || id === "LOC_EO_01_BHADLA_SOLAR") {
+    if (id === "LOC_EO_01_BHADLA_SOLAR") {
       setVerdict("TRUE_CHANGE");
       setAnalystNotes(
-        "Confirmed utility-scale photovoltaic array deployment in Bhadla Phase IV. Spatial morphology corresponds to mounting rows and electrical substation infrastructure."
+        "Confirmed bi-temporal surface change across Bhadla monitoring zone. Algorithmic spectral analysis indicates seasonal biomass/vegetation expansion around facility perimeters and access corridors between dry and post-monsoon observations."
       );
       setAnalysisResult(DEFAULT_BHADLA_ANALYSIS);
     } else {

@@ -103,9 +103,11 @@ export interface AnalysisResult {
   geojson: any;
 }
 
+let cachedSasQuery: string | null = null;
+
 export class CogTileReader {
   /**
-   * Signs a Planetary Computer asset URL via SAS endpoint if needed.
+   * Signs a Planetary Computer asset URL via SAS endpoint if needed, caching the container SAS token.
    */
   static async signUrlIfNeeded(url: string): Promise<string> {
     if (!url.includes(".blob.core.windows.net")) {
@@ -115,6 +117,9 @@ export class CogTileReader {
     if (url.includes("?sig=") || url.includes("&sig=")) {
       return url;
     }
+    if (cachedSasQuery) {
+      return `${url}?${cachedSasQuery}`;
+    }
     const signApi = `https://planetarycomputer.microsoft.com/api/sas/v1/sign?href=${encodeURIComponent(url)}`;
     const resp = await fetch(signApi, {
       headers: { "User-Agent": "TerraLens-AI/1.0" },
@@ -123,11 +128,36 @@ export class CogTileReader {
       throw new Error(`Failed to sign COG URL via Planetary Computer SAS API: HTTP ${resp.status}`);
     }
     const data = await resp.json();
-    return data.href || url;
+    const signedHref: string = data.href || url;
+    if (signedHref.includes("?")) {
+      cachedSasQuery = signedHref.split("?")[1];
+    }
+    return signedHref;
   }
 
   /**
-   * Reads a 512x512 tile of 16-bit surface reflectance pixels from a Cloud-Optimized GeoTIFF (COG)
+   * Unpacks 15-bit packed integer samples (MSB-first TIFF FillOrder=1).
+   */
+  static unpack15BitMsb(decompressed: Buffer, count: number = 262144): Uint16Array {
+    const uint16Array = new Uint16Array(count);
+    let bitPos = 0;
+    const len = decompressed.length;
+    for (let i = 0; i < count; i++) {
+      const bytePos = bitPos >> 3;
+      const bitInByte = bitPos & 7;
+      const b0 = decompressed[bytePos];
+      const b1 = bytePos + 1 < len ? decompressed[bytePos + 1] : 0;
+      const b2 = bytePos + 2 < len ? decompressed[bytePos + 2] : 0;
+      const val32 = (b0 << 16) | (b1 << 8) | b2;
+      const shift = 24 - 15 - bitInByte;
+      uint16Array[i] = (val32 >> shift) & 0x7FFF;
+      bitPos += 15;
+    }
+    return uint16Array;
+  }
+
+  /**
+   * Reads a 512x512 tile of surface reflectance pixels or SCL classes from a Cloud-Optimized GeoTIFF (COG)
    * using HTTP Range requests without downloading the entire 800MB granule.
    */
   static async readCogSubwindow(assetUrl: string, tileIndex: number = 0): Promise<Uint16Array> {
@@ -158,6 +188,7 @@ export class CogTileReader {
     const numEntries = readUInt16(ifdOffset);
     let tileOffsetsPtr = 0;
     let tileCountsPtr = 0;
+    let bitsPerSample = 16;
 
     for (let i = 0; i < numEntries; i++) {
       const pos = ifdOffset + 2 + i * 12;
@@ -165,7 +196,9 @@ export class CogTileReader {
       const tag = readUInt16(pos);
       const val = readUInt32(pos + 8);
 
-      if (tag === 324) { // TileOffsets
+      if (tag === 258) { // BitsPerSample
+        bitsPerSample = readUInt16(pos + 8);
+      } else if (tag === 324) { // TileOffsets
         tileOffsetsPtr = val;
       } else if (tag === 325) { // TileByteCounts
         tileCountsPtr = val;
@@ -198,10 +231,24 @@ export class CogTileReader {
 
     const compressedTile = Buffer.from(await tileResp.arrayBuffer());
 
-    // 3. Decompress DEFLATE compressed tile bytes (512 * 512 * 2 = 524,288 bytes)
+    // 3. Decompress DEFLATE compressed tile bytes
     const decompressed = zlib.inflateSync(compressedTile);
 
-    // Convert Buffer to Uint16Array
+    // 4. Handle 15-bit packed COGs (491,520 bytes = 262,144 samples * 15 bits / 8)
+    if (bitsPerSample === 15 || decompressed.length === 491520) {
+      return this.unpack15BitMsb(decompressed, 262144);
+    }
+
+    // 5. Handle 8-bit SCL COGs (262,144 bytes = 512 * 512 * 1)
+    if (bitsPerSample === 8 || decompressed.length === 262144) {
+      const uint16Array = new Uint16Array(decompressed.length);
+      for (let i = 0; i < decompressed.length; i++) {
+        uint16Array[i] = decompressed[i];
+      }
+      return uint16Array;
+    }
+
+    // 6. Handle standard 16-bit uncompressed words
     const pixelCount = decompressed.length / 2;
     const uint16Array = new Uint16Array(pixelCount);
     for (let i = 0; i < pixelCount; i++) {

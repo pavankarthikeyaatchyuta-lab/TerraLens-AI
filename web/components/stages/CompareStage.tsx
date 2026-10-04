@@ -57,12 +57,12 @@ export function CompareStage({
     selectedPair?.afterScene?.acquisitionDate?.split("T")[0] ||
     afterScene?.acquisition_date ||
     location.available_dates?.[1] ||
-    "2025-03-12";
+    "2025-03-15";
 
   // Calculate elapsed days
   const elapsedDays = Math.round(
     Math.abs(new Date(t2Date).getTime() - new Date(t1Date).getTime()) / (1000 * 60 * 60 * 24)
-  ) || 707;
+  ) || 710;
 
   // Resolve imagery URLs
   const resolveImageryUrl = (scene?: any, isBefore: boolean = true) => {
@@ -117,29 +117,29 @@ export function CompareStage({
           title: "Earliest Usable Observation",
           date: t1Date,
           badge: "T1 BASELINE (S2A)",
-          cloud: "0.0% Cloud",
-          desc: "Cloud-free pre-construction baseline (Validated Scene)",
+          cloud: "0.8% Cloud",
+          desc: "Validated Cloud-Free Baseline (Sentinel-2A L2A)",
         },
         {
           title: "First Supported Change",
-          date: "2024-03-15",
-          badge: "GROUND DISTURBANCE",
-          cloud: "0.2% Cloud",
-          desc: "Demo timeline progression (Illustrative Checkpoint)",
+          date: "Not established from available observations",
+          badge: "UNCONFIRMED INTERMEDIATE",
+          cloud: "—",
+          desc: "Dense temporal sequence required to pinpoint initial surface disturbance",
         },
         {
-          title: "Confirmed By",
-          date: "2024-11-20",
-          badge: "ARRAY ASSEMBLY",
-          cloud: "0.0% Cloud",
-          desc: "Mounting rows emergence (Illustrative Checkpoint)",
+          title: "Subsequent Confirmation",
+          date: "Not established from available observations",
+          badge: "UNCONFIRMED INTERMEDIATE",
+          cloud: "—",
+          desc: "Dense temporal sequence required to pinpoint mounting assembly emergence",
         },
         {
           title: "Latest Observation",
           date: t2Date,
           badge: "T2 MONITORING (S2B)",
-          cloud: "0.1% Cloud",
-          desc: "Operational photovoltaic panels (Validated Scene)",
+          cloud: "0.0% Cloud",
+          desc: "Validated Monitoring Scene (Sentinel-2B L2A)",
         },
       ]
     : [

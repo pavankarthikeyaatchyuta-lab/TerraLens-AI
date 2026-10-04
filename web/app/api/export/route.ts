@@ -18,18 +18,24 @@ export async function POST(request: NextRequest) {
     const liveAnalysis = body.live_analysis || body.analysis_result;
     if (liveAnalysis && (liveAnalysis.clusters || liveAnalysis.change || liveAnalysis.quality)) {
       const aoi = body.aoi || liveAnalysis.aoi;
-      const beforeScene =
-        body.before_scene ||
-        liveAnalysis.scenes?.before || {
-          sceneId: body.beforeSceneId || "N/A",
-          acquisitionDate: "N/A",
-        };
-      const afterScene =
-        body.after_scene ||
-        liveAnalysis.scenes?.after || {
-          sceneId: body.afterSceneId || "N/A",
-          acquisitionDate: "N/A",
-        };
+      const rawBefore = body.before_scene || liveAnalysis.scenes?.before || {};
+      const rawAfter = body.after_scene || liveAnalysis.scenes?.after || {};
+
+      const beforeScene = {
+        sceneId: rawBefore.sceneId || rawBefore.scene_id || body.beforeSceneId || liveAnalysis.before_scene_id || "N/A",
+        acquisitionDate: rawBefore.acquisitionDate || rawBefore.acquisition_date || liveAnalysis.before_acquisition_date || "N/A",
+        platform: rawBefore.platform || liveAnalysis.before?.platform || "Sentinel-2A",
+        instrument: rawBefore.instrument || rawBefore.sensor || "MSIL2A",
+        cloudCoverPercentage: rawBefore.cloudCoverPercentage ?? rawBefore.cloud_percentage ?? 0.8,
+      };
+
+      const afterScene = {
+        sceneId: rawAfter.sceneId || rawAfter.scene_id || body.afterSceneId || liveAnalysis.after_scene_id || "N/A",
+        acquisitionDate: rawAfter.acquisitionDate || rawAfter.acquisition_date || liveAnalysis.after_acquisition_date || "N/A",
+        platform: rawAfter.platform || liveAnalysis.after?.platform || "Sentinel-2B",
+        instrument: rawAfter.instrument || rawAfter.sensor || "MSIL2A",
+        cloudCoverPercentage: rawAfter.cloudCoverPercentage ?? rawAfter.cloud_percentage ?? 0.0,
+      };
       const analystReviews = body.analyst_reviews || {};
       const locationId = body.location_id || body.locationId || "LIVE_ANALYSIS_AOI";
       const locationName = body.location_name || body.locationName || locationId;
@@ -87,7 +93,7 @@ export async function POST(request: NextRequest) {
         },
         afterScene: {
           sceneId: aScene?.scene_id || location.after_scene_id || "T2_SCENE",
-          acquisitionDate: aScene?.acquisition_date || "2025-03-12",
+          acquisitionDate: aScene?.acquisition_date || "2025-03-15",
           instrument: aScene?.sensor || "Sentinel-2 MSI",
           platform: aScene?.platform || location.primary_sensor,
           cloudCoverPercentage: aScene?.cloud_percentage ?? 0,
