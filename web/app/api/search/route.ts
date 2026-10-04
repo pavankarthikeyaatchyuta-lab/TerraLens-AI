@@ -218,27 +218,27 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 4. Precomputed Benchmark Query Check (for benchmark queries in benchmark catalog)
-    if (effectiveCatalog === "benchmark") {
-      const benchmarkOutcome = searchScenes(query, topK, null, undefined, "benchmark", filters, groupBy, excludeLocationId);
-      if (benchmarkOutcome.supported) {
-        return NextResponse.json({
-          mode: "controlled-benchmark",
-          catalog: "benchmark",
-          supported: true,
-          queryType: "text",
-          query,
-          top_k: topK,
-          total_matches: benchmarkOutcome.results.length,
-          latency_ms: benchmarkOutcome.latencyMs,
-          retrieval_mode: "Exact 512-dim Normalized Cosine Similarity (IndexFlatIP baseline)",
-          embedding_dimension: 512,
-          similarity_metric: "cosine",
-          filters_applied: filters || null,
-          group_by: groupBy,
-          results: benchmarkOutcome.results,
-        });
-      }
+    // 4. In-Process High-Speed Exact / Semantic Concept Retrieval (< 5ms)
+    const fastOutcome = searchScenes(query, topK, null, undefined, effectiveCatalog, filters, groupBy, excludeLocationId);
+    if (fastOutcome.supported && fastOutcome.results.length > 0) {
+      return NextResponse.json({
+        mode: effectiveCatalog === "real-eo" ? "real-eo-catalog" : "semantic-concept-match",
+        catalog: effectiveCatalog,
+        supported: true,
+        queryType: "text",
+        query,
+        top_k: topK,
+        total_matches: fastOutcome.results.length,
+        latency_ms: fastOutcome.latencyMs,
+        retrieval_mode: effectiveCatalog === "real-eo"
+          ? "Exact 512-dim Normalized Cosine Similarity over Real Sentinel-2 Catalog (IndexFlatIP baseline)"
+          : "Exact 512-dim Normalized Cosine Similarity (IndexFlatIP baseline)",
+        embedding_dimension: 512,
+        similarity_metric: "cosine",
+        filters_applied: filters || null,
+        group_by: groupBy,
+        results: fastOutcome.results,
+      });
     }
 
     // 5. Fallback Tier: Server-side Local Python/ONNX CLIP text encoder

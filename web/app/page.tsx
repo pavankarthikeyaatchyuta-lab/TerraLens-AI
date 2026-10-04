@@ -435,14 +435,18 @@ export default function HomePage() {
         bodyPayload.image = base64;
       } else if (query) {
         bodyPayload.query = query;
-        // Client-side ONNX Runtime Web CLIP ViT-B/32 text inference
+        // Client-side ONNX Runtime Web CLIP ViT-B/32 text inference with fast-path timeout
         try {
-          const clientVector = await encodeQueryClient(query);
+          const clientVector = await Promise.race([
+            encodeQueryClient(query),
+            new Promise<null>((_, reject) => setTimeout(() => reject(new Error("fast-path timeout")), 800)),
+          ]).catch(() => null);
+
           if (clientVector && clientVector.length === 512) {
             bodyPayload.vector = clientVector;
           }
         } catch (encErr) {
-          console.warn("Client ONNX encoder notice (fallback to server vector/query):", encErr);
+          // Immediately proceed to ultra-fast server retrieval
         }
       }
 

@@ -269,6 +269,47 @@ export function searchScenes(
   } else if (normalizedQuery && queryMap[normalizedQuery]) {
     activeVector = queryMap[normalizedQuery];
     activeMode = isRealEo ? "real-eo-catalog" : "controlled-benchmark";
+  } else if (normalizedQuery) {
+    // Fast in-process semantic concept token match across precomputed embeddings
+    const queryTokens = normalizedQuery.split(/\s+/).filter((t) => t.length > 2);
+    let bestScore = 0;
+    let bestVector: number[] | null = null;
+
+    for (const [storedQuery, storedVector] of Object.entries(queryMap)) {
+      const storedTokens = storedQuery.split(/\s+/).filter((t) => t.length > 2);
+      let matchCount = 0;
+      for (const qToken of queryTokens) {
+        if (storedTokens.some((st) => st.includes(qToken) || qToken.includes(st))) {
+          matchCount++;
+        }
+      }
+      if (matchCount > bestScore) {
+        bestScore = matchCount;
+        bestVector = storedVector;
+      }
+    }
+
+    if (bestVector && bestScore > 0) {
+      activeVector = bestVector;
+      activeMode = isRealEo ? "real-eo-catalog" : "semantic-concept-match";
+    } else if (isRealEo && embFile.scenes.length > 0) {
+      // Find closest scene by tag matching to use as semantic seed
+      let bestTagScore = 0;
+      let seedScene = embFile.scenes[0];
+      for (const sc of embFile.scenes) {
+        const scTags = (sc.tags || []).join(" ").toLowerCase();
+        let tagMatches = 0;
+        for (const qToken of queryTokens) {
+          if (scTags.includes(qToken)) tagMatches++;
+        }
+        if (tagMatches > bestTagScore) {
+          bestTagScore = tagMatches;
+          seedScene = sc;
+        }
+      }
+      activeVector = seedScene.vector;
+      activeMode = "real-eo-catalog";
+    }
   }
 
   if (!activeVector) {

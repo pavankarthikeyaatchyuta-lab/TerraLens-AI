@@ -199,65 +199,68 @@ export function TacticalMap({
       const selectedLoc = locations.find((l) => l.location_id === selectedLocationId) || locations[0];
 
       if (isReal && selectedLoc) {
-        // REAL EO MODE: Render ONLY the selected location's marker and AOI boundary.
-        // Do not render all 35 locations globally to avoid confusion with detected changes.
+        // REAL EO MODE: Render an EXACT precision pinpoint marker at target coordinates.
+        // No giant bounding box overlay so the satellite imagery remains completely clear.
         const pinHtml = `
           <div style="
+            position: relative;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 18px;
-            background: rgba(6, 78, 59, 0.95);
-            border: 2px solid #10b981;
-            color: #ffffff;
-            font-size: 11px;
-            font-weight: bold;
-            font-family: monospace;
-            box-shadow: 0 0 16px rgba(16, 185, 129, 0.8);
-            white-space: nowrap;
+            pointer-events: auto;
+            transform: translate3d(0, 0, 0);
           ">
-            <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
-            <span>REAL EO: ${selectedLoc.name.split(",")[0]}</span>
+            <div style="
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              padding: 4px 10px;
+              border-radius: 8px;
+              background: rgba(15, 23, 42, 0.95);
+              border: 1.5px solid #0284c7;
+              color: #f8fafc;
+              font-size: 11px;
+              font-weight: bold;
+              font-family: monospace;
+              box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8), 0 0 10px rgba(2, 132, 199, 0.5);
+              white-space: nowrap;
+              margin-bottom: 6px;
+            ">
+              <span style="color: #38bdf8; font-size: 13px;">⌖</span>
+              <span>${selectedLoc.name.split(",")[0]}</span>
+              <span style="color: #94a3b8; font-size: 10px;">${selectedLoc.latitude.toFixed(2)}°N, ${selectedLoc.longitude.toFixed(2)}°E</span>
+            </div>
+            <div style="
+              width: 22px;
+              height: 22px;
+              border-radius: 50%;
+              border: 2.5px solid #38bdf8;
+              background: rgba(14, 165, 233, 0.35);
+              box-shadow: 0 0 14px #0284c7, inset 0 0 6px #38bdf8;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            ">
+              <div style="width: 6px; height: 6px; border-radius: 50%; background: #ffffff; box-shadow: 0 0 6px #ffffff;"></div>
+            </div>
           </div>
         `;
 
         const divIcon = L.divIcon({
           html: pinHtml,
-          className: "tactical-marker-real-eo",
-          iconSize: [160, 28],
-          iconAnchor: [80, 14],
+          className: "tactical-marker-pinpoint",
+          iconSize: [220, 56],
+          iconAnchor: [110, 45],
         });
 
         const marker = L.marker([selectedLoc.latitude, selectedLoc.longitude], { icon: divIcon }).addTo(map);
         marker.bindTooltip(
-          `<strong>REAL EO LOCATION: ${selectedLoc.name}</strong><br/>Sensor: ${selectedLoc.primary_sensor}<br/>Coordinates: ${selectedLoc.latitude.toFixed(4)}, ${selectedLoc.longitude.toFixed(4)}<br/><span style="color:#10b981;font-weight:bold;">Authentic Sentinel-2 L2A AOI</span>`,
+          `<strong>TARGET COORDINATES: ${selectedLoc.name}</strong><br/>Sensor: ${selectedLoc.primary_sensor}<br/>Coordinates: ${selectedLoc.latitude.toFixed(4)}°N, ${selectedLoc.longitude.toFixed(4)}°E`,
           { className: "tactical-tooltip", direction: "top" }
         );
         markersRef.current[selectedLoc.location_id] = marker;
-
-        if (selectedLoc.bounding_box) {
-          const bounds: [[number, number], [number, number]] = [
-            [selectedLoc.bounding_box.min_lat, selectedLoc.bounding_box.min_lon],
-            [selectedLoc.bounding_box.max_lat, selectedLoc.bounding_box.max_lon],
-          ];
-          const rect = L.rectangle(bounds, {
-            color: "#10b981",
-            weight: 2.5,
-            fillColor: "#10b981",
-            fillOpacity: 0.15,
-            dashArray: "4, 4",
-          }).addTo(map);
-
-          rect.bindTooltip(
-            `<strong>REAL EO AOI BOUNDARY</strong><br/>${selectedLoc.name}`,
-            { className: "tactical-tooltip", direction: "top" }
-          );
-
-          markersRef.current[`rect_${selectedLoc.location_id}`] = rect;
-        }
       } else {
-        // BENCHMARK MODE: Render benchmark locations clearly labeled as CATALOG LOCATIONS, not detected changes.
+        // BENCHMARK MODE: Render benchmark locations as clean point markers without whole-map rectangles.
         locations.forEach((loc) => {
           const isSelected = loc.location_id === selectedLocationId;
           const locNum = loc.location_id.replace("LOC_00", "").replace("LOC_0", "").replace("LOC_", "");
@@ -298,45 +301,19 @@ export function TacticalMap({
           });
 
           marker.bindTooltip(
-            `<strong>BENCHMARK CATALOG LOCATION: ${loc.name}</strong><br/>Sensor Profile: ${loc.primary_sensor}<br/>Lat: ${loc.latitude.toFixed(4)}, Lon: ${loc.longitude.toFixed(4)}<br/><span style="color:#fbbf24;">Controlled Synthetic Benchmark Scene</span>`,
+            `<strong>BENCHMARK LOCATION: ${loc.name}</strong><br/>Lat: ${loc.latitude.toFixed(4)}, Lon: ${loc.longitude.toFixed(4)}`,
             { className: "tactical-tooltip", direction: "top" }
           );
-
-          if (loc.bounding_box) {
-            const bounds: [[number, number], [number, number]] = [
-              [loc.bounding_box.min_lat, loc.bounding_box.min_lon],
-              [loc.bounding_box.max_lat, loc.bounding_box.max_lon],
-            ];
-            const rect = L.rectangle(bounds, {
-              color: isSelected ? "#f59e0b" : "#64748b",
-              weight: isSelected ? 2.5 : 1.2,
-              fillColor: isSelected ? "#f59e0b" : "#475569",
-              fillOpacity: isSelected ? 0.2 : 0.08,
-              dashArray: isSelected ? undefined : "4, 4",
-            }).addTo(map);
-
-            markersRef.current[`rect_${loc.location_id}`] = rect;
-          }
 
           markersRef.current[loc.location_id] = marker;
         });
       }
 
-      // Fly to selected location with high-resolution detail
+      // Fly to exact target point with clean optical focus
       if (selectedLoc) {
-        if (selectedLoc.bounding_box) {
-          map.fitBounds(
-            [
-              [selectedLoc.bounding_box.min_lat, selectedLoc.bounding_box.min_lon],
-              [selectedLoc.bounding_box.max_lat, selectedLoc.bounding_box.max_lon],
-            ],
-            { padding: [40, 40], maxZoom: 13, duration: 1.2 }
-          );
-        } else {
-          map.flyTo([selectedLoc.latitude, selectedLoc.longitude], 12, {
-            duration: 1.2,
-          });
-        }
+        map.flyTo([selectedLoc.latitude, selectedLoc.longitude], 12, {
+          duration: 1.0,
+        });
       }
     });
 

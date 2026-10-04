@@ -61,7 +61,7 @@ export function DiscoverStage({
             catalogMode="real-eo"
           />
           <div className="text-[10px] text-slate-500 flex items-center justify-between px-1">
-            <span>Target AOI: {topLocation.bounding_box.min_lat.toFixed(2)}°N, {topLocation.bounding_box.min_lon.toFixed(2)}°E</span>
+            <span>Target Location: {topLocation.latitude.toFixed(4)}°N, {topLocation.longitude.toFixed(4)}°E</span>
             <span>Sensor: Sentinel-2 MSI L2A (10m)</span>
           </div>
         </div>
