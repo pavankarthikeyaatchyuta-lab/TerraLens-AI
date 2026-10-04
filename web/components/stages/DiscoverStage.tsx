@@ -83,7 +83,7 @@ export function DiscoverStage({
                 {topLocation.name}
               </h3>
               <p className="text-xs text-sky-400/90 mt-0.5">
-                {topLocation.primary_sensor || "Sentinel-2 MSI L2A"} • 39 usable observations
+                {topLocation.primary_sensor || "Sentinel-2 MSI L2A"} • {topLocation.available_dates?.length || 2} catalog observations ({topLocation.available_dates?.[0] || "2023-04-05"} &rarr; {topLocation.available_dates?.[1] || "2025-03-15"})
               </p>
             </div>
 

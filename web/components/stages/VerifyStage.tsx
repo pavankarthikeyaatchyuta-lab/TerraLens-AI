@@ -115,7 +115,7 @@ export function VerifyStage({
 
   const elapsedDays = Math.round(
     Math.abs(new Date(t2Date).getTime() - new Date(t1Date).getTime()) / (1000 * 60 * 60 * 24)
-  ) || (isBhadla ? 707 : 365);
+  ) || (isBhadla ? 710 : 365);
 
   const sampleLocId =
     location.location_id === "LOC_EO_01_BHADLA_SOLAR" || location.location_id === "LOC_005_THAR_SOLAR_PARK"
