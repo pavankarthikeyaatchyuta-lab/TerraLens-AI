@@ -367,10 +367,11 @@ export function assembleExportBundle(options: ExportBundleOptions): ExportBundle
   }
 
   // Derive change metrics
-  const changedPixels = live?.change?.changedPixels ?? benchmark?.changed_pixels ?? 0;
-  const totalPixels = live?.quality?.totalPixels ?? live?.change?.totalPixels ?? benchmark?.total_pixels ?? 262144;
-  const changedAreaHa = live?.change?.changedAreaHa ?? parseFloat(((changedPixels * 100) / 10000.0).toFixed(4));
-  const changedAreaM2 = live?.change?.changedAreaM2 ?? changedPixels * 100;
+  const changedPixels = Number(live?.change?.changedPixels ?? benchmark?.changed_pixels ?? 0);
+  const totalPixels = Number(live?.quality?.totalPixels ?? live?.change?.totalPixels ?? benchmark?.total_pixels ?? 262144);
+  const rawAreaHa = live?.change?.changedAreaHa ?? ((changedPixels * 100) / 10000.0);
+  const changedAreaHa = typeof rawAreaHa === "number" ? rawAreaHa : parseFloat(String(rawAreaHa) || "0");
+  const changedAreaM2 = Number(live?.change?.changedAreaM2 ?? (changedPixels * 100));
   const thresholdVal = live?.change?.threshold ?? 0.285;
   const thresholdMethod = live?.change?.thresholdMethod ?? "Adaptive Statistical Distribution (mean + 1.8*std, clamped [0.15, 0.45])";
 
