@@ -197,15 +197,15 @@ export function SearchStage({
         </p>
       </div>
 
-      {/* Multimodal Mode Selector Tabs */}
-      <div className="flex items-center justify-center gap-2 border-b border-tactical-800 pb-3">
+      {/* Multimodal Mode Selector Tabs (3D Neumorphic Segmented Control) */}
+      <div className="flex items-center justify-center gap-2 neu-inset p-2 rounded-2xl max-w-2xl mx-auto shadow-inner">
         <button
           type="button"
           onClick={() => setSearchMode("text")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
             searchMode === "text"
-              ? "bg-sky-600 text-white shadow-md"
-              : "bg-tactical-900 text-slate-400 hover:text-white border border-tactical-800"
+              ? "neu-btn-primary shadow-lg shadow-sky-950/70 scale-[1.02]"
+              : "neu-btn text-slate-400 hover:text-white"
           }`}
         >
           <Search className="w-3.5 h-3.5" />
@@ -215,10 +215,10 @@ export function SearchStage({
         <button
           type="button"
           onClick={() => setSearchMode("image")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
             searchMode === "image"
-              ? "bg-sky-600 text-white shadow-md"
-              : "bg-tactical-900 text-slate-400 hover:text-white border border-tactical-800"
+              ? "neu-btn-primary shadow-lg shadow-sky-950/70 scale-[1.02]"
+              : "neu-btn text-slate-400 hover:text-white"
           }`}
         >
           <Upload className="w-3.5 h-3.5" />
@@ -228,10 +228,10 @@ export function SearchStage({
         <button
           type="button"
           onClick={() => setSearchMode("scene")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
             searchMode === "scene"
-              ? "bg-sky-600 text-white shadow-md"
-              : "bg-tactical-900 text-slate-400 hover:text-white border border-tactical-800"
+              ? "neu-btn-primary shadow-lg shadow-sky-950/70 scale-[1.02]"
+              : "neu-btn text-slate-400 hover:text-white"
           }`}
         >
           <ImageIcon className="w-3.5 h-3.5" />
@@ -239,23 +239,23 @@ export function SearchStage({
         </button>
       </div>
 
-      {/* MODE 1: Natural Language Text Search */}
+      {/* MODE 1: Natural Language Text Search (3D Recessed Input Well) */}
       {searchMode === "text" && (
         <form onSubmit={handleTextSubmit} className="relative">
-          <div className="relative flex items-center shadow-lg rounded-2xl bg-tactical-900 border-2 border-tactical-700 focus-within:border-sky-500 transition-colors">
-            <Search className="absolute left-5 w-6 h-6 text-slate-500" />
+          <div className="relative flex items-center neu-inset rounded-2xl p-1.5 focus-within:ring-2 focus-within:ring-sky-500/40 transition-all shadow-inner">
+            <Search className="absolute left-6 w-6 h-6 text-sky-400/80 drop-shadow-[0_0_8px_rgba(56,189,248,0.4)]" />
             <input
               type="text"
               value={queryInput}
               onChange={(e) => setQueryInput(e.target.value)}
-              placeholder="e.g. solar park development in Rajasthan, reservoir drying, forest corridor..."
-              className="w-full bg-transparent pl-14 pr-36 py-4 text-base md:text-lg text-slate-100 placeholder-slate-500 focus:outline-none font-mono"
+              placeholder="e.g. colleges near river, solar park development in Rajasthan, reservoir drying..."
+              className="w-full bg-transparent pl-16 pr-40 py-4 text-base md:text-lg text-slate-100 placeholder-slate-500 focus:outline-none font-mono"
               autoFocus
             />
             <button
               type="submit"
               disabled={isLoading || !queryInput.trim()}
-              className="absolute right-2 px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 disabled:bg-tactical-800 disabled:text-slate-600 text-white font-bold text-xs md:text-sm tracking-wider transition-all flex items-center gap-2 shadow-sm"
+              className="absolute right-2 px-7 py-3 rounded-xl neu-btn-primary disabled:opacity-40 disabled:cursor-not-allowed font-black text-xs md:text-sm tracking-wider transition-all flex items-center gap-2 shadow-lg"
             >
               {isLoading ? (
                 <>
@@ -492,19 +492,19 @@ export function SearchStage({
         )}
       </div>
 
-      {/* SIH Deterministic Judge Preset Card */}
-      <div className="bg-tactical-900/90 border border-sky-500/40 rounded-2xl p-5 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* SIH Deterministic Judge Preset Card (3D Elevated Spatial Instrument) */}
+      <div className="neu-raised border border-sky-500/50 rounded-2xl p-6 shadow-2xl neu-card flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/40 text-[10px] font-bold tracking-wider uppercase">
+            <span className="px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-400/40 text-[10px] font-bold tracking-wider uppercase neu-pill">
               SIH JUDGE DEMO PATH
             </span>
-            <span className="text-xs text-slate-400">Deterministic Multi-Temporal Evaluation</span>
+            <span className="text-xs text-slate-400 font-bold">Deterministic Multi-Temporal Evaluation</span>
           </div>
-          <h3 className="text-base font-bold text-slate-100">
+          <h3 className="text-lg font-black text-slate-100 tracking-tight">
             &ldquo;solar park development in Rajasthan&rdquo;
           </h3>
-          <p className="text-xs text-slate-400 font-sans">
+          <p className="text-xs text-slate-400 font-sans leading-relaxed max-w-xl">
             Resolves directly to Bhadla Solar Park • 710-day Sentinel-2 observation baseline (2023-04-05 &rarr; 2025-03-15) • 60.22 ha detected change.
           </p>
         </div>
@@ -512,19 +512,19 @@ export function SearchStage({
         <button
           type="button"
           onClick={onSelectSihDemo}
-          className="px-5 py-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs tracking-wider transition-all flex items-center justify-center gap-2 shadow-md hover:scale-105 active:scale-95 whitespace-nowrap shrink-0"
+          className="px-6 py-3.5 rounded-xl neu-btn-primary text-white font-black text-xs tracking-wider transition-all flex items-center justify-center gap-2 shadow-xl whitespace-nowrap shrink-0 hover:scale-[1.02] active:scale-[0.98]"
         >
-          <Zap className="w-4 h-4 text-amber-300" />
+          <Zap className="w-4 h-4 text-amber-300 fill-amber-300 animate-pulse" />
           <span>LAUNCH SIH DEMO — SOLAR</span>
         </button>
       </div>
 
-      {/* Secondary Exploration Chips */}
-      <div className="space-y-2 pt-1">
-        <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider block text-center">
+      {/* Secondary Exploration Chips (3D Tactile Buttons) */}
+      <div className="space-y-2.5 pt-1">
+        <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block text-center">
           Or explore verified semantic concepts:
         </span>
-        <div className="flex flex-wrap items-center justify-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-2.5">
           {PRESET_QUERIES.map((preset) => (
             <button
               key={preset.label}
@@ -533,7 +533,7 @@ export function SearchStage({
                 setQueryInput(preset.query);
                 onExecuteSearch(preset.query, { filters: buildActiveFilters() });
               }}
-              className="px-3.5 py-1.5 rounded-lg bg-tactical-900 hover:bg-tactical-800 border border-tactical-700 hover:border-slate-500 text-xs text-slate-300 transition-colors"
+              className="px-4 py-2 rounded-xl neu-btn text-xs text-slate-300 font-bold transition-all hover:text-sky-300 hover:border-sky-500/40"
             >
               &rarr; {preset.label}
             </button>

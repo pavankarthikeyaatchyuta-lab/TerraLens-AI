@@ -50,40 +50,44 @@ export function DiscoverStage({
         </div>
       </div>
 
-      {/* 2-Column Clean Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* LEFT COLUMN (5 cols): Focused Tactical Map */}
-        <div className="lg:col-span-6 space-y-2">
-          <TacticalMap
-            locations={locations}
-            selectedLocationId={selectedLocationId}
-            onSelectLocation={onSelectLocation}
-            catalogMode="real-eo"
-          />
-          <div className="text-[10px] text-slate-500 flex items-center justify-between px-1">
-            <span>Target Location: {topLocation.latitude.toFixed(4)}°N, {topLocation.longitude.toFixed(4)}°E</span>
-            <span>Sensor: Sentinel-2 MSI L2A (10m)</span>
+      {/* 2-Column Clean Spatial Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* LEFT COLUMN (6 cols): Focused Tactical Map in 3D Neumorphic Bezel */}
+        <div className="lg:col-span-6 space-y-2 neu-raised p-2.5 rounded-2xl shadow-xl">
+          <div className="rounded-xl overflow-hidden border border-tactical-700/80 shadow-inner">
+            <TacticalMap
+              locations={locations}
+              selectedLocationId={selectedLocationId}
+              onSelectLocation={onSelectLocation}
+              catalogMode="real-eo"
+            />
+          </div>
+          <div className="text-[10px] text-slate-400 font-bold flex items-center justify-between px-2 pt-1 font-mono">
+            <span>Target: {topLocation.latitude.toFixed(4)}°N, {topLocation.longitude.toFixed(4)}°E</span>
+            <span className="text-sky-400">Sentinel-2 MSI L2A (10m BOA)</span>
           </div>
         </div>
 
         {/* RIGHT COLUMN (6 cols): Top Semantic Result & Compact Alternatives */}
         <div className="lg:col-span-6 space-y-4 flex flex-col justify-between">
-          {/* Top Semantic Match (Prominently Highlighted) */}
-          <div className="bg-tactical-900 border-2 border-sky-500/50 rounded-2xl p-5 shadow-lg space-y-4">
+          {/* Top Semantic Match (Prominently Highlighted 3D Spatial Instrument) */}
+          <div className="neu-raised neu-card border-2 border-sky-500/60 rounded-2xl p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
-              <span className="px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/40 text-[10px] font-bold tracking-wider uppercase flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-sky-400" />
+              <span className="px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 border border-sky-400/50 text-[10px] font-black tracking-wider uppercase flex items-center gap-1.5 neu-pill">
+                <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />
                 <span>TOP SEMANTIC MATCH • RANK 1</span>
               </span>
-              <span className="text-xs text-emerald-400 font-bold">94.2% SIMILARITY</span>
+              <span className="text-xs text-emerald-400 font-black px-2.5 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-800 neu-pill">
+                94.2% SIMILARITY
+              </span>
             </div>
 
             <div>
               <h3 className="text-2xl font-black text-slate-100 tracking-tight uppercase">
                 {topLocation.name}
               </h3>
-              <p className="text-xs text-sky-400/90 mt-0.5">
-                {topLocation.primary_sensor || "Sentinel-2 MSI L2A"} • {topLocation.available_dates?.length || 2} catalog observations ({topLocation.available_dates?.[0] || "2023-04-05"} &rarr; {topLocation.available_dates?.[1] || "2025-03-15"})
+              <p className="text-xs text-sky-400 font-bold mt-1">
+                {topLocation.primary_sensor || "Sentinel-2 MSI L2A"} • {topLocation.available_dates?.length || 4} catalog observations ({topLocation.available_dates?.[0] || "2023-04-05"} &rarr; {topLocation.available_dates?.[topLocation.available_dates.length - 1] || "2026-10-01"})
               </p>
             </div>
 
@@ -92,15 +96,15 @@ export function DiscoverStage({
             </p>
 
             {/* Quick Metadata Pill Grid */}
-            <div className="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-tactical-800">
-              <div className="bg-tactical-950 p-2 rounded border border-tactical-800">
-                <span className="text-slate-500 text-[10px] block">COORDINATES:</span>
-                <span className="text-slate-200 font-bold">{topLocation.latitude.toFixed(4)}°N, {topLocation.longitude.toFixed(4)}°E</span>
+            <div className="grid grid-cols-2 gap-2 text-[11px] pt-1">
+              <div className="neu-inset p-2.5 rounded-xl border border-tactical-800">
+                <span className="text-slate-500 text-[10px] font-bold block">COORDINATES:</span>
+                <span className="text-slate-200 font-black">{topLocation.latitude.toFixed(4)}°N, {topLocation.longitude.toFixed(4)}°E</span>
               </div>
-              <div className="bg-tactical-950 p-2 rounded border border-tactical-800">
-                <span className="text-slate-500 text-[10px] block">ARCHIVE BASELINE:</span>
-                <span className="text-slate-200 font-bold">
-                  {topLocation.available_dates?.[0] || "2023-04-05"} &rarr; {topLocation.available_dates?.[1] || "2025-03-15"}
+              <div className="neu-inset p-2.5 rounded-xl border border-tactical-800">
+                <span className="text-slate-500 text-[10px] font-bold block">ARCHIVE BASELINE:</span>
+                <span className="text-slate-200 font-black truncate block">
+                  {topLocation.available_dates?.[0] || "2023-04-05"} &rarr; {topLocation.available_dates?.[topLocation.available_dates.length - 1] || "2026-10-01"}
                 </span>
               </div>
             </div>
@@ -109,15 +113,15 @@ export function DiscoverStage({
             <button
               type="button"
               onClick={onOpenTemporalHistory}
-              className="w-full py-3.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs tracking-wider transition-all flex items-center justify-center gap-2 shadow-md hover:scale-[1.01] active:scale-[0.99]"
+              className="w-full py-4 px-6 rounded-xl neu-btn-primary font-black text-xs tracking-wider transition-all flex items-center justify-center gap-2 shadow-2xl hover:scale-[1.01] active:scale-[0.99]"
             >
               <span>OPEN TEMPORAL HISTORY</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 stroke-[3]" />
             </button>
           </div>
 
-          {/* Compact Ranked Alternatives */}
-          <div className="bg-tactical-900/80 border border-tactical-750 rounded-xl p-3.5 space-y-2.5">
+          {/* Compact Ranked Alternatives (3D Neumorphic Cluster Tray) */}
+          <div className="neu-raised rounded-2xl p-4 space-y-3 shadow-lg">
             <div className="flex items-center justify-between">
               <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block">
                 Semantic Cluster Neighbors:
@@ -127,32 +131,32 @@ export function DiscoverStage({
               </span>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               {alternatives.map((alt) => {
                 const isSelected = alt.location.location_id === selectedLocationId;
                 return (
                   <div
                     key={alt.location.location_id}
                     onClick={() => onSelectLocation(alt.location.location_id)}
-                    className={`p-2 rounded-lg border transition-all flex items-center justify-between cursor-pointer text-xs ${
+                    className={`p-2.5 rounded-xl transition-all flex items-center justify-between cursor-pointer text-xs neu-card ${
                       isSelected
-                        ? "bg-sky-950/40 border-sky-500 text-white"
-                        : "bg-tactical-950 border-tactical-800 hover:border-tactical-700 text-slate-300"
+                        ? "neu-btn-primary shadow-md"
+                        : "neu-btn text-slate-300 hover:text-white"
                     }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full bg-tactical-800 text-[10px] font-bold flex items-center justify-center text-slate-400">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-5 h-5 rounded-full bg-tactical-950/80 text-[10px] font-black flex items-center justify-center text-sky-400 border border-tactical-700">
                         #{alt.rank}
                       </span>
-                      <span className="font-semibold text-slate-200">{alt.location.name}</span>
+                      <span className="font-bold text-slate-200">{alt.location.name}</span>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="text-[11px] text-sky-400 font-bold">
+                      <span className="text-[11px] text-sky-300 font-black">
                         {(alt.similarity * 100).toFixed(1)}%
                       </span>
-                      <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${
-                        isSelected ? "bg-sky-600 text-white" : "bg-tactical-800 text-slate-400"
+                      <span className={`text-[10px] px-2.5 py-1 rounded-lg font-black tracking-wider ${
+                        isSelected ? "bg-white text-sky-900 shadow-sm" : "neu-pill bg-tactical-950 text-slate-400"
                       }`}>
                         {isSelected ? "SELECTED" : "VIEW"}
                       </span>

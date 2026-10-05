@@ -267,18 +267,18 @@ export function CompareStage({
         </div>
       </div>
 
-      {/* Observation Pair Header & View Switcher */}
-      <div className="bg-tactical-900 border border-tactical-750 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Observation Pair Header & View Switcher (3D Spatial Console) */}
+      <div className="neu-raised rounded-2xl p-5 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/40 text-[10px] font-bold tracking-wider uppercase">
+            <span className="px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 border border-sky-400/40 text-[10px] font-black tracking-wider uppercase neu-pill">
               STAGE 3: TEMPORAL COMPARISON
             </span>
-            <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-bold tracking-wider">
+            <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40 text-[10px] font-black tracking-wider neu-pill">
               {elapsedDays} DAYS ELAPSED
             </span>
           </div>
-          <h2 className="text-xl font-black text-slate-100 uppercase tracking-tight">
+          <h2 className="text-xl md:text-2xl font-black text-slate-100 uppercase tracking-tight">
             Baseline ({t1Date}) &rarr; Monitoring ({t2Date})
           </h2>
           <p className="text-xs text-slate-400 font-sans">
@@ -286,14 +286,14 @@ export function CompareStage({
           </p>
         </div>
 
-        {/* View Mode Switcher */}
-        <div className="flex items-center gap-1 bg-tactical-950 p-1 rounded-xl border border-tactical-700 text-xs self-start md:self-auto">
+        {/* View Mode Switcher (3D Tactile Segmented Control) */}
+        <div className="flex items-center gap-1.5 neu-inset p-1.5 rounded-2xl text-xs self-start md:self-auto shadow-inner">
           <button
             type="button"
             onClick={() => setViewMode("slider")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl transition-all font-bold ${
               viewMode === "slider"
-                ? "bg-sky-600 text-white font-bold shadow-sm"
+                ? "neu-btn-primary shadow-lg"
                 : "text-slate-400 hover:text-white"
             }`}
           >
@@ -303,9 +303,9 @@ export function CompareStage({
           <button
             type="button"
             onClick={() => setViewMode("side-by-side")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl transition-all font-bold ${
               viewMode === "side-by-side"
-                ? "bg-sky-600 text-white font-bold shadow-sm"
+                ? "neu-btn-primary shadow-lg"
                 : "text-slate-400 hover:text-white"
             }`}
           >
@@ -315,29 +315,29 @@ export function CompareStage({
         </div>
       </div>
 
-      {/* Interactive Timeline & Year Selector */}
-      <div className="bg-tactical-900 border border-tactical-750 rounded-2xl p-4 space-y-3 shadow-md">
+      {/* Interactive Timeline & Year Selector (3D Neumorphic Control Panel) */}
+      <div className="neu-raised rounded-2xl p-5 space-y-4 shadow-2xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-sky-400" />
-            <span className="text-xs font-bold text-slate-200 uppercase tracking-wide">
-              TIMELINE & OBSERVATION PERIOD:
+            <Calendar className="w-4 h-4 text-sky-400 animate-pulse" />
+            <span className="text-xs font-black text-slate-200 uppercase tracking-wide">
+              TIMELINE &amp; OBSERVATION PERIOD:
             </span>
-            <span className="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-2 py-0.5 rounded font-mono font-bold">
+            <span className="text-[10px] text-emerald-400 bg-emerald-950/70 border border-emerald-700/60 px-2.5 py-0.5 rounded-full font-mono font-black neu-pill">
               {elapsedDays} DAYS ELAPSED ({Math.max(0.1, Math.round((elapsedDays / 365.25) * 10) / 10)} YRS)
             </span>
           </div>
 
           {/* Quick Multi-Year Preset Buttons */}
-          <div className="flex items-center gap-1.5 flex-wrap text-xs">
-            <span className="text-slate-500 text-[10px] uppercase font-semibold mr-1">INTERVAL:</span>
+          <div className="flex items-center gap-2 flex-wrap text-xs">
+            <span className="text-slate-500 text-[10px] uppercase font-bold mr-1">INTERVAL:</span>
             <button
               type="button"
               onClick={() => handleApplyPreset("1-YEAR")}
-              className={`px-2.5 py-1 rounded-lg border text-[11px] transition-all font-semibold ${
+              className={`px-3 py-1.5 rounded-xl border text-[11px] transition-all font-bold ${
                 Math.abs(elapsedDays - 365) < 120
-                  ? "bg-sky-600/30 border-sky-400 text-sky-200 font-bold shadow-sm"
-                  : "bg-tactical-950 border-tactical-800 text-slate-400 hover:text-white hover:border-tactical-700"
+                  ? "neu-btn-primary shadow-md"
+                  : "neu-btn text-slate-400 hover:text-white"
               }`}
             >
               1-YEAR ANNUAL
@@ -345,10 +345,10 @@ export function CompareStage({
             <button
               type="button"
               onClick={() => handleApplyPreset("2-YEAR")}
-              className={`px-2.5 py-1 rounded-lg border text-[11px] transition-all font-semibold ${
+              className={`px-3 py-1.5 rounded-xl border text-[11px] transition-all font-bold ${
                 Math.abs(elapsedDays - 730) < 120
-                  ? "bg-sky-600/30 border-sky-400 text-sky-200 font-bold shadow-sm"
-                  : "bg-tactical-950 border-tactical-800 text-slate-400 hover:text-white hover:border-tactical-700"
+                  ? "neu-btn-primary shadow-md"
+                  : "neu-btn text-slate-400 hover:text-white"
               }`}
             >
               2-YEAR MULTI-ANNUAL
@@ -356,10 +356,10 @@ export function CompareStage({
             <button
               type="button"
               onClick={() => handleApplyPreset("MAX")}
-              className={`px-2.5 py-1 rounded-lg border text-[11px] transition-all font-semibold ${
+              className={`px-3 py-1.5 rounded-xl border text-[11px] transition-all font-bold ${
                 elapsedDays > 850
-                  ? "bg-sky-600/30 border-sky-400 text-sky-200 font-bold shadow-sm"
-                  : "bg-tactical-950 border-tactical-800 text-slate-400 hover:text-white hover:border-tactical-700"
+                  ? "neu-btn-primary shadow-md"
+                  : "neu-btn text-slate-400 hover:text-white"
               }`}
             >
               MAX ARCHIVE SPAN
@@ -368,16 +368,16 @@ export function CompareStage({
         </div>
 
         {/* Date / Year Selectors Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-tactical-800">
-          <div className="bg-tactical-950 p-2.5 rounded-xl border border-tactical-800 flex items-center justify-between gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2 border-t border-tactical-800">
+          <div className="neu-inset p-3 rounded-2xl flex items-center justify-between gap-3 shadow-inner">
             <div>
-              <span className="text-[10px] text-slate-500 uppercase font-bold block">T1 BASELINE YEAR / DATE:</span>
-              <span className="text-xs font-bold text-sky-300 font-mono">{t1Date}</span>
+              <span className="text-[10px] text-slate-500 uppercase font-black block">T1 BASELINE YEAR / DATE:</span>
+              <span className="text-xs font-black text-sky-400 font-mono">{t1Date}</span>
             </div>
             <select
               value={t1Date}
               onChange={(e) => handleT1Change(e.target.value)}
-              className="bg-tactical-900 border border-tactical-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 font-mono focus:border-sky-500 focus:outline-none cursor-pointer"
+              className="bg-tactical-900 border border-tactical-700/80 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono font-bold focus:border-sky-500 focus:outline-none cursor-pointer neu-pill"
             >
               {availableDates.map((d, idx) => (
                 <option key={d} value={d} disabled={d >= t2Date}>
@@ -387,15 +387,15 @@ export function CompareStage({
             </select>
           </div>
 
-          <div className="bg-tactical-950 p-2.5 rounded-xl border border-tactical-800 flex items-center justify-between gap-3">
+          <div className="neu-inset p-3 rounded-2xl flex items-center justify-between gap-3 shadow-inner">
             <div>
-              <span className="text-[10px] text-slate-500 uppercase font-bold block">T2 MONITORING YEAR / DATE:</span>
-              <span className="text-xs font-bold text-emerald-300 font-mono">{t2Date}</span>
+              <span className="text-[10px] text-slate-500 uppercase font-black block">T2 MONITORING YEAR / DATE:</span>
+              <span className="text-xs font-black text-emerald-400 font-mono">{t2Date}</span>
             </div>
             <select
               value={t2Date}
               onChange={(e) => handleT2Change(e.target.value)}
-              className="bg-tactical-900 border border-tactical-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 font-mono focus:border-sky-500 focus:outline-none cursor-pointer"
+              className="bg-tactical-900 border border-tactical-700/80 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono font-bold focus:border-sky-500 focus:outline-none cursor-pointer neu-pill"
             >
               {availableDates.map((d, idx) => (
                 <option key={d} value={d} disabled={d <= t1Date}>
@@ -407,14 +407,14 @@ export function CompareStage({
         </div>
       </div>
 
-      {/* Main Large Imagery Comparison Viewport */}
+      {/* Main Large Imagery Comparison Viewport (3D Tactile Frame) */}
       {viewMode === "slider" ? (
         <div
           ref={containerRef}
           onPointerDown={handlePointerDown}
           onPointerUp={handlePointerUp}
           onPointerMove={handlePointerMove}
-          className="relative w-full aspect-video md:aspect-[16/9] max-h-[520px] rounded-2xl overflow-hidden border-2 border-tactical-700 select-none cursor-ew-resize bg-tactical-950 shadow-xl"
+          className="relative w-full aspect-video md:aspect-[16/9] max-h-[540px] rounded-2xl overflow-hidden border-2 border-tactical-700 select-none cursor-ew-resize bg-tactical-950 shadow-2xl neu-card"
         >
           {/* T2 After image (background) */}
           {afterLoadError ? (
@@ -453,25 +453,25 @@ export function CompareStage({
             )}
 
             {/* Badge T1 Baseline */}
-            <div className="absolute top-4 left-4 bg-tactical-900/90 backdrop-blur-md px-3 py-1.5 rounded-lg border border-tactical-700 text-xs shadow-md">
-              <span className="text-sky-400 font-bold">T1 BASELINE:</span>{" "}
-              <span className="text-white font-semibold">{t1Date}</span>
+            <div className="absolute top-4 left-4 neu-raised backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-white/10 text-xs shadow-xl">
+              <span className="text-sky-400 font-black">T1 BASELINE:</span>{" "}
+              <span className="text-white font-black">{t1Date}</span>
             </div>
           </div>
 
           {/* Badge T2 Monitoring */}
-          <div className="absolute top-4 right-4 bg-tactical-900/90 backdrop-blur-md px-3 py-1.5 rounded-lg border border-tactical-700 text-xs shadow-md">
-            <span className="text-emerald-400 font-bold">T2 MONITORING:</span>{" "}
-            <span className="text-white font-semibold">{t2Date}</span>
+          <div className="absolute top-4 right-4 neu-raised backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-white/10 text-xs shadow-xl">
+            <span className="text-emerald-400 font-black">T2 MONITORING:</span>{" "}
+            <span className="text-white font-black">{t2Date}</span>
           </div>
 
-          {/* Slider divider line and pill */}
+          {/* 3D Tactile Slider Divider Line & Ergonomic Handle */}
           <div
-            className="absolute top-0 bottom-0 w-0.5 bg-sky-400 shadow-[0_0_10px_rgba(56,189,248,0.5)] pointer-events-none"
+            className="absolute top-0 bottom-0 w-1 bg-gradient-to-b from-sky-400 via-sky-300 to-sky-500 shadow-[0_0_15px_rgba(56,189,248,0.8)] pointer-events-none z-20"
             style={{ left: `${sliderPos}%` }}
           >
-            <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-tactical-900 border-2 border-sky-400 flex items-center justify-center text-sky-400 shadow-lg">
-              <SplitSquareVertical className="w-4 h-4" />
+            <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-500 to-sky-700 border-2 border-white/90 flex items-center justify-center text-white shadow-2xl drop-shadow-[0_0_12px_rgba(56,189,248,0.9)]">
+              <SplitSquareVertical className="w-5 h-5 drop-shadow stroke-[2.5]" />
             </div>
           </div>
         </div>

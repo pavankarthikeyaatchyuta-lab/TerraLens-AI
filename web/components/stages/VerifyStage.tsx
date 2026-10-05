@@ -243,21 +243,21 @@ export function VerifyStage({
         </div>
       </div>
 
-      {/* Visually Dominant Hero Metrics Banner: WHAT, WHERE, WHEN, HOW MUCH, WHY TRUST IT */}
-      <div className="bg-tactical-900 border-2 border-emerald-500/50 rounded-2xl p-5 shadow-xl space-y-4">
+      {/* Visually Dominant Hero Metrics Banner: WHAT, WHERE, WHEN, HOW MUCH, WHY TRUST IT (3D Spatial Instrument) */}
+      <div className="neu-raised border-2 border-emerald-500/60 rounded-2xl p-6 shadow-2xl space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-tactical-800 pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold tracking-wider uppercase flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+              <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 text-[10px] font-black tracking-wider uppercase flex items-center gap-1.5 neu-pill">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                 <span>CONFIRMED SPECTRAL CHANGE</span>
               </span>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-slate-400 font-bold font-mono">
                 {t1Date} &rarr; {t2Date} ({elapsedDays} days)
               </span>
             </div>
-            <h2 className="text-2xl md:text-3xl font-black text-slate-100 uppercase tracking-tight mt-1">
-              CHANGE DETECTED: <span className="text-emerald-400">{changeType}</span>
+            <h2 className="text-2xl md:text-3xl font-black text-slate-100 uppercase tracking-tight mt-1.5">
+              CHANGE DETECTED: <span className="text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.4)]">{changeType}</span>
             </h2>
             <div className="text-xs text-slate-400 font-sans mt-0.5">
               {location.name} ({location.latitude.toFixed(3)}°N, {location.longitude.toFixed(3)}°E)
@@ -265,18 +265,18 @@ export function VerifyStage({
           </div>
 
           <div className="text-right">
-            <span className="text-[10px] text-slate-500 uppercase tracking-wider block">
+            <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-bold">
               ADJUDICATION STATUS:
             </span>
             <span
-              className={`text-xs font-bold px-2.5 py-1 rounded inline-block mt-0.5 border ${
+              className={`text-xs font-black px-3 py-1 rounded-xl inline-block mt-1 border neu-pill ${
                 verdict === "TRUE_CHANGE"
-                  ? "bg-emerald-950/80 text-emerald-300 border-emerald-500/50"
+                  ? "bg-emerald-950/80 text-emerald-300 border-emerald-500/60 shadow-lg shadow-emerald-950/80"
                   : verdict === "FALSE_ALARM"
-                  ? "bg-rose-950/80 text-rose-300 border-rose-500/50"
+                  ? "bg-rose-950/80 text-rose-300 border-rose-500/60 shadow-lg shadow-rose-950/80"
                   : verdict === "UNCERTAIN"
-                  ? "bg-amber-950/80 text-amber-300 border-amber-500/50"
-                  : "bg-tactical-800 text-slate-400 border-tactical-700"
+                  ? "bg-amber-950/80 text-amber-300 border-amber-500/60 shadow-lg shadow-amber-950/80"
+                  : "bg-tactical-950 text-slate-400 border-tactical-800"
               }`}
             >
               {verdict ? `VERIFIED: ${verdict.replace("_", " ")}` : "PENDING ANALYST ADJUDICATION"}
@@ -284,43 +284,43 @@ export function VerifyStage({
           </div>
         </div>
 
-        {/* 4 Quantitative Hero Metric Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="bg-tactical-950 border border-tactical-800 rounded-xl p-3.5 space-y-1">
-            <span className="text-[10px] text-slate-500 uppercase font-semibold block">
+        {/* 4 Quantitative Hero Metric Cards (3D Recessed Display Wells) */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+          <div className="neu-inset rounded-2xl p-4 space-y-1 shadow-inner">
+            <span className="text-[10px] text-slate-500 uppercase font-black block">
               CHANGED AREA:
             </span>
-            <div className="text-2xl font-black text-slate-100">{changedAreaHa} ha</div>
-            <div className="text-[10px] text-emerald-400 font-sans truncate">
+            <div className="text-2xl font-black text-slate-100 font-mono">{changedAreaHa} ha</div>
+            <div className="text-[10px] text-emerald-400 font-sans truncate font-bold">
               {isCalibrated ? "14.28 ha · calibrated demo baseline" : `${changedAreaHa} ha · real Sentinel-2 analysis`}
             </div>
           </div>
 
-          <div className="bg-tactical-950 border border-tactical-800 rounded-xl p-3.5 space-y-1">
-            <span className="text-[10px] text-slate-500 uppercase font-semibold block">
+          <div className="neu-inset rounded-2xl p-4 space-y-1 shadow-inner">
+            <span className="text-[10px] text-slate-500 uppercase font-black block">
               HEURISTIC CONFIDENCE:
             </span>
-            <div className="text-2xl font-black text-sky-400">{confidence}</div>
+            <div className="text-2xl font-black text-sky-400 font-mono">{confidence}</div>
             <div className="text-[10px] text-slate-400 font-sans truncate">
               {isCalibrated ? "0.91 · calibrated demo baseline" : `Heuristic multi-factor · ${confidence}`}
             </div>
           </div>
 
-          <div className="bg-tactical-950 border border-tactical-800 rounded-xl p-3.5 space-y-1">
-            <span className="text-[10px] text-slate-500 uppercase font-semibold block">
+          <div className="neu-inset rounded-2xl p-4 space-y-1 shadow-inner">
+            <span className="text-[10px] text-slate-500 uppercase font-black block">
               SCL QUALITY VALIDITY:
             </span>
-            <div className="text-2xl font-black text-emerald-400">{validPixelsPct}</div>
+            <div className="text-2xl font-black text-emerald-400 font-mono">{validPixelsPct}</div>
             <div className="text-[10px] text-slate-400 font-sans truncate">
               {isCalibrated ? "99.2% · calibrated demo baseline" : `${validPixelsPct} · real SCL quality`}
             </div>
           </div>
 
-          <div className="bg-tactical-950 border border-tactical-800 rounded-xl p-3.5 space-y-1">
-            <span className="text-[10px] text-slate-500 uppercase font-semibold block">
+          <div className="neu-inset rounded-2xl p-4 space-y-1 shadow-inner">
+            <span className="text-[10px] text-slate-500 uppercase font-black block">
               PRIMARY CLUSTER COUNT:
             </span>
-            <div className="text-2xl font-black text-slate-100">
+            <div className="text-2xl font-black text-slate-100 font-mono">
               {clusterCount} {clusterCount === 1 ? "Cluster" : "Clusters"}
             </div>
             <div className="text-[10px] text-slate-400 font-sans truncate">
@@ -437,13 +437,13 @@ export function VerifyStage({
 
         {/* RIGHT COLUMN (5 cols): Analyst-in-the-Loop Adjudication Station */}
         <div className="lg:col-span-5 space-y-4 flex flex-col justify-between">
-          <div className="bg-tactical-900 border-2 border-sky-500/40 rounded-2xl p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-tactical-800 pb-2">
-              <span className="text-xs font-bold text-slate-100 flex items-center gap-1.5">
+          <div className="neu-raised neu-card border-2 border-sky-500/50 rounded-2xl p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-tactical-800 pb-3">
+              <span className="text-xs font-black text-slate-100 flex items-center gap-1.5 uppercase tracking-wider">
                 <ShieldCheck className="w-4 h-4 text-sky-400" />
                 <span>ANALYST-IN-THE-LOOP ADJUDICATION</span>
               </span>
-              <span className="text-[9px] text-sky-400 font-bold uppercase">
+              <span className="text-[10px] text-sky-400 font-black uppercase tracking-widest neu-pill px-2.5 py-0.5 rounded-full bg-tactical-950">
                 OPERATIONAL VERIFICATION
               </span>
             </div>
@@ -452,51 +452,51 @@ export function VerifyStage({
               Human-in-the-loop review station. Verify algorithmic change detection and record domain findings into the permanent evidence dossier.
             </p>
 
-            {/* 3 Review Buttons */}
-            <div className="grid grid-cols-3 gap-2 pt-1">
+            {/* 3 Review Buttons (3D Tactile Aerospace Controls) */}
+            <div className="grid grid-cols-3 gap-2.5 pt-1">
               <button
                 type="button"
                 onClick={() => onSetVerdict("TRUE_CHANGE")}
-                className={`py-3 px-2 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-1.5 border ${
+                className={`py-3.5 px-2 rounded-xl text-xs font-black transition-all flex flex-col items-center justify-center gap-1.5 ${
                   verdict === "TRUE_CHANGE"
-                    ? "bg-emerald-600 text-white border-emerald-400 shadow-md scale-105"
-                    : "bg-tactical-950 text-slate-300 border-tactical-800 hover:border-emerald-500/50"
+                    ? "neu-btn-emerald shadow-xl scale-[1.03]"
+                    : "neu-btn text-slate-300 hover:text-white"
                 }`}
               >
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-300" />
                 <span>TRUE CHANGE</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => onSetVerdict("FALSE_ALARM")}
-                className={`py-3 px-2 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-1.5 border ${
+                className={`py-3.5 px-2 rounded-xl text-xs font-black transition-all flex flex-col items-center justify-center gap-1.5 ${
                   verdict === "FALSE_ALARM"
-                    ? "bg-rose-600 text-white border-rose-400 shadow-md scale-105"
-                    : "bg-tactical-950 text-slate-300 border-tactical-800 hover:border-rose-500/50"
+                    ? "neu-btn-rose shadow-xl scale-[1.03]"
+                    : "neu-btn text-slate-300 hover:text-white"
                 }`}
               >
-                <XCircle className="w-4 h-4 text-rose-400" />
+                <XCircle className="w-4 h-4 text-rose-300" />
                 <span>FALSE ALARM</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => onSetVerdict("UNCERTAIN")}
-                className={`py-3 px-2 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-1.5 border ${
+                className={`py-3.5 px-2 rounded-xl text-xs font-black transition-all flex flex-col items-center justify-center gap-1.5 ${
                   verdict === "UNCERTAIN"
-                    ? "bg-amber-600 text-white border-amber-400 shadow-md scale-105"
-                    : "bg-tactical-950 text-slate-300 border-tactical-800 hover:border-amber-500/50"
+                    ? "bg-gradient-to-br from-amber-600 to-amber-700 text-white shadow-xl scale-[1.03] border border-amber-400 neu-pill"
+                    : "neu-btn text-slate-300 hover:text-white"
                 }`}
               >
-                <HelpCircle className="w-4 h-4 text-amber-400" />
+                <HelpCircle className="w-4 h-4 text-amber-300" />
                 <span>UNCERTAIN</span>
               </button>
             </div>
 
-            {/* Verification Notes Input */}
+            {/* Verification Notes Input (3D Inset Well) */}
             <div className="space-y-1.5 pt-2">
-              <label className="text-[10px] text-slate-400 uppercase font-semibold block">
+              <label className="text-[10px] text-slate-400 uppercase font-black tracking-wider block">
                 Analyst Verification Notes:
               </label>
               <textarea
@@ -504,7 +504,7 @@ export function VerifyStage({
                 onChange={(e) => onSetAnalystNotes(e.target.value)}
                 placeholder="Enter operational verification observations and domain context..."
                 rows={4}
-                className="w-full bg-tactical-950 border border-tactical-800 focus:border-sky-500 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none font-mono"
+                className="w-full neu-inset rounded-2xl p-3.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500/40 font-mono shadow-inner"
               />
             </div>
           </div>

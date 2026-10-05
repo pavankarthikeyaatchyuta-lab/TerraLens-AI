@@ -36,25 +36,25 @@ export function Header({
   const currentIndex = STAGES.findIndex((s) => s.id === currentStage);
 
   return (
-    <header className="border-b border-tactical-700 bg-tactical-850/95 backdrop-blur-md px-4 py-2.5 sticky top-0 z-40 transition-colors shadow-sm">
+    <header className="neu-raised sticky top-0 z-40 transition-colors px-4 py-3 backdrop-blur-xl border-b border-tactical-700/60">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
         {/* Brand & Problem Statement Badge */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-sky-600/15 border border-sky-500/30 text-sky-500 font-bold shadow-sm">
-            <Radio className="w-4 h-4" />
+          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500/20 to-sky-700/30 border border-sky-400/40 text-sky-400 font-bold shadow-md shadow-sky-950/50">
+            <Radio className="w-4 h-4 animate-pulse" />
           </div>
           <div className="flex items-center gap-2">
-            <h1 className="text-base font-bold tracking-wider text-slate-900 dark:text-slate-100 uppercase font-mono">
-              TerraLens <span className="text-sky-500">AI</span>
+            <h1 className="text-base font-black tracking-wider text-slate-900 dark:text-slate-100 uppercase font-mono">
+              TerraLens <span className="text-sky-400 drop-shadow-[0_0_12px_rgba(56,189,248,0.5)]">AI</span>
             </h1>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-tactical-800 text-sky-400 border border-tactical-700 font-semibold tracking-wider">
+            <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-tactical-900 text-sky-400 border border-sky-500/30 font-bold tracking-widest neu-pill">
               SIH26227
             </span>
           </div>
         </div>
 
-        {/* Primary 5-Stage Workflow Navigator */}
-        <nav className="flex items-center p-1 rounded-xl bg-tactical-900/90 border border-tactical-750 font-mono text-xs">
+        {/* Primary 5-Stage Workflow Navigator (3D Neumorphic Tactile Console) */}
+        <nav className="flex items-center p-1.5 rounded-2xl neu-inset font-mono text-xs gap-1">
           {STAGES.map((stage, idx) => {
             const isCurrent = stage.id === currentStage;
             const isCompleted = idx < currentIndex;
@@ -70,31 +70,31 @@ export function Header({
                   }
                 }}
                 disabled={!isNavigable && !isCurrent}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-xs font-semibold ${
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl transition-all text-xs font-bold tracking-wider ${
                   isCurrent
-                    ? "bg-sky-600 text-white font-bold shadow-sm ring-1 ring-sky-400/40"
+                    ? "neu-btn-primary shadow-lg shadow-sky-950/80 scale-[1.03]"
                     : isCompleted
-                    ? "text-emerald-400 hover:bg-emerald-950/40 cursor-pointer"
+                    ? "text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/30 neu-pill cursor-pointer"
                     : isNavigable
-                    ? "text-slate-300 hover:text-white hover:bg-tactical-800 cursor-pointer"
-                    : "text-slate-600 opacity-60 cursor-not-allowed"
+                    ? "text-slate-300 hover:text-white hover:bg-tactical-800 neu-btn cursor-pointer"
+                    : "text-slate-600 opacity-50 cursor-not-allowed"
                 }`}
                 title={`Navigate to Stage ${stage.num}: ${stage.label}`}
               >
                 {isCompleted ? (
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[3]" />
                 ) : (
                   <span
-                    className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${
+                    className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black ${
                       isCurrent
-                        ? "bg-white text-sky-700 font-bold"
+                        ? "bg-white text-sky-800 shadow-sm"
                         : "bg-tactical-800 text-slate-400"
                     }`}
                   >
                     {stage.num}
                   </span>
                 )}
-                <span className="tracking-wider">{stage.label}</span>
+                <span>{stage.label}</span>
               </button>
             );
           })}
@@ -105,7 +105,7 @@ export function Header({
           <button
             type="button"
             onClick={onOpenEvaluation}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-tactical-800 hover:bg-tactical-750 text-slate-300 border border-tactical-700 font-mono text-xs font-semibold transition-all hover:border-sky-500/40 shadow-sm"
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl neu-btn text-slate-300 font-mono text-xs font-bold transition-all hover:text-white hover:border-sky-500/50"
             title="Open SIH26227 Benchmark Evaluation & System Diagnostics"
           >
             <BarChart3 className="w-3.5 h-3.5 text-sky-400" />
@@ -115,7 +115,7 @@ export function Header({
           <button
             type="button"
             onClick={toggleTheme}
-            className="p-1.5 rounded-lg bg-tactical-800 hover:bg-tactical-750 text-slate-300 border border-tactical-700 font-mono transition-all shadow-sm"
+            className="p-2 rounded-xl neu-btn text-slate-300 font-mono transition-all hover:text-white"
             title={`Toggle Theme (Current: ${theme})`}
           >
             {theme === "dark" ? (

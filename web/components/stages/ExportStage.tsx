@@ -246,14 +246,14 @@ export function ExportStage({
       )}
 
       {/* Target Summary & Adjudicated Dossier Card */}
-      <div className="bg-tactical-900 border-2 border-sky-500/50 rounded-2xl p-5 shadow-xl space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-tactical-800 pb-4">
-          <div className="space-y-1">
+      <div className="neu-raised rounded-2xl p-6 border border-sky-500/30 space-y-5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-tactical-800/80 pb-5">
+          <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/40 text-[10px] font-bold tracking-wider uppercase">
+              <span className="px-3 py-1 rounded-full bg-sky-500/15 text-sky-300 border border-sky-400/40 text-[10px] font-black tracking-widest uppercase shadow-[0_0_12px_rgba(56,189,248,0.2)]">
                 OFFICIAL EVIDENCE DOSSIER
               </span>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-slate-400 font-mono">
                 Package ID: TERRALENS_{location.location_id}
               </span>
             </div>
@@ -265,8 +265,8 @@ export function ExportStage({
             </p>
           </div>
 
-          <div className="bg-tactical-950 p-3 rounded-xl border border-tactical-800 space-y-1 text-right">
-            <span className="text-[10px] text-slate-500 uppercase font-semibold block">
+          <div className="neu-inset p-3.5 rounded-xl border border-tactical-800/80 space-y-1 text-right">
+            <span className="text-[10px] text-slate-400 uppercase font-semibold block">
               ADJUDICATION VERDICT:
             </span>
             <div className="text-xs font-bold text-emerald-400 flex items-center justify-end gap-1.5">
@@ -281,27 +281,27 @@ export function ExportStage({
 
         {/* Dossier Parameters Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-          <div className="bg-tactical-950 border border-tactical-800 rounded-xl p-3 space-y-1">
-            <span className="text-[10px] text-slate-500 uppercase block">CLASSIFICATION:</span>
+          <div className="neu-inset rounded-xl p-3.5 space-y-1">
+            <span className="text-[10px] text-slate-400 uppercase font-semibold block">CLASSIFICATION:</span>
             <span className="text-emerald-400 font-bold text-sm">{changeType}</span>
           </div>
-          <div className="bg-tactical-950 border border-tactical-800 rounded-xl p-3 space-y-1">
-            <span className="text-[10px] text-slate-500 uppercase block">CHANGED EXTENT:</span>
+          <div className="neu-inset rounded-xl p-3.5 space-y-1">
+            <span className="text-[10px] text-slate-400 uppercase font-semibold block">CHANGED EXTENT:</span>
             <span className="text-slate-100 font-bold text-sm">{changedAreaHa} ha</span>
           </div>
-          <div className="bg-tactical-950 border border-tactical-800 rounded-xl p-3 space-y-1">
-            <span className="text-[10px] text-slate-500 uppercase block">HEURISTIC CONFIDENCE:</span>
+          <div className="neu-inset rounded-xl p-3.5 space-y-1">
+            <span className="text-[10px] text-slate-400 uppercase font-semibold block">HEURISTIC CONFIDENCE:</span>
             <span className="text-sky-400 font-bold text-sm">{confidence}</span>
           </div>
-          <div className="bg-tactical-950 border border-tactical-800 rounded-xl p-3 space-y-1">
-            <span className="text-[10px] text-slate-500 uppercase block">VALID PIXELS (SCL):</span>
+          <div className="neu-inset rounded-xl p-3.5 space-y-1">
+            <span className="text-[10px] text-slate-400 uppercase font-semibold block">VALID PIXELS (SCL):</span>
             <span className="text-emerald-400 font-bold text-sm">{validPixelsPct}</span>
           </div>
         </div>
 
         {/* Analyst Notes Display */}
-        <div className="bg-tactical-950 border border-tactical-800 rounded-xl p-3 text-xs space-y-1">
-          <span className="text-[10px] text-slate-500 uppercase font-semibold block">
+        <div className="neu-inset rounded-xl p-4 text-xs space-y-1.5">
+          <span className="text-[10px] text-slate-400 uppercase font-semibold block">
             Analyst Review Summary:
           </span>
           <p className="text-slate-300 font-sans leading-relaxed">
@@ -314,35 +314,37 @@ export function ExportStage({
       </div>
 
       {/* Artifact Checklist Section */}
-      <div className="bg-tactical-900 border border-tactical-750 rounded-2xl p-5 space-y-3">
-        <div className="flex items-center justify-between border-b border-tactical-800 pb-3">
-          <div className="flex items-center gap-2">
-            <Archive className="w-4 h-4 text-sky-400" />
-            <span className="text-xs font-bold text-slate-200 uppercase">
+      <div className="neu-raised rounded-2xl p-6 space-y-4">
+        <div className="flex items-center justify-between border-b border-tactical-800/80 pb-3.5">
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 rounded-lg neu-inset text-sky-400">
+              <Archive className="w-4 h-4" />
+            </div>
+            <span className="text-xs font-black text-slate-200 tracking-wider uppercase">
               Auditable Evidence Artifact Checklist (6 Files)
             </span>
           </div>
-          <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800">
+          <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-800/80 shadow-[0_0_8px_rgba(16,185,129,0.2)]">
             ALL ARTIFACTS VERIFIED & PACKAGED
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {dossierArtifacts.map((art) => {
             const Icon = art.icon;
             return (
               <div
                 key={art.name}
-                className="bg-tactical-950 border border-tactical-800 rounded-xl p-3 flex items-start justify-between gap-3"
+                className="neu-inset rounded-xl p-3.5 flex items-start justify-between gap-3 group hover:border-slate-700/60 transition-colors"
               >
                 <div className="flex items-start gap-2.5">
-                  <div className="p-1.5 rounded-lg bg-tactical-900 border border-tactical-800 text-sky-400 mt-0.5">
+                  <div className="p-2 rounded-lg bg-tactical-900 border border-tactical-800 text-sky-400 mt-0.5 shadow-sm">
                     <Icon className="w-3.5 h-3.5" />
                   </div>
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-slate-200">{art.name}</span>
-                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-tactical-850 text-slate-400 border border-tactical-750">
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-tactical-850 text-slate-400 border border-tactical-750 font-mono">
                         {art.type}
                       </span>
                     </div>
@@ -351,7 +353,9 @@ export function ExportStage({
                     </p>
                   </div>
                 </div>
-                <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-1" />
+                <div className="p-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 mt-0.5 shrink-0">
+                  <Check className="w-3.5 h-3.5" />
+                </div>
               </div>
             );
           })}
@@ -359,13 +363,13 @@ export function ExportStage({
       </div>
 
       {/* Export Action Buttons */}
-      <div className="space-y-3 pt-2">
+      <div className="space-y-3.5 pt-2">
         {/* Primary Large Export Button */}
         <button
           type="button"
           onClick={() => handleExport("zip")}
           disabled={isExporting}
-          className="w-full py-4 px-6 rounded-2xl bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-black text-sm tracking-wider transition-all flex items-center justify-center gap-3 shadow-xl hover:scale-[1.01] active:scale-[0.99]"
+          className="w-full py-4 px-6 rounded-2xl neu-btn-primary disabled:opacity-50 text-white font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 transition-all"
         >
           {isExporting ? (
             <>
@@ -381,12 +385,12 @@ export function ExportStage({
         </button>
 
         {/* Secondary Individual Formats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <button
             type="button"
             onClick={() => handleExport("geojson")}
             disabled={isExporting}
-            className="py-2.5 px-3 rounded-xl bg-tactical-900 hover:bg-tactical-800 border border-tactical-700 text-slate-200 font-bold text-xs tracking-wider transition-colors flex items-center justify-center gap-2"
+            className="py-3 px-4 rounded-xl neu-btn text-slate-200 font-bold text-xs tracking-wider uppercase flex items-center justify-center gap-2"
           >
             <FileText className="w-3.5 h-3.5 text-sky-400" />
             <span>EXPORT GEOJSON</span>
@@ -396,7 +400,7 @@ export function ExportStage({
             type="button"
             onClick={() => handleExport("json")}
             disabled={isExporting}
-            className="py-2.5 px-3 rounded-xl bg-tactical-900 hover:bg-tactical-800 border border-tactical-700 text-slate-200 font-bold text-xs tracking-wider transition-colors flex items-center justify-center gap-2"
+            className="py-3 px-4 rounded-xl neu-btn text-slate-200 font-bold text-xs tracking-wider uppercase flex items-center justify-center gap-2"
           >
             <FileCode className="w-3.5 h-3.5 text-sky-400" />
             <span>EXPORT JSON</span>
@@ -406,7 +410,7 @@ export function ExportStage({
             type="button"
             onClick={() => handleExport("markdown")}
             disabled={isExporting}
-            className="py-2.5 px-3 rounded-xl bg-tactical-900 hover:bg-tactical-800 border border-tactical-700 text-slate-200 font-bold text-xs tracking-wider transition-colors flex items-center justify-center gap-2"
+            className="py-3 px-4 rounded-xl neu-btn text-slate-200 font-bold text-xs tracking-wider uppercase flex items-center justify-center gap-2"
           >
             <FileText className="w-3.5 h-3.5 text-amber-400" />
             <span>EXPORT REPORT.MD</span>
@@ -418,9 +422,9 @@ export function ExportStage({
           <button
             type="button"
             onClick={onStartNewSearch}
-            className="flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors py-2 px-4 rounded-xl border border-tactical-800 hover:border-tactical-700 bg-tactical-900/50"
+            className="flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-white transition-colors py-2.5 px-5 rounded-xl neu-btn"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <RotateCcw className="w-3.5 h-3.5 text-sky-400" />
             <span>START NEW INVESTIGATION</span>
           </button>
         </div>
