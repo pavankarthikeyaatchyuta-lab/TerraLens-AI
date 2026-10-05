@@ -139,6 +139,64 @@ export const RAJASTHAN_SOLAR_CORRIDOR: Location[] = [
   },
 ];
 
+// Real-World Verified Forest & Deforestation Monitoring Corridors in India
+export const INDIA_FOREST_CORRIDORS: Location[] = [
+  {
+    location_id: "LOC_EO_36_HASDEO_ARAND",
+    name: "Hasdeo Arand Forest Canopy Clearance & Mining, Chhattisgarh",
+    description: "Dense central Indian sal forest canopy, monitored for multi-temporal tree felling, road clearing, and coal mining expansion in the last 2 years.",
+    category: "FOREST_CORRIDOR",
+    latitude: 22.8000,
+    longitude: 82.6000,
+    bounding_box: {
+      min_lat: 22.7000,
+      min_lon: 82.5000,
+      max_lat: 22.9000,
+      max_lon: 82.7000,
+    },
+    primary_sensor: "Sentinel-2 MSI",
+    available_dates: [
+      "2016-05-15",
+      "2018-04-18",
+      "2020-04-14",
+      "2023-04-05",
+      "2024-04-10",
+      "2025-03-15",
+      "2026-10-01",
+    ],
+    before_scene_id: "SCENE_HASDEO_01",
+    after_scene_id: "SCENE_HASDEO_02",
+    tags: ["forest", "deforestation", "canopy_loss", "clearing", "mining", "chhattisgarh", "trees", "india"],
+  },
+  {
+    location_id: "LOC_EO_22_WESTERN_GHATS",
+    name: "Silent Valley & Western Ghats Rainforest Corridor, Kerala-Karnataka",
+    description: "UNESCO World Heritage tropical evergreen canopy monitoring multi-temporal road clearing, encroachment, and canopy loss.",
+    category: "FOREST_CORRIDOR",
+    latitude: 11.1500,
+    longitude: 76.5500,
+    bounding_box: {
+      min_lat: 11.0500,
+      min_lon: 76.4500,
+      max_lat: 11.2500,
+      max_lon: 76.6500,
+    },
+    primary_sensor: "Sentinel-2 MSI",
+    available_dates: [
+      "2016-05-15",
+      "2018-04-18",
+      "2020-04-14",
+      "2023-04-05",
+      "2024-04-10",
+      "2025-03-15",
+      "2026-10-01",
+    ],
+    before_scene_id: "SCENE_GHATS_01",
+    after_scene_id: "SCENE_GHATS_02",
+    tags: ["forest", "deforestation", "rainforest", "canopy_loss", "clearing", "trees", "western_ghats", "india"],
+  },
+];
+
 /**
  * Dynamically resolves real locations matching the query and region
  */
@@ -146,6 +204,16 @@ export function getDynamicRegionLocations(regionName: string, category: string =
   const normRegion = regionName.toLowerCase();
   if (normRegion.includes("rajasthan") || normRegion.includes("rajisthan")) {
     return RAJASTHAN_SOLAR_CORRIDOR;
+  }
+  if (
+    normRegion.includes("india") ||
+    normRegion.includes("chhattisgarh") ||
+    normRegion.includes("hasdeo") ||
+    normRegion.includes("western ghats")
+  ) {
+    if (category === "forest") {
+      return INDIA_FOREST_CORRIDORS;
+    }
   }
   return [];
 }

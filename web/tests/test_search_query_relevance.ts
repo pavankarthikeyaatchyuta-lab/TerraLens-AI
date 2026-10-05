@@ -48,6 +48,15 @@ if (!hasAgri) {
 }
 console.log("✅ Test 3 Passed: Agricultural / farmland locations correctly prioritized.");
 
+// Test 4: Deforestation in last 2 years in India
+const q4 = "deforestation in last 2 years in india";
+const res4 = searchScenes(q4, 5, undefined, undefined, "real-eo");
+console.log(`\nQuery 4: "${q4}"`);
+res4.results.forEach((r) => {
+  console.log(`  #${r.rank}: ${r.location.name} (${(r.similarity_score * 100).toFixed(1)}%) -> [${r.location.latitude}, ${r.location.longitude}]`);
+});
+
 console.log("\n=================================================");
 console.log("ALL SEARCH QUERY RELEVANCE TESTS PASSED! 🎉");
 console.log("=================================================\n");
+

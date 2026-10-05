@@ -72,6 +72,18 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      let dynamicLocations: Location[] = [];
+      if (query && query.length >= 3) {
+        try {
+          const dynResult = await resolveDynamicGeospatialEntities(query);
+          if (dynResult.locations && dynResult.locations.length > 0) {
+            dynamicLocations = dynResult.locations;
+          }
+        } catch (dynErr) {
+          console.warn("Notice: Dynamic entity resolution fallback in vector tier", dynErr);
+        }
+      }
+
       const outcome = searchScenes(
         query || "client-vector-query",
         topK,
@@ -80,7 +92,8 @@ export async function POST(request: NextRequest) {
         effectiveCatalog,
         filters,
         groupBy,
-        excludeLocationId
+        excludeLocationId,
+        dynamicLocations
       );
 
       return NextResponse.json({

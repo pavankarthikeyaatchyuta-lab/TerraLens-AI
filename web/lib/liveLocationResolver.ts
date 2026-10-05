@@ -31,8 +31,15 @@ export async function resolveDynamicGeospatialEntities(query: string): Promise<D
     return cache.get(norm)!;
   }
 
+  // Strip temporal phrases first (e.g. "in last 2 years", "in 2024", "in recent months")
+  const strippedNorm = norm
+    .replace(/\b(?:in\s+)?(?:the\s+)?(?:last|past)\s+\d+\s*(?:years?|months?|days?|decade)\b/gi, "")
+    .replace(/\b(?:in\s+)?recent\s*(?:years?|months?)\b/gi, "")
+    .replace(/\b(?:in\s+)?20\d\d(?:\s*-\s*20\d\d)?\b/gi, "")
+    .trim();
+
   // 1. Extract potential place candidate after prepositions
-  const match = norm.match(/\b(?:in|near|around|at|of|across)\s+([a-zA-Z\s]{3,30})/i);
+  const match = strippedNorm.match(/\b(?:in|near|around|at|of|across)\s+([a-zA-Z\s]{3,30})/i);
   let placeCandidate = match ? match[1].trim() : null;
 
   const genericNouns = [

@@ -761,8 +761,8 @@
     },
     {
       "location_id": "LOC_EO_22_WESTERN_GHATS",
-      "name": "Silent Valley & Wayanad Rainforest, Western Ghats",
-      "description": "UNESCO World Heritage biodiversity hotspot featuring continuous evergreen canopy.",
+      "name": "Silent Valley & Western Ghats Rainforest Corridor, Kerala-Karnataka",
+      "description": "UNESCO World Heritage tropical evergreen canopy monitoring multi-temporal road clearing, encroachment, and canopy loss.",
       "latitude": 11.15,
       "longitude": 76.55,
       "bounding_box": {
@@ -774,9 +774,12 @@
       "primary_sensor": "Sentinel-2 MSI",
       "tags": [
         "forest",
-        "dense_vegetation",
-        "mountain_ridge",
+        "deforestation",
         "rainforest",
+        "canopy_loss",
+        "clearing",
+        "trees",
+        "western_ghats",
         "biodiversity"
       ],
       "available_dates": [

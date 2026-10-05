@@ -561,12 +561,16 @@ export function searchScenes(
       const agriKeywords = ["agriculture", "farming", "farmland", "farmlands", "farm", "farms", "cropland", "crop", "fields", "rural", "paddy", "wheat", "cultivation"];
       const urbanKeywords = ["urban", "city", "built", "building", "buildings", "construction", "expansion", "development", "infrastructure"];
       const riverKeywords = ["river", "riverfront", "waterway", "canal", "stream", "delta"];
+      const forestKeywords = ["forest", "deforestation", "trees", "rainforest", "woodland", "jungle", "canopy", "afforestation", "clearing", "timber", "logging", "greenery"];
+      const waterKeywords = ["river", "riverfront", "lake", "reservoir", "water", "dam", "canal", "estuary", "stream", "lagoon", "bay", "basin", "drying"];
 
       const queryHasSolar = queryTokens.some((t) => solarKeywords.some((k) => isWordMatch(t, k)));
       const queryHasEdu = queryTokens.some((t) => eduKeywords.some((k) => isWordMatch(t, k)));
       const queryHasAgri = queryTokens.some((t) => agriKeywords.some((k) => isWordMatch(t, k)));
       const queryHasUrban = queryTokens.some((t) => urbanKeywords.some((k) => isWordMatch(t, k)));
       const queryHasRiver = queryTokens.some((t) => riverKeywords.some((k) => isWordMatch(t, k)));
+      const queryHasForest = queryTokens.some((t) => forestKeywords.some((k) => isWordMatch(t, k)));
+      const queryHasWater = queryTokens.some((t) => waterKeywords.some((k) => isWordMatch(t, k)));
 
       const cleanCombinedTags = combinedTags.filter((t) => t !== "solar_farm" && t !== "wind_farm");
       const locHasSolar =
@@ -584,6 +588,12 @@ export function searchScenes(
       const locHasRiver =
         cleanCombinedTags.some((t) => riverKeywords.some((k) => isWordMatch(t, k))) ||
         riverKeywords.some((k) => locName.includes(k) || locDesc.includes(k));
+      const locHasForest =
+        cleanCombinedTags.some((t) => forestKeywords.some((k) => isWordMatch(t, k))) ||
+        forestKeywords.some((k) => locName.includes(k) || locDesc.includes(k));
+      const locHasWater =
+        cleanCombinedTags.some((t) => waterKeywords.some((k) => isWordMatch(t, k))) ||
+        waterKeywords.some((k) => locName.includes(k) || locDesc.includes(k));
 
       // Bhadla anchor hub priority ONLY for solar or explicit Rajasthan / Bhadla queries
       if ((queryHasSolar || normalizedQuery.includes("rajasthan") || normalizedQuery.includes("rajisthan") || normalizedQuery.includes("bhadla")) && (locName.includes("bhadla") || loc?.location_id?.includes("BHADLA"))) {
@@ -598,6 +608,35 @@ export function searchScenes(
           tagBoost += 0.15; // Desert renewable corridor affinity
         } else {
           tagBoost -= 0.30; // Suppress unrelated urban highways/ports/wetlands for solar queries
+        }
+      }
+
+      // Forest & Deforestation boost & strict cross-domain suppression
+      if (queryHasForest) {
+        if (locHasForest) {
+          tagBoost += 0.45; // Major forest affinity
+          if (queryTokens.some((t) => isWordMatch(t, "deforestation") || isWordMatch(t, "clearing") || isWordMatch(t, "loss"))) {
+            if (
+              combinedTags.some((t) => t.includes("deforest") || t.includes("clearing") || t.includes("loss")) ||
+              locDesc.includes("deforest") ||
+              locDesc.includes("clearing") ||
+              locName.includes("deforest")
+            ) {
+              tagBoost += 0.25; // Direct deforestation/clearing match!
+            }
+          }
+        } else {
+          // Suppress unrelated dams, reservoirs, solar farms, urban roads, container terminals
+          tagBoost -= 0.55;
+        }
+      }
+
+      // Water & Reservoir boost
+      if (queryHasWater && !queryHasForest) {
+        if (locHasWater) {
+          tagBoost += 0.35;
+        } else {
+          tagBoost -= 0.30;
         }
       }
 
@@ -665,6 +704,8 @@ export function searchScenes(
         if (dlDesc.includes(t)) dynScore += 0.04;
       }
       if (parsedQuery.category === "solar") dynScore += 0.08;
+      if (parsedQuery.category === "forest") dynScore += 0.15;
+      if (dl.tags?.includes("deforestation") || dl.name.toLowerCase().includes("deforestation")) dynScore += 0.12;
 
       scored.push({
         sceneRecord: {

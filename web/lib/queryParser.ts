@@ -97,28 +97,80 @@ const REGION_REGISTRY: Record<string, { bbox: { minLat: number; maxLat: number; 
     bbox: { minLat: 27.6, maxLat: 30.9, minLon: 74.4, maxLon: 77.6 },
     aliases: ["haryana", "gurugram", "karnal"],
   },
+  chhattisgarh: {
+    bbox: { minLat: 17.75, maxLat: 24.1, minLon: 80.25, maxLon: 84.4 },
+    aliases: ["chhattisgarh", "hasdeo", "raipur", "bilaspur", "korba"],
+  },
+  uttarakhand: {
+    bbox: { minLat: 28.7, maxLat: 31.5, minLon: 77.5, maxLon: 81.1 },
+    aliases: ["uttarakhand", "corbett", "dehradun", "haridwar", "nainital", "shivalik"],
+  },
+  madhya_pradesh: {
+    bbox: { minLat: 21.3, maxLat: 26.9, minLon: 74.0, maxLon: 82.8 },
+    aliases: ["madhya pradesh", "mp", "bhopal", "indore", "jabalpur"],
+  },
+  jharkhand: {
+    bbox: { minLat: 21.9, maxLat: 25.3, minLon: 83.3, maxLon: 87.9 },
+    aliases: ["jharkhand", "ranchi", "dhanbad", "jamshedpur"],
+  },
+  jammu_kashmir: {
+    bbox: { minLat: 32.2, maxLat: 37.1, minLon: 73.4, maxLon: 80.5 },
+    aliases: ["kashmir", "jammu", "srinagar", "ladakh", "siachen"],
+  },
   egypt: {
     bbox: { minLat: 21.9, maxLat: 31.7, minLon: 24.7, maxLon: 36.9 },
     aliases: ["egypt", "aswan", "benban", "nile"],
+  },
+  brazil: {
+    bbox: { minLat: -34.0, maxLat: 5.5, minLon: -74.0, maxLon: -34.5 },
+    aliases: ["brazil", "brasil", "amazon", "amazonas", "rondonia", "south america"],
+  },
+  usa: {
+    bbox: { minLat: 24.5, maxLat: 49.5, minLon: -125.0, maxLon: -66.5 },
+    aliases: ["usa", "united states", "america", "colorado", "nevada", "arizona"],
+  },
+  uae: {
+    bbox: { minLat: 22.5, maxLat: 26.5, minLon: 51.5, maxLon: 56.5 },
+    aliases: ["uae", "emirates", "dubai", "abu dhabi"],
+  },
+  singapore: {
+    bbox: { minLat: 1.15, maxLat: 1.48, minLon: 103.6, maxLon: 104.05 },
+    aliases: ["singapore", "jurong"],
+  },
+  netherlands: {
+    bbox: { minLat: 50.7, maxLat: 53.7, minLon: 3.3, maxLon: 7.3 },
+    aliases: ["netherlands", "holland", "rotterdam"],
+  },
+  india: {
+    bbox: { minLat: 6.5, maxLat: 37.5, minLon: 68.0, maxLon: 97.5 },
+    aliases: ["india", "indian", "bharat", "hindustan"],
   },
 };
 
 /**
  * Parses user search query to dynamically detect:
  * 1. Intent topic/category (e.g. solar, river, forest, port)
- * 2. Explicit or strict geographic constraints (e.g. "in Rajasthan", "only in Rajasthan")
+ * 2. Explicit or strict geographic constraints (e.g. "in Rajasthan", "only in Rajasthan", "in India")
  * 3. Spatial bounding box for strict spatial isolation
  */
 export function parseUserQuery(rawQuery: string): ParsedQuery {
   const normalized = (rawQuery || "").toLowerCase().trim();
+
+  // Strip temporal expressions when doing spatial/regional matching
+  const cleanedForSpatial = normalized
+    .replace(/\b(?:in\s+)?(?:the\s+)?(?:last|past)\s+\d+\s*(?:years?|months?|days?|decade)\b/gi, "")
+    .replace(/\b(?:in\s+)?recent\s*(?:years?|months?)\b/gi, "")
+    .replace(/\b(?:in\s+)?20\d\d(?:\s*-\s*20\d\d)?\b/gi, "")
+    .trim();
+
   const tokens = normalized.split(/[\s,;]+/).filter((t) => t.length > 1);
 
   // 1. Detect Category
   let category: ParsedQuery["category"] = "general";
   const solarWords = ["solar", "photovoltaic", "pv", "sun", "clean energy", "renewable", "megawatt", "gw"];
-  const waterWords = ["river", "riverfront", "lake", "reservoir", "water", "dam", "canal", "estuary", "stream"];
+  const waterWords = ["river", "riverfront", "lake", "reservoir", "water", "dam", "canal", "estuary", "stream", "lagoon"];
   const urbanWords = ["college", "colleges", "university", "campus", "city", "urban", "expansion", "highway", "road"];
-  const forestWords = ["forest", "trees", "woodland", "corridor", "jungles", "rainforest", "deforestation"];
+  const forestWords = ["forest", "trees", "woodland", "corridor", "jungles", "rainforest", "deforestation", "canopy", "clearing", "timber"];
   const coastalWords = ["port", "coastal", "harbor", "ocean", "pier", "marine", "dock"];
 
   if (solarWords.some((w) => normalized.includes(w))) {
@@ -134,14 +186,13 @@ export function parseUserQuery(rawQuery: string): ParsedQuery {
   }
 
   // 2. Detect Strict Spatial / Regional Constraints
-  // Phrases indicating strict filtering: "in only rajisthan", "only in rajasthan", "in rajasthan", "rajasthan only"
   let detectedRegionKey: string | null = null;
   let isStrict = false;
 
   for (const [key, reg] of Object.entries(REGION_REGISTRY)) {
     const hasAlias = reg.aliases.some((alias) => {
       const aliasPattern = new RegExp(`\\b${alias}\\b`, "i");
-      return aliasPattern.test(normalized);
+      return aliasPattern.test(cleanedForSpatial) || aliasPattern.test(normalized);
     });
 
     if (hasAlias) {
@@ -152,13 +203,16 @@ export function parseUserQuery(rawQuery: string): ParsedQuery {
         new RegExp(`only\\s+(?:in\\s+)?(?:${reg.aliases.join("|")})`, "i"),
         new RegExp(`in\\s+only\\s+(?:${reg.aliases.join("|")})`, "i"),
         new RegExp(`(?:${reg.aliases.join("|")})\\s+only`, "i"),
-        new RegExp(`(?:in|within|inside|of)\\s+(?:${reg.aliases.join("|")})`, "i"),
+        new RegExp(`(?:in|within|inside|of|across)\\s+(?:${reg.aliases.join("|")})`, "i"),
       ];
 
-      if (strictPatterns.some((p) => p.test(normalized))) {
+      if (
+        strictPatterns.some((p) => p.test(cleanedForSpatial)) ||
+        strictPatterns.some((p) => p.test(normalized))
+      ) {
         isStrict = true;
       } else {
-        // If the query mentions a specific state name, default to strict geographic scope
+        // If the query mentions a specific region name, default to strict geographic scope
         isStrict = true;
       }
       break;
