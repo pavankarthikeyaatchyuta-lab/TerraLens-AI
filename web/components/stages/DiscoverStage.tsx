@@ -10,6 +10,8 @@ interface DiscoverStageProps {
   selectedLocationId: string;
   onSelectLocation: (id: string) => void;
   topLocation: Location;
+  topSimilarity?: number;
+  topRank?: number;
   alternatives: { location: Location; similarity: number; rank: number }[];
   onOpenTemporalHistory: () => void;
   onBackToSearch: () => void;
@@ -21,6 +23,8 @@ export function DiscoverStage({
   selectedLocationId,
   onSelectLocation,
   topLocation,
+  topSimilarity,
+  topRank,
   alternatives,
   onOpenTemporalHistory,
   onBackToSearch,
@@ -82,10 +86,10 @@ export function DiscoverStage({
             <div className="flex items-center justify-between">
               <span className="px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 border border-sky-400/50 text-[10px] font-black tracking-wider uppercase flex items-center gap-1.5 neu-pill">
                 <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />
-                <span>TOP SEMANTIC MATCH • RANK 1</span>
+                <span>{topRank && topRank > 1 ? `SELECTED CANDIDATE • RANK ${topRank}` : "TOP SEMANTIC MATCH • RANK 1"}</span>
               </span>
               <span className="text-xs text-emerald-400 font-black px-2.5 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-800 neu-pill">
-                94.2% SIMILARITY
+                {((topSimilarity ?? 0.942) * 100).toFixed(1)}% SIMILARITY
               </span>
             </div>
 

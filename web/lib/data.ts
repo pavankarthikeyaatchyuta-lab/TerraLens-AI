@@ -74,7 +74,15 @@ export function getLocationById(locationId: string): Location | undefined {
   const found = locs.find((l) => l.location_id === locationId);
   if (found) return found;
   const eoLocs = getEoLocations();
-  return eoLocs.find((l) => l.location_id === locationId);
+  const eoFound = eoLocs.find((l) => l.location_id === locationId);
+  if (eoFound) return eoFound;
+
+  // Dynamic regional location lookup (e.g. Rajasthan solar corridors)
+  const dynLocs = getDynamicRegionLocations("rajasthan");
+  const dynFound = dynLocs.find((l) => l.location_id === locationId);
+  if (dynFound) return dynFound;
+
+  return undefined;
 }
 
 export function getSceneEmbeddings(): EmbeddingsFile | null {

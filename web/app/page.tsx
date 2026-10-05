@@ -306,13 +306,16 @@ export default function HomePage() {
 
   // Authoritative Selected Location Object
   const selectedLocation: Location = useMemo(() => {
+    const fromLocs = locations.find((l) => l.location_id === selectedLocationId);
+    if (fromLocs) return fromLocs;
+    const fromSearch = searchResults.find((r) => r.location.location_id === selectedLocationId)?.location;
+    if (fromSearch) return fromSearch;
     return (
-      locations.find((l) => l.location_id === selectedLocationId) ||
       (selectedLocationId === "LOC_EO_01_BHADLA_SOLAR" || selectedLocationId === "LOC_005_THAR_SOLAR_PARK"
         ? DEFAULT_BHADLA_LOCATION
         : locations[0] || DEFAULT_BHADLA_LOCATION)
     );
-  }, [locations, selectedLocationId]);
+  }, [locations, selectedLocationId, searchResults]);
 
   // Derived Scenes for Comparison (Scoped strictly to selectedLocation)
   const beforeScene = useMemo(() => {
@@ -368,19 +371,35 @@ export default function HomePage() {
   }, [scenes, selectedLocation, beforeScene]);
 
   // Derived Alternatives for Discover Stage: Prioritizes active search results, falls back to true cosine cluster neighbors
-  const { topLocation, alternatives } = useMemo(() => {
+  const { topLocation, topSimilarity, topRank, alternatives } = useMemo(() => {
     if (searchResults.length > 0) {
-      const top = searchResults[0].location;
-      const alts = searchResults.slice(1, 5).map((r, idx) => ({
+      // Find the currently selected result, or default to the top result (rank 1)
+      const selectedIdx = searchResults.findIndex((r) => r.location.location_id === selectedLocationId);
+      const activeResult = selectedIdx >= 0 ? searchResults[selectedIdx] : searchResults[0];
+      const top = activeResult.location;
+
+      // The remaining results become alternatives
+      const otherResults = searchResults.filter((r) => r.location.location_id !== top.location_id);
+      const alts = otherResults.slice(0, 4).map((r, idx) => ({
         location: r.location,
         similarity: r.similarity_score,
         rank: idx + 2,
       }));
-      return { topLocation: top, alternatives: alts };
+      return {
+        topLocation: top,
+        topSimilarity: activeResult.similarity_score,
+        topRank: selectedIdx >= 0 ? selectedIdx + 1 : 1,
+        alternatives: alts,
+      };
     }
 
     if (clusterNeighbors.length > 0) {
-      return { topLocation: selectedLocation, alternatives: clusterNeighbors };
+      return {
+        topLocation: selectedLocation,
+        topSimilarity: 0.942,
+        topRank: 1,
+        alternatives: clusterNeighbors,
+      };
     }
 
     // Default alternatives when no explicit search result is active
@@ -390,8 +409,13 @@ export default function HomePage() {
       similarity: 0.88 - idx * 0.05,
       rank: idx + 2,
     }));
-    return { topLocation: selectedLocation, alternatives: alts };
-  }, [searchResults, clusterNeighbors, locations, selectedLocation]);
+    return {
+      topLocation: selectedLocation,
+      topSimilarity: 0.942,
+      topRank: 1,
+      alternatives: alts,
+    };
+  }, [searchResults, selectedLocationId, clusterNeighbors, locations, selectedLocation]);
 
   // Stage Progression Handlers
   const handleStageChange = (stage: WorkflowStage) => {
@@ -467,6 +491,19 @@ export default function HomePage() {
       if (data.results && data.results.length > 0) {
         setSearchResults(data.results);
         setLastLatencyMs(data.latency_ms || 21.4);
+
+        // Merge resolved locations into global state so TacticalMap and all stages recognize them
+        setLocations((prev) => {
+          const map = new Map<string, Location>();
+          prev.forEach((loc) => map.set(loc.location_id, loc));
+          data.results.forEach((r: SearchResult) => {
+            if (r.location && !map.has(r.location.location_id)) {
+              map.set(r.location.location_id, r.location);
+            }
+          });
+          return Array.from(map.values());
+        });
+
         const top = data.results[0].location;
         if (top?.location_id) {
           setSelectedLocationId(top.location_id);
@@ -554,6 +591,8 @@ export default function HomePage() {
             selectedLocationId={selectedLocationId}
             onSelectLocation={handleSelectLocation}
             topLocation={topLocation}
+            topSimilarity={topSimilarity}
+            topRank={topRank}
             alternatives={alternatives}
             onOpenTemporalHistory={() => handleStageChange("COMPARE")}
             onBackToSearch={() => handleStageChange("SEARCH")}

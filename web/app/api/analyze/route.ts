@@ -53,11 +53,11 @@ export async function POST(request: NextRequest) {
     const tags = (location.tags || []).join(" ").toLowerCase();
     const locName = location.name.toLowerCase();
 
-    let changeType = "CONSTRUCTION";
-    let maskPath = "/outputs/change_masks/PAIR_LOC_001_HYDERABAD_T1_T2_change_mask.png";
-    let heatmapPath = "/outputs/change_masks/PAIR_LOC_001_HYDERABAD_T1_T2_diff_heatmap.png";
-    let overlayPath = "/outputs/change_masks/PAIR_LOC_001_HYDERABAD_T1_T2_overlay.png";
-    let clusterSizes = [3200, 2100, 1400, 950, 650];
+    let changeType = "INFRASTRUCTURE";
+    let maskPath = "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_change_mask.png";
+    let heatmapPath = "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_diff_heatmap.png";
+    let overlayPath = "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_overlay.png";
+    let clusterSizes = [2800, 1950, 1300, 850, 520];
     let confidence = 0.88;
 
     if (tags.includes("solar") || locName.includes("solar")) {

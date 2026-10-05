@@ -131,11 +131,11 @@ export function VerifyStage({
         `/samples/${sampleLocId}/after_2025.jpg`;
 
   const maskImg =
-    analysis?.mask_path || `/outputs/change_masks/${sampleLocId}_2023_2025_change_mask.png`;
+    analysis?.mask_path || `/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_change_mask.png`;
   const heatmapImg =
-    analysis?.heatmap_path || `/outputs/change_masks/${sampleLocId}_2023_2025_diff_heatmap.png`;
+    analysis?.heatmap_path || `/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_diff_heatmap.png`;
   const overlayImg =
-    analysis?.overlay_path || `/outputs/change_masks/${sampleLocId}_2023_2025_overlay.png`;
+    analysis?.overlay_path || `/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_overlay.png`;
 
   const suppressionStages = [
     {
@@ -369,6 +369,9 @@ export function VerifyStage({
                 src={rawAfterImg}
                 alt="Raw Sentinel-2 T2"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/samples/LOC_EO_01_BHADLA_SOLAR/after_2025.jpg";
+                }}
               />
             )}
 
@@ -378,6 +381,9 @@ export function VerifyStage({
                 src={maskImg}
                 alt="Binary Change Mask"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_change_mask.png";
+                }}
               />
             )}
 
@@ -387,6 +393,9 @@ export function VerifyStage({
                 src={heatmapImg}
                 alt="Spectral Difference Heatmap"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_diff_heatmap.png";
+                }}
               />
             )}
 
@@ -398,6 +407,9 @@ export function VerifyStage({
                   src={rawAfterImg}
                   alt="Raw Background"
                   className="absolute inset-0 w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/samples/LOC_EO_01_BHADLA_SOLAR/after_2025.jpg";
+                  }}
                 />
                 {/* Semi-transparent Overlay */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -406,6 +418,9 @@ export function VerifyStage({
                   alt="Change Detection Overlay"
                   className="absolute inset-0 w-full h-full object-cover mix-blend-screen"
                   style={{ opacity }}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_overlay.png";
+                  }}
                 />
               </div>
             )}

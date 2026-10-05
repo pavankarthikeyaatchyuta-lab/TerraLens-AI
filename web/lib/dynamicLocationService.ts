@@ -142,7 +142,7 @@ export const RAJASTHAN_SOLAR_CORRIDOR: Location[] = [
 /**
  * Dynamically resolves real locations matching the query and region
  */
-export function getDynamicRegionLocations(regionName: string, category: string): Location[] {
+export function getDynamicRegionLocations(regionName: string, category: string = "solar"): Location[] {
   const normRegion = regionName.toLowerCase();
   if (normRegion.includes("rajasthan") || normRegion.includes("rajisthan")) {
     return RAJASTHAN_SOLAR_CORRIDOR;
