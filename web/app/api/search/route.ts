@@ -342,3 +342,30 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const query = searchParams.get("q") || searchParams.get("query") || "";
+  const topK = parseInt(searchParams.get("top_k") || "5", 10);
+  const catalog = (searchParams.get("catalog") || "real-eo") as "benchmark" | "real-eo";
+  const groupBy = (searchParams.get("groupBy") || "location") as "scene" | "location";
+
+  if (!query) {
+    return NextResponse.json({ error: "Missing 'q' or 'query' parameter" }, { status: 400 });
+  }
+
+  const outcome = searchScenes(query, topK, null, undefined, catalog, undefined, groupBy);
+  return NextResponse.json({
+    mode: "real-eo-catalog",
+    catalog,
+    supported: outcome.supported,
+    queryType: "text",
+    query,
+    top_k: topK,
+    total_matches: outcome.results.length,
+    latency_ms: outcome.latencyMs,
+    retrieval_mode: "Compound Semantic Concept & Geographic Token Match over Real Sentinel-2 Catalog",
+    results: outcome.results,
+  });
+}
+
