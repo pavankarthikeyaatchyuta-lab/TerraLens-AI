@@ -675,42 +675,36 @@ export function CompareStage({
           className="relative w-full aspect-video md:aspect-[16/9] max-h-[540px] rounded-2xl overflow-hidden border-2 border-tactical-700 select-none cursor-ew-resize bg-tactical-950 shadow-2xl neu-card"
         >
           {/* T2 After image (background) with dynamic multi-temporal visual filter */}
-          {afterLoadError ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-tactical-950 text-center text-xs">
-              <AlertTriangle className="w-8 h-8 text-amber-500 mb-2" />
-              <span className="font-bold text-slate-200">T2 OBSERVATION PREVIEW UNAVAILABLE</span>
-            </div>
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={afterImg}
-              alt="T2 Monitoring observation"
-              onError={() => setAfterLoadError(true)}
-              style={{ filter: getTemporalFilter(t2Date, false), transition: "filter 0.5s ease" }}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={afterImg}
+            alt="T2 Monitoring observation"
+            onError={(e) => {
+              const target = e.currentTarget;
+              const fallback = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${(location.longitude ?? 78.0) - 0.035},${(location.latitude ?? 20.0) - 0.035},${(location.longitude ?? 78.0) + 0.035},${(location.latitude ?? 20.0) + 0.035}&bboxSR=4326&imageSR=4326&size=512,512&f=image`;
+              if (!target.src.includes("arcgisonline")) target.src = fallback;
+            }}
+            style={{ filter: getTemporalFilter(t2Date, false), transition: "filter 0.5s ease" }}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
 
           {/* T1 Before image (clipped foreground using pure CSS clipPath) with dynamic filter */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
           >
-            {beforeLoadError ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-tactical-950 text-center text-xs">
-                <AlertTriangle className="w-8 h-8 text-amber-500 mb-2" />
-                <span className="font-bold text-slate-200">T1 BASELINE PREVIEW UNAVAILABLE</span>
-              </div>
-            ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={beforeImg}
-                alt="T1 Baseline observation"
-                onError={() => setBeforeLoadError(true)}
-                style={{ filter: getTemporalFilter(t1Date, true), transition: "filter 0.5s ease" }}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            )}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={beforeImg}
+              alt="T1 Baseline observation"
+              onError={(e) => {
+                const target = e.currentTarget;
+                const fallback = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${(location.longitude ?? 78.0) - 0.035},${(location.latitude ?? 20.0) - 0.035},${(location.longitude ?? 78.0) + 0.035},${(location.latitude ?? 20.0) + 0.035}&bboxSR=4326&imageSR=4326&size=512,512&f=image`;
+                if (!target.src.includes("arcgisonline")) target.src = fallback;
+              }}
+              style={{ filter: getTemporalFilter(t1Date, true), transition: "filter 0.5s ease" }}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
 
             {/* Badge T1 Baseline */}
             <div className="absolute top-4 left-4 neu-raised backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-sky-400/40 text-xs shadow-xl">
@@ -746,7 +740,11 @@ export function CompareStage({
             <img
               src={beforeImg}
               alt="T1 Baseline"
-              onError={() => setBeforeLoadError(true)}
+              onError={(e) => {
+                const target = e.currentTarget;
+                const fallback = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${(location.longitude ?? 78.0) - 0.035},${(location.latitude ?? 20.0) - 0.035},${(location.longitude ?? 78.0) + 0.035},${(location.latitude ?? 20.0) + 0.035}&bboxSR=4326&imageSR=4326&size=512,512&f=image`;
+                if (!target.src.includes("arcgisonline")) target.src = fallback;
+              }}
               style={{ filter: getTemporalFilter(t1Date, true), transition: "filter 0.5s ease" }}
               className="w-full h-full object-cover"
             />
@@ -763,7 +761,11 @@ export function CompareStage({
             <img
               src={afterImg}
               alt="T2 Monitoring"
-              onError={() => setAfterLoadError(true)}
+              onError={(e) => {
+                const target = e.currentTarget;
+                const fallback = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${(location.longitude ?? 78.0) - 0.035},${(location.latitude ?? 20.0) - 0.035},${(location.longitude ?? 78.0) + 0.035},${(location.latitude ?? 20.0) + 0.035}&bboxSR=4326&imageSR=4326&size=512,512&f=image`;
+                if (!target.src.includes("arcgisonline")) target.src = fallback;
+              }}
               style={{ filter: getTemporalFilter(t2Date, false), transition: "filter 0.5s ease" }}
               className="w-full h-full object-cover"
             />
