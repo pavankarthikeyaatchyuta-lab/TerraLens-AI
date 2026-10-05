@@ -135,13 +135,13 @@
       "location_id": "LOC_005_THAR_SOLAR_PARK",
       "name": "Bhadla Solar Intelligence Sector",
       "description": "Arid desert terrain converted into high-density photovoltaic solar array installation.",
-      "latitude": 27.538,
-      "longitude": 71.917,
+      "latitude": 27.54,
+      "longitude": 71.95,
       "bounding_box": {
-        "min_lat": 27.488,
-        "min_lon": 71.867,
-        "max_lat": 27.588,
-        "max_lon": 71.967
+        "min_lat": 27.505,
+        "min_lon": 71.915,
+        "max_lat": 27.575,
+        "max_lon": 71.985
       },
       "primary_sensor": "Sentinel-2 MSI",
       "before_scene_id": "SCENE_LOC_005_THAR_SOLAR_PARK_2023",
