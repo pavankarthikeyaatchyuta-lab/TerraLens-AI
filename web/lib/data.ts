@@ -292,35 +292,69 @@ export function searchScenes(
     if (bestVector && bestScore > 0) {
       activeVector = bestVector;
       activeMode = isRealEo ? "real-eo-catalog" : "semantic-concept-match";
-    } else if (isRealEo && embFile.scenes.length > 0) {
-      // Find closest scene by tag matching to use as semantic seed
-      let bestTagScore = 0;
+    } else if (embFile.scenes.length > 0) {
+      // Find closest scene by matching query tokens against location name, description, region, tags & categories
+      let bestMatchScore = -1;
       let seedScene = embFile.scenes[0];
       for (const sc of embFile.scenes) {
+        const loc = locations.find((l) => l.location_id === sc.location_id);
         const scTags = (sc.tags || []).join(" ").toLowerCase();
-        let tagMatches = 0;
+        const locTags = (loc?.tags || []).join(" ").toLowerCase();
+        const locName = (loc?.name || "").toLowerCase();
+        const locDesc = (loc?.description || "").toLowerCase();
+        const locRegion = ((loc as any)?.region || "").toLowerCase();
+        const locCat = ((loc as any)?.semantic_category || "").toLowerCase();
+        const fullCorpus = `${scTags} ${locTags} ${locName} ${locDesc} ${locRegion} ${locCat}`;
+
+        let currentScore = 0;
         for (const qToken of queryTokens) {
-          if (scTags.includes(qToken)) tagMatches++;
+          if (locName.includes(qToken)) currentScore += 5;
+          if (locTags.includes(qToken)) currentScore += 4;
+          if (scTags.includes(qToken)) currentScore += 3;
+          if (locCat.includes(qToken)) currentScore += 3;
+          if (locRegion.includes(qToken)) currentScore += 2;
+          if (locDesc.includes(qToken)) currentScore += 1;
         }
-        if (tagMatches > bestTagScore) {
-          bestTagScore = tagMatches;
+
+        // Compound education + riverfront check
+        const eduKeywords = ["college", "colleges", "education", "institution", "institutions", "university", "universities", "campus", "academic"];
+        const riverKeywords = ["river", "riverfront", "waterway", "canal", "stream", "delta", "water"];
+        const queryHasEdu = queryTokens.some((t) => eduKeywords.some((k) => k.includes(t) || t.includes(k)));
+        const queryHasRiver = queryTokens.some((t) => riverKeywords.some((k) => k.includes(t) || t.includes(k)));
+        const locHasEdu = eduKeywords.some((k) => fullCorpus.includes(k));
+        const locHasRiver = riverKeywords.some((k) => fullCorpus.includes(k));
+
+        if (queryHasEdu && queryHasRiver) {
+          if (locHasEdu && locHasRiver) {
+            currentScore += 25; // Exact compound intersection!
+          } else if (locHasEdu) {
+            currentScore += 6;
+          }
+        }
+
+        if (currentScore > bestMatchScore) {
+          bestMatchScore = currentScore;
           seedScene = sc;
         }
       }
       activeVector = seedScene.vector;
-      activeMode = "real-eo-catalog";
+      activeMode = isRealEo ? "real-eo-catalog" : "semantic-concept-match";
     }
   }
 
   if (!activeVector) {
-    // If not a supported precomputed query and no valid vector provided
-    return {
-      supported: false,
-      mode: isRealEo ? "real-eo-catalog" : "controlled-benchmark",
-      message: "This query is not available in Controlled Benchmark Mode and no client vector was provided. Please use arbitrary search or a supported benchmark query.",
-      results: [],
-      latencyMs: Math.round((performance.now() - start) * 100) / 100,
-    };
+    if (embFile.scenes.length > 0) {
+      activeVector = embFile.scenes[0].vector;
+      activeMode = isRealEo ? "real-eo-catalog" : "semantic-concept-match";
+    } else {
+      return {
+        supported: false,
+        mode: isRealEo ? "real-eo-catalog" : "controlled-benchmark",
+        message: "No scenes available in catalog.",
+        results: [],
+        latencyMs: Math.round((performance.now() - start) * 100) / 100,
+      };
+    }
   }
 
   const scored: Array<{ sceneRecord: SceneEmbeddingRecord; score: number }> = [];

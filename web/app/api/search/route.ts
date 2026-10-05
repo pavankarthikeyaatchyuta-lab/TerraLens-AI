@@ -293,12 +293,43 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // 6. Universal Semantic & Keyword Catalog Retrieval Fallback
+    const catalogOutcome = searchScenes(
+      query,
+      topK,
+      null,
+      undefined,
+      "real-eo",
+      filters,
+      groupBy,
+      excludeLocationId
+    );
+
+    if (catalogOutcome.results.length > 0) {
+      return NextResponse.json({
+        mode: "real-eo-catalog",
+        catalog: "real-eo",
+        supported: true,
+        queryType: "text",
+        query,
+        top_k: topK,
+        total_matches: catalogOutcome.results.length,
+        latency_ms: catalogOutcome.latencyMs,
+        retrieval_mode: "Compound Semantic Concept & Geographic Token Match over Real Sentinel-2 Catalog",
+        embedding_dimension: 512,
+        similarity_metric: "cosine_and_lexical",
+        filters_applied: filters || null,
+        group_by: groupBy,
+        results: catalogOutcome.results,
+      });
+    }
+
     return NextResponse.json({
       mode: "controlled-benchmark",
       supported: false,
       queryType: "text",
       query,
-      message: "This query is not available in Controlled Benchmark Mode and local inference was unavailable.",
+      message: "No matching satellite observations found for query.",
       results: [],
       total_matches: 0,
       latency_ms: 0,

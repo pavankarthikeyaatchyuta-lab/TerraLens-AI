@@ -447,7 +447,7 @@ export default function HomePage() {
         try {
           const clientVector = await Promise.race([
             encodeQueryClient(query),
-            new Promise<null>((_, reject) => setTimeout(() => reject(new Error("fast-path timeout")), 800)),
+            new Promise<null>((_, reject) => setTimeout(() => reject(new Error("fast-path timeout")), 2500)),
           ]).catch(() => null);
 
           if (clientVector && clientVector.length === 512) {
