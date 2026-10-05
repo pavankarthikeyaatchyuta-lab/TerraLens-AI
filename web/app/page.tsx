@@ -349,10 +349,17 @@ export default function HomePage() {
         ? "LOC_EO_01_BHADLA_SOLAR"
         : selectedLocation.location_id;
 
+    const defaultMonitoringDate =
+      selectedLocation.location_id === "LOC_EO_01_BHADLA_SOLAR" || selectedLocation.location_id === "LOC_005_THAR_SOLAR_PARK"
+        ? "2025-03-15"
+        : selectedLocation.available_dates && selectedLocation.available_dates.length > 1
+        ? selectedLocation.available_dates[selectedLocation.available_dates.length - 1]
+        : "2025-03-15";
+
     return {
       scene_id: selectedLocation.after_scene_id || `SCENE_${selectedLocation.location_id}_T2`,
       location_id: selectedLocation.location_id,
-      acquisition_date: selectedLocation.available_dates?.[1] || selectedLocation.available_dates?.[0] || "2025-03-15",
+      acquisition_date: defaultMonitoringDate,
       cloud_percentage: 0.0,
       platform: "Sentinel-2C",
       sensor: selectedLocation.primary_sensor || "MSI L2A",

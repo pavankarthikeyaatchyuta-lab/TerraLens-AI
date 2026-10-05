@@ -24,7 +24,9 @@
         "infrastructure"
       ],
       "available_dates": [
-        "2026-09-26",
+        "2023-04-05",
+        "2024-04-10",
+        "2025-03-15",
         "2026-10-01"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -50,7 +52,9 @@
         "rural"
       ],
       "available_dates": [
-        "2026-05-02",
+        "2023-05-02",
+        "2024-05-02",
+        "2025-09-27",
         "2026-09-27"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -75,7 +79,9 @@
         "infrastructure"
       ],
       "available_dates": [
-        "2026-05-17",
+        "2023-05-17",
+        "2024-05-17",
+        "2025-09-29",
         "2026-09-29"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -101,7 +107,9 @@
         "international"
       ],
       "available_dates": [
-        "2026-09-26",
+        "2023-09-26",
+        "2024-09-26",
+        "2025-09-26",
         "2026-09-26"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -128,7 +136,9 @@
         "city"
       ],
       "available_dates": [
-        "2026-06-16",
+        "2023-06-16",
+        "2024-06-16",
+        "2025-06-16",
         "2026-06-16"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -137,13 +147,13 @@
       "location_id": "LOC_EO_06_NEW_DELHI_CENTRAL",
       "name": "Central New Delhi & Yamuna Academic Corridor",
       "description": "Major urban university campuses, research institutes, and higher education facilities situated along the Yamuna River corridor (including Jamia Millia Islamia and Delhi University riverfront extensions).",
-      "latitude": 28.63,
-      "longitude": 77.23,
+      "latitude": 28.562,
+      "longitude": 77.295,
       "bounding_box": {
-        "min_lat": 28.58,
-        "min_lon": 77.18,
-        "max_lat": 28.68,
-        "max_lon": 77.28
+        "min_lat": 28.53,
+        "min_lon": 77.26,
+        "max_lat": 28.6,
+        "max_lon": 77.33
       },
       "primary_sensor": "Sentinel-2 MSI",
       "tags": [
@@ -160,7 +170,9 @@
         "dense_buildings"
       ],
       "available_dates": [
-        "2026-09-30",
+        "2023-09-30",
+        "2024-09-30",
+        "2025-07-12",
         "2026-07-12"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -186,7 +198,9 @@
         "roads"
       ],
       "available_dates": [
-        "2026-04-22",
+        "2023-04-22",
+        "2024-04-22",
+        "2025-04-27",
         "2026-04-27"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -195,13 +209,13 @@
       "location_id": "LOC_EO_08_KOLKATA_HOOGHLY",
       "name": "Kolkata Hooghly Riverfront & University Hub, West Bengal",
       "description": "Historic riverfront educational institutions, engineering universities (IIEST Shibpur), and heritage college campuses situated directly along the tidal Hooghly River.",
-      "latitude": 22.55,
-      "longitude": 88.35,
+      "latitude": 22.556,
+      "longitude": 88.32,
       "bounding_box": {
-        "min_lat": 22.5,
-        "min_lon": 88.3,
-        "max_lat": 22.6,
-        "max_lon": 88.4
+        "min_lat": 22.52,
+        "min_lon": 88.29,
+        "max_lat": 22.59,
+        "max_lon": 88.35
       },
       "primary_sensor": "Sentinel-2 MSI",
       "tags": [
@@ -217,7 +231,9 @@
         "city"
       ],
       "available_dates": [
-        "2026-04-13",
+        "2023-04-13",
+        "2024-04-13",
+        "2025-04-23",
         "2026-04-23"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -243,7 +259,9 @@
         "maritime"
       ],
       "available_dates": [
-        "2026-09-29",
+        "2023-09-29",
+        "2024-09-29",
+        "2025-09-24",
         "2026-09-24"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -270,7 +288,9 @@
         "godavari"
       ],
       "available_dates": [
-        "2026-09-29",
+        "2023-09-29",
+        "2024-09-29",
+        "2025-09-29",
         "2026-09-29"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -296,7 +316,9 @@
         "lake"
       ],
       "available_dates": [
-        "2026-04-27",
+        "2023-04-27",
+        "2024-05-15",
+        "2025-05-20",
         "2026-09-29"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -323,7 +345,9 @@
         "fisheries"
       ],
       "available_dates": [
-        "2026-05-16",
+        "2023-05-16",
+        "2024-05-16",
+        "2025-09-18",
         "2026-09-18"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -349,7 +373,9 @@
         "inland"
       ],
       "available_dates": [
-        "2026-03-08",
+        "2023-03-08",
+        "2024-03-08",
+        "2025-02-21",
         "2026-02-21"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -376,7 +402,9 @@
         "himalayas"
       ],
       "available_dates": [
-        "2026-09-25",
+        "2023-09-25",
+        "2024-09-25",
+        "2025-09-10",
         "2026-09-10"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -402,7 +430,9 @@
         "drought"
       ],
       "available_dates": [
-        "2026-10-01",
+        "2023-10-01",
+        "2024-10-01",
+        "2025-10-01",
         "2026-10-01"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -430,7 +460,9 @@
         "container_terminal"
       ],
       "available_dates": [
-        "2026-04-28",
+        "2023-04-28",
+        "2024-04-28",
+        "2025-05-11",
         "2026-05-11"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -457,7 +489,9 @@
         "bay_of_bengal"
       ],
       "available_dates": [
-        "2026-09-28",
+        "2023-09-28",
+        "2024-09-28",
+        "2025-09-08",
         "2026-09-08"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -484,7 +518,9 @@
         "bulk_cargo"
       ],
       "available_dates": [
-        "2026-09-27",
+        "2023-09-27",
+        "2024-09-27",
+        "2025-09-07",
         "2026-09-07"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -511,7 +547,9 @@
         "sez"
       ],
       "available_dates": [
-        "2026-10-01",
+        "2023-10-01",
+        "2024-10-01",
+        "2025-09-21",
         "2026-09-21"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -538,8 +576,10 @@
         "international"
       ],
       "available_dates": [
-        "2026-03-25",
-        "2025-12-05"
+        "2023-03-25",
+        "2024-03-25",
+        "2025-12-05",
+        "2026-12-05"
       ],
       "source": "copernicus_sentinel2_stac"
     },
@@ -565,7 +605,9 @@
         "conservation"
       ],
       "available_dates": [
-        "2026-05-10",
+        "2023-05-10",
+        "2024-05-10",
+        "2025-04-10",
         "2026-04-10"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -591,7 +633,9 @@
         "biodiversity"
       ],
       "available_dates": [
-        "2026-04-10",
+        "2023-04-10",
+        "2024-04-10",
+        "2025-04-22",
         "2026-04-22"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -617,7 +661,9 @@
         "wildlife"
       ],
       "available_dates": [
-        "2026-06-19",
+        "2023-06-19",
+        "2024-06-19",
+        "2025-06-14",
         "2026-06-14"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -644,7 +690,9 @@
         "nature"
       ],
       "available_dates": [
-        "2026-02-11",
+        "2023-02-11",
+        "2024-02-11",
+        "2025-02-16",
         "2026-02-16"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -671,7 +719,9 @@
         "amazon"
       ],
       "available_dates": [
-        "2026-09-28",
+        "2023-09-28",
+        "2024-09-28",
+        "2025-09-28",
         "2026-09-28"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -698,7 +748,9 @@
         "irrigation"
       ],
       "available_dates": [
-        "2026-09-30",
+        "2023-09-30",
+        "2024-09-30",
+        "2025-09-30",
         "2026-09-30"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -724,7 +776,9 @@
         "green_belt"
       ],
       "available_dates": [
-        "2026-09-30",
+        "2023-09-30",
+        "2024-09-30",
+        "2025-09-30",
         "2026-09-30"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -750,7 +804,9 @@
         "aquaculture"
       ],
       "available_dates": [
-        "2026-05-24",
+        "2023-05-24",
+        "2024-05-24",
+        "2025-05-24",
         "2026-05-24"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -776,7 +832,9 @@
         "wind_patterns"
       ],
       "available_dates": [
-        "2026-10-01",
+        "2023-10-01",
+        "2024-10-01",
+        "2025-10-01",
         "2026-10-01"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -802,7 +860,9 @@
         "evaporite"
       ],
       "available_dates": [
-        "2026-10-01",
+        "2023-10-01",
+        "2024-10-01",
+        "2025-09-21",
         "2026-09-21"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -811,13 +871,13 @@
       "location_id": "LOC_EO_31_BRAHMAPUTRA_BRAIDED",
       "name": "IIT Guwahati & Brahmaputra Riverfront University Hub, Assam",
       "description": "Premier higher education institutions, academic campuses, and university riverfront developments along the Brahmaputra River, including Indian Institute of Technology Guwahati (IITG) and Tezpur University riverfront, flanked by dynamic braided river channels and sandbars.",
-      "latitude": 26.55,
-      "longitude": 92.875,
+      "latitude": 26.19,
+      "longitude": 91.692,
       "bounding_box": {
-        "min_lat": 26.45,
-        "min_lon": 92.75,
-        "max_lat": 26.65,
-        "max_lon": 93.0
+        "min_lat": 26.15,
+        "min_lon": 91.65,
+        "max_lat": 26.23,
+        "max_lon": 91.74
       },
       "primary_sensor": "Sentinel-2 MSI",
       "tags": [
@@ -832,7 +892,9 @@
         "waterway"
       ],
       "available_dates": [
-        "2026-09-22",
+        "2023-09-22",
+        "2024-09-22",
+        "2025-07-04",
         "2026-07-04"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -858,7 +920,9 @@
         "coastline"
       ],
       "available_dates": [
-        "2026-05-26",
+        "2023-05-26",
+        "2024-05-26",
+        "2025-09-23",
         "2026-09-23"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -885,7 +949,9 @@
         "moraine"
       ],
       "available_dates": [
-        "2026-09-10",
+        "2023-09-10",
+        "2024-09-10",
+        "2025-08-29",
         "2026-08-29"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -912,7 +978,9 @@
         "international"
       ],
       "available_dates": [
-        "2026-08-12",
+        "2023-08-12",
+        "2024-08-12",
+        "2025-08-12",
         "2026-08-12"
       ],
       "source": "copernicus_sentinel2_stac"
@@ -939,7 +1007,9 @@
         "breakwater"
       ],
       "available_dates": [
-        "2026-07-15",
+        "2023-07-15",
+        "2024-07-15",
+        "2025-06-25",
         "2026-06-25"
       ],
       "source": "copernicus_sentinel2_stac"

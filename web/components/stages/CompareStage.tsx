@@ -46,23 +46,70 @@ export function CompareStage({
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef<boolean>(false);
 
-  // Resolved observation dates
-  const t1Date =
-    selectedPair?.beforeScene?.acquisitionDate?.split("T")[0] ||
-    beforeScene?.acquisition_date ||
-    location.available_dates?.[0] ||
-    "2023-04-05";
+  // Multi-year available observation dates from location
+  const availableDates = React.useMemo(() => {
+    if (location.available_dates && location.available_dates.length >= 2) {
+      return [...location.available_dates].sort();
+    }
+    return ["2023-04-05", "2024-04-10", "2025-03-15", "2026-10-01"];
+  }, [location.available_dates]);
 
-  const t2Date =
-    selectedPair?.afterScene?.acquisitionDate?.split("T")[0] ||
-    afterScene?.acquisition_date ||
-    location.available_dates?.[1] ||
-    "2025-03-15";
+  // User-selected observation dates (interactive timeline controls)
+  const [selectedT1Date, setSelectedT1Date] = useState<string>("");
+  const [selectedT2Date, setSelectedT2Date] = useState<string>("");
+
+  // Sync dates when location changes: default to multi-year span (first available -> last available)
+  React.useEffect(() => {
+    if (availableDates.length >= 2) {
+      setSelectedT1Date(availableDates[0]);
+      setSelectedT2Date(availableDates[availableDates.length - 1]);
+    }
+  }, [availableDates]);
+
+  const t1Date = selectedT1Date || availableDates[0] || "2023-04-05";
+  const t2Date = selectedT2Date || availableDates[availableDates.length - 1] || "2025-03-15";
 
   // Calculate elapsed days
-  const elapsedDays = Math.round(
-    Math.abs(new Date(t2Date).getTime() - new Date(t1Date).getTime()) / (1000 * 60 * 60 * 24)
+  const elapsedDays = Math.max(
+    5,
+    Math.round(Math.abs(new Date(t2Date).getTime() - new Date(t1Date).getTime()) / (1000 * 60 * 60 * 24))
   ) || 710;
+
+  const handleApplyPreset = (preset: "1-YEAR" | "2-YEAR" | "MAX") => {
+    if (preset === "1-YEAR") {
+      if (availableDates.length >= 2) {
+        setSelectedT1Date(availableDates[0]);
+        setSelectedT2Date(availableDates[1]);
+      }
+    } else if (preset === "2-YEAR") {
+      if (availableDates.length >= 3) {
+        setSelectedT1Date(availableDates[0]);
+        setSelectedT2Date(availableDates[2]);
+      } else {
+        setSelectedT1Date(availableDates[0]);
+        setSelectedT2Date(availableDates[availableDates.length - 1]);
+      }
+    } else if (preset === "MAX") {
+      setSelectedT1Date(availableDates[0]);
+      setSelectedT2Date(availableDates[availableDates.length - 1]);
+    }
+  };
+
+  const handleT1Change = (newT1: string) => {
+    setSelectedT1Date(newT1);
+    if (newT1 >= t2Date) {
+      const nextDate = availableDates.find((d) => d > newT1) || availableDates[availableDates.length - 1];
+      setSelectedT2Date(nextDate);
+    }
+  };
+
+  const handleT2Change = (newT2: string) => {
+    setSelectedT2Date(newT2);
+    if (newT2 <= t1Date) {
+      const prevDate = [...availableDates].reverse().find((d) => d < newT2) || availableDates[0];
+      setSelectedT1Date(prevDate);
+    }
+  };
 
   // Resolve imagery URLs
   const resolveImageryUrl = (scene?: any, isBefore: boolean = true) => {
@@ -265,6 +312,98 @@ export function CompareStage({
             <Columns2 className="w-3.5 h-3.5" />
             <span>SIDE-BY-SIDE</span>
           </button>
+        </div>
+      </div>
+
+      {/* Interactive Timeline & Year Selector */}
+      <div className="bg-tactical-900 border border-tactical-750 rounded-2xl p-4 space-y-3 shadow-md">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-sky-400" />
+            <span className="text-xs font-bold text-slate-200 uppercase tracking-wide">
+              TIMELINE & OBSERVATION PERIOD:
+            </span>
+            <span className="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-2 py-0.5 rounded font-mono font-bold">
+              {elapsedDays} DAYS ELAPSED ({Math.max(0.1, Math.round((elapsedDays / 365.25) * 10) / 10)} YRS)
+            </span>
+          </div>
+
+          {/* Quick Multi-Year Preset Buttons */}
+          <div className="flex items-center gap-1.5 flex-wrap text-xs">
+            <span className="text-slate-500 text-[10px] uppercase font-semibold mr-1">INTERVAL:</span>
+            <button
+              type="button"
+              onClick={() => handleApplyPreset("1-YEAR")}
+              className={`px-2.5 py-1 rounded-lg border text-[11px] transition-all font-semibold ${
+                Math.abs(elapsedDays - 365) < 120
+                  ? "bg-sky-600/30 border-sky-400 text-sky-200 font-bold shadow-sm"
+                  : "bg-tactical-950 border-tactical-800 text-slate-400 hover:text-white hover:border-tactical-700"
+              }`}
+            >
+              1-YEAR ANNUAL
+            </button>
+            <button
+              type="button"
+              onClick={() => handleApplyPreset("2-YEAR")}
+              className={`px-2.5 py-1 rounded-lg border text-[11px] transition-all font-semibold ${
+                Math.abs(elapsedDays - 730) < 120
+                  ? "bg-sky-600/30 border-sky-400 text-sky-200 font-bold shadow-sm"
+                  : "bg-tactical-950 border-tactical-800 text-slate-400 hover:text-white hover:border-tactical-700"
+              }`}
+            >
+              2-YEAR MULTI-ANNUAL
+            </button>
+            <button
+              type="button"
+              onClick={() => handleApplyPreset("MAX")}
+              className={`px-2.5 py-1 rounded-lg border text-[11px] transition-all font-semibold ${
+                elapsedDays > 850
+                  ? "bg-sky-600/30 border-sky-400 text-sky-200 font-bold shadow-sm"
+                  : "bg-tactical-950 border-tactical-800 text-slate-400 hover:text-white hover:border-tactical-700"
+              }`}
+            >
+              MAX ARCHIVE SPAN
+            </button>
+          </div>
+        </div>
+
+        {/* Date / Year Selectors Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-tactical-800">
+          <div className="bg-tactical-950 p-2.5 rounded-xl border border-tactical-800 flex items-center justify-between gap-3">
+            <div>
+              <span className="text-[10px] text-slate-500 uppercase font-bold block">T1 BASELINE YEAR / DATE:</span>
+              <span className="text-xs font-bold text-sky-300 font-mono">{t1Date}</span>
+            </div>
+            <select
+              value={t1Date}
+              onChange={(e) => handleT1Change(e.target.value)}
+              className="bg-tactical-900 border border-tactical-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 font-mono focus:border-sky-500 focus:outline-none cursor-pointer"
+            >
+              {availableDates.map((d, idx) => (
+                <option key={d} value={d} disabled={d >= t2Date}>
+                  {d.slice(0, 4)} ({d}) {idx === 0 ? "• Archival" : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="bg-tactical-950 p-2.5 rounded-xl border border-tactical-800 flex items-center justify-between gap-3">
+            <div>
+              <span className="text-[10px] text-slate-500 uppercase font-bold block">T2 MONITORING YEAR / DATE:</span>
+              <span className="text-xs font-bold text-emerald-300 font-mono">{t2Date}</span>
+            </div>
+            <select
+              value={t2Date}
+              onChange={(e) => handleT2Change(e.target.value)}
+              className="bg-tactical-900 border border-tactical-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 font-mono focus:border-sky-500 focus:outline-none cursor-pointer"
+            >
+              {availableDates.map((d, idx) => (
+                <option key={d} value={d} disabled={d <= t1Date}>
+                  {d.slice(0, 4)} ({d}) {idx === availableDates.length - 1 ? "• Frontier" : ""}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
