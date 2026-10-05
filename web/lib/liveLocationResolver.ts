@@ -157,6 +157,47 @@ export async function resolveDynamicGeospatialEntities(query: string): Promise<D
         // Graceful timeout
       }
     }
+
+    // If no specific sub-amenity was found by feature query, create regional AOI from regionConstraint
+    if (dynamicLocations.length === 0 && regionConstraint) {
+      const lat = (regionConstraint.bbox.minLat + regionConstraint.bbox.maxLat) / 2;
+      const lon = (regionConstraint.bbox.minLon + regionConstraint.bbox.maxLon) / 2;
+      const cleanName = `${regionConstraint.regionName}`;
+      const slug = cleanName.replace(/[^a-zA-Z0-9]+/g, "_").toUpperCase();
+      const locId = `LOC_DYN_${slug}_AOI`;
+
+      dynamicLocations.push({
+        location_id: locId,
+        name: `${cleanName} Observation Area`,
+        description: `Sentinel-2 Earth Observation Area of Interest for ${cleanName}. Monitored for multi-temporal surface transitions.`,
+        latitude: parseFloat(lat.toFixed(5)),
+        longitude: parseFloat(lon.toFixed(5)),
+        bounding_box: {
+          min_lat: regionConstraint.bbox.minLat,
+          max_lat: regionConstraint.bbox.maxLat,
+          min_lon: regionConstraint.bbox.minLon,
+          max_lon: regionConstraint.bbox.maxLon,
+        },
+        primary_sensor: "Sentinel-2 MSI L2A",
+        available_dates: [
+          "2018-04-12",
+          "2020-03-20",
+          "2022-04-15",
+          "2023-04-05",
+          "2024-03-10",
+          "2025-03-15",
+        ],
+        before_scene_id: `SCENE_${locId}_2023`,
+        after_scene_id: `SCENE_${locId}_2025`,
+        tags: [
+          ...featurePart.split(/\s+/).filter((t) => t.length > 2),
+          placeCandidate.toLowerCase(),
+          "sentinel2",
+          "earth_observation",
+          "dynamic_osm",
+        ],
+      });
+    }
   }
 
   const result: DynamicResolved = {

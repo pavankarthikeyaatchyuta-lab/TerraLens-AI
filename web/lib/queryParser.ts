@@ -21,6 +21,7 @@ export interface ParsedQuery {
 
 // Bounding boxes and aliases for Indian states and prominent global regions
 const REGION_REGISTRY: Record<string, { bbox: { minLat: number; maxLat: number; minLon: number; maxLon: number }; aliases: string[] }> = {
+  // --- TIER 1: HIGH-DENSITY METROPOLITAN HUBS (Evaluated first to prevent state-level overlap) ---
   mumbai: {
     bbox: { minLat: 18.8, maxLat: 19.35, minLon: 72.7, maxLon: 73.15 },
     aliases: ["mumbai", "nhava sheva", "jnpt", "navi mumbai", "thane", "bombay"],
@@ -37,86 +38,162 @@ const REGION_REGISTRY: Record<string, { bbox: { minLat: number; maxLat: number; 
     bbox: { minLat: 12.75, maxLat: 13.2, minLon: 77.4, maxLon: 77.85 },
     aliases: ["bengaluru", "bangalore", "electronic city", "whitefield"],
   },
-  rajasthan: {
-    bbox: { minLat: 23.05, maxLat: 30.55, minLon: 69.45, maxLon: 78.45 },
-    aliases: ["rajasthan", "rajisthan", "jodhpur", "jaisalmer", "bikaner", "phalodi", "pokhran", "thar"],
-  },
-  telangana: {
-    bbox: { minLat: 15.8, maxLat: 19.9, minLon: 77.2, maxLon: 81.8 },
-    aliases: ["telangana", "warangal", "nizamabad", "karimnagar"],
-  },
-  maharashtra: {
-    bbox: { minLat: 15.6, maxLat: 22.1, minLon: 72.6, maxLon: 80.9 },
-    aliases: ["maharashtra", "nagpur", "nashik", "aurangabad", "vidarbha"],
-  },
-  karnataka: {
-    bbox: { minLat: 11.5, maxLat: 18.5, minLon: 74.0, maxLon: 78.6 },
-    aliases: ["karnataka", "pavagada", "mysuru", "mangalore"],
-  },
-  tamil_nadu: {
-    bbox: { minLat: 8.0, maxLat: 13.6, minLon: 76.2, maxLon: 80.4 },
-    aliases: ["tamil nadu", "tamilnadu", "chennai", "coimbatore", "madurai"],
-  },
+
+  // --- TIER 2: ALL 28 STATES OF INDIA ---
   andhra_pradesh: {
     bbox: { minLat: 12.6, maxLat: 19.9, minLon: 76.7, maxLon: 84.8 },
-    aliases: ["andhra", "andhra pradesh", "kurnool", "visakhapatnam", "vizag", "godavari"],
+    aliases: ["andhra", "andhra pradesh", "kurnool", "visakhapatnam", "vizag", "godavari", "vijayawada", "guntur", "amaravati"],
+  },
+  arunachal_pradesh: {
+    bbox: { minLat: 26.4, maxLat: 29.5, minLon: 91.5, maxLon: 97.4 },
+    aliases: ["arunachal pradesh", "arunachal", "itanagar", "tawang", "namdapha", "pasighat", "ziro"],
   },
   assam: {
     bbox: { minLat: 24.1, maxLat: 28.2, minLon: 89.7, maxLon: 96.1 },
-    aliases: ["assam", "guwahati", "brahmaputra", "kaziranga"],
+    aliases: ["assam", "guwahati", "brahmaputra", "kaziranga", "silchar", "dibrugarh", "jorhat", "tezpur"],
   },
-  west_bengal: {
-    bbox: { minLat: 21.5, maxLat: 27.3, minLon: 85.8, maxLon: 89.9 },
-    aliases: ["bengal", "west bengal", "kolkata", "hooghly", "sundarbans"],
-  },
-  delhi: {
-    bbox: { minLat: 28.4, maxLat: 28.9, minLon: 76.8, maxLon: 77.4 },
-    aliases: ["delhi", "new delhi", "yamuna", "ncr"],
-  },
-  uttar_pradesh: {
-    bbox: { minLat: 23.8, maxLat: 30.5, minLon: 77.0, maxLon: 84.7 },
-    aliases: ["uttar pradesh", "up", "varanasi", "lucknow", "noida", "kanpur", "ayodhya"],
-  },
-  kerala: {
-    bbox: { minLat: 8.2, maxLat: 12.8, minLon: 74.8, maxLon: 77.5 },
-    aliases: ["kerala", "kochi", "cochin", "thiruvananthapuram", "trivandrum"],
-  },
-  odisha: {
-    bbox: { minLat: 17.8, maxLat: 22.6, minLon: 81.4, maxLon: 87.5 },
-    aliases: ["odisha", "orissa", "bhubaneswar", "puri", "cuttack", "paradeep"],
-  },
-  gujarat: {
-    bbox: { minLat: 20.1, maxLat: 24.7, minLon: 68.1, maxLon: 74.5 },
-    aliases: ["gujarat", "kutch", "mundra", "narmada", "ahmedabad", "surat"],
-  },
-  punjab: {
-    bbox: { minLat: 29.5, maxLat: 32.5, minLon: 73.8, maxLon: 76.9 },
-    aliases: ["punjab", "ludhiana", "amritsar", "sangrur"],
-  },
-  haryana: {
-    bbox: { minLat: 27.6, maxLat: 30.9, minLon: 74.4, maxLon: 77.6 },
-    aliases: ["haryana", "gurugram", "karnal"],
+  bihar: {
+    bbox: { minLat: 24.3, maxLat: 27.5, minLon: 83.3, maxLon: 88.3 },
+    aliases: ["bihar", "patna", "gaya", "muzaffarpur", "bhagalpur", "nalanda", "darbhanga", "purnia"],
   },
   chhattisgarh: {
     bbox: { minLat: 17.75, maxLat: 24.1, minLon: 80.25, maxLon: 84.4 },
-    aliases: ["chhattisgarh", "hasdeo", "raipur", "bilaspur", "korba"],
+    aliases: ["chhattisgarh", "hasdeo", "raipur", "bilaspur", "korba", "bastar", "durg", "bhilai"],
   },
-  uttarakhand: {
-    bbox: { minLat: 28.7, maxLat: 31.5, minLon: 77.5, maxLon: 81.1 },
-    aliases: ["uttarakhand", "corbett", "dehradun", "haridwar", "nainital", "shivalik"],
+  goa: {
+    bbox: { minLat: 14.8, maxLat: 15.8, minLon: 73.6, maxLon: 74.4 },
+    aliases: ["goa", "panaji", "panjim", "margao", "vasco da gama", "vasco", "mapusa"],
   },
-  madhya_pradesh: {
-    bbox: { minLat: 21.3, maxLat: 26.9, minLon: 74.0, maxLon: 82.8 },
-    aliases: ["madhya pradesh", "mp", "bhopal", "indore", "jabalpur"],
+  gujarat: {
+    bbox: { minLat: 20.1, maxLat: 24.7, minLon: 68.1, maxLon: 74.5 },
+    aliases: ["gujarat", "kutch", "mundra", "narmada", "ahmedabad", "surat", "vadodara", "rajkot", "bhavnagar", "jamnagar"],
+  },
+  haryana: {
+    bbox: { minLat: 27.6, maxLat: 30.9, minLon: 74.4, maxLon: 77.6 },
+    aliases: ["haryana", "gurugram", "gurgaon", "karnal", "faridabad", "panipat", "rohtak", "hisar", "ambala"],
+  },
+  himachal_pradesh: {
+    bbox: { minLat: 30.3, maxLat: 33.3, minLon: 75.5, maxLon: 79.1 },
+    aliases: ["himachal pradesh", "himachal", "shimla", "manali", "dharamshala", "kullu", "spiti", "solan", "mandi"],
   },
   jharkhand: {
     bbox: { minLat: 21.9, maxLat: 25.3, minLon: 83.3, maxLon: 87.9 },
-    aliases: ["jharkhand", "ranchi", "dhanbad", "jamshedpur"],
+    aliases: ["jharkhand", "ranchi", "dhanbad", "jamshedpur", "bokaro", "deoghar", "hazaribagh"],
+  },
+  karnataka: {
+    bbox: { minLat: 11.5, maxLat: 18.5, minLon: 74.0, maxLon: 78.6 },
+    aliases: ["karnataka", "pavagada", "mysuru", "mysore", "mangalore", "mangaluru", "hubli", "dharwad", "belagavi"],
+  },
+  kerala: {
+    bbox: { minLat: 8.2, maxLat: 12.8, minLon: 74.8, maxLon: 77.5 },
+    aliases: ["kerala", "kochi", "cochin", "thiruvananthapuram", "trivandrum", "kozhikode", "calicut", "wayanad", "silent valley", "alappuzha", "munnar"],
+  },
+  madhya_pradesh: {
+    bbox: { minLat: 21.3, maxLat: 26.9, minLon: 74.0, maxLon: 82.8 },
+    aliases: ["madhya pradesh", "mp", "bhopal", "indore", "jabalpur", "gwalior", "ujjain", "sagar", "satna"],
+  },
+  maharashtra: {
+    bbox: { minLat: 15.6, maxLat: 22.1, minLon: 72.6, maxLon: 80.9 },
+    aliases: ["maharashtra", "nagpur", "nashik", "aurangabad", "chhatrapati sambhaji nagar", "vidarbha", "solapur", "kolhapur"],
+  },
+  manipur: {
+    bbox: { minLat: 23.8, maxLat: 25.7, minLon: 92.9, maxLon: 94.8 },
+    aliases: ["manipur", "imphal", "loktak", "churachandpur", "thoubal", "bishnupur"],
+  },
+  meghalaya: {
+    bbox: { minLat: 25.0, maxLat: 26.1, minLon: 89.8, maxLon: 92.8 },
+    aliases: ["meghalaya", "shillong", "cherrapunji", "cherrapunjee", "sohra", "dawki", "tura", "jowai"],
+  },
+  mizoram: {
+    bbox: { minLat: 21.9, maxLat: 24.5, minLon: 92.2, maxLon: 93.5 },
+    aliases: ["mizoram", "aizawl", "lunglei", "champhai", "serchhip", "kolasib"],
+  },
+  nagaland: {
+    bbox: { minLat: 25.2, maxLat: 27.0, minLon: 93.3, maxLon: 95.3 },
+    aliases: ["nagaland", "kohima", "dimapur", "mokokchung", "tuensang", "mon"],
+  },
+  odisha: {
+    bbox: { minLat: 17.8, maxLat: 22.6, minLon: 81.4, maxLon: 87.5 },
+    aliases: ["odisha", "orissa", "bhubaneswar", "puri", "cuttack", "paradeep", "paradip", "rourkela", "chilika"],
+  },
+  punjab: {
+    bbox: { minLat: 29.5, maxLat: 32.5, minLon: 73.8, maxLon: 76.9 },
+    aliases: ["punjab", "ludhiana", "amritsar", "sangrur", "jalandhar", "patiala", "bathinda", "pathankot"],
+  },
+  rajasthan: {
+    bbox: { minLat: 23.05, maxLat: 30.55, minLon: 69.45, maxLon: 78.45 },
+    aliases: ["rajasthan", "rajisthan", "jodhpur", "jaisalmer", "bikaner", "phalodi", "pokhran", "thar", "jaipur", "udaipur", "kota", "ajmer"],
+  },
+  sikkim: {
+    bbox: { minLat: 27.0, maxLat: 28.1, minLon: 88.0, maxLon: 88.9 },
+    aliases: ["sikkim", "gangtok", "namchi", "kanchenjunga", "tsomgo", "pelling", "gyalshing"],
+  },
+  tamil_nadu: {
+    bbox: { minLat: 8.0, maxLat: 13.6, minLon: 76.2, maxLon: 80.4 },
+    aliases: ["tamil nadu", "tamilnadu", "chennai", "coimbatore", "madurai", "tiruchirappalli", "salem", "tirunelveli"],
+  },
+  telangana: {
+    bbox: { minLat: 15.8, maxLat: 19.9, minLon: 77.2, maxLon: 81.8 },
+    aliases: ["telangana", "warangal", "nizamabad", "karimnagar", "khammam", "ramagundam", "mahbubnagar"],
+  },
+  tripura: {
+    bbox: { minLat: 22.9, maxLat: 24.5, minLon: 91.1, maxLon: 92.4 },
+    aliases: ["tripura", "agartala", "dharmanagar", "kailashahar", "udaipur tripura"],
+  },
+  uttar_pradesh: {
+    bbox: { minLat: 23.8, maxLat: 30.5, minLon: 77.0, maxLon: 84.7 },
+    aliases: ["uttar pradesh", "up", "varanasi", "lucknow", "noida", "kanpur", "ayodhya", "prayagraj", "agra", "ghaziabad", "mathura", "meerut"],
+  },
+  uttarakhand: {
+    bbox: { minLat: 28.7, maxLat: 31.5, minLon: 77.5, maxLon: 81.1 },
+    aliases: ["uttarakhand", "corbett", "dehradun", "haridwar", "nainital", "shivalik", "rishikesh", "roorkee", "haldwani", "mussoorie"],
+  },
+  west_bengal: {
+    bbox: { minLat: 21.5, maxLat: 27.3, minLon: 85.8, maxLon: 89.9 },
+    aliases: ["bengal", "west bengal", "kolkata", "hooghly", "sundarbans", "darjeeling", "siliguri", "howrah", "asansol", "durgapur"],
+  },
+
+  // --- TIER 3: ALL 8 UNION TERRITORIES OF INDIA ---
+  andaman_nicobar: {
+    bbox: { minLat: 6.7, maxLat: 13.7, minLon: 92.2, maxLon: 94.0 },
+    aliases: ["andaman and nicobar", "andaman and nicobar islands", "andaman", "nicobar", "port blair", "havelock", "neil island", "car nicobar"],
+  },
+  chandigarh: {
+    bbox: { minLat: 30.65, maxLat: 30.82, minLon: 76.70, maxLon: 76.85 },
+    aliases: ["chandigarh", "mohali", "panchkula", "tricity"],
+  },
+  dadra_nagar_haveli_daman_diu: {
+    bbox: { minLat: 20.0, maxLat: 20.85, minLon: 70.8, maxLon: 73.2 },
+    aliases: ["dadra and nagar haveli", "daman and diu", "daman", "diu", "silvassa", "dnh"],
+  },
+  delhi: {
+    bbox: { minLat: 28.4, maxLat: 28.9, minLon: 76.8, maxLon: 77.4 },
+    aliases: ["delhi", "new delhi", "yamuna", "ncr", "national capital territory", "nct"],
   },
   jammu_kashmir: {
-    bbox: { minLat: 32.2, maxLat: 37.1, minLon: 73.4, maxLon: 80.5 },
-    aliases: ["kashmir", "jammu", "srinagar", "ladakh", "siachen"],
+    bbox: { minLat: 32.2, maxLat: 35.5, minLon: 73.4, maxLon: 76.6 },
+    aliases: ["jammu and kashmir", "jammu", "kashmir", "srinagar", "anantnag", "baramulla", "udhampur", "j&k"],
   },
+  ladakh: {
+    bbox: { minLat: 32.5, maxLat: 36.0, minLon: 75.8, maxLon: 80.5 },
+    aliases: ["ladakh", "leh", "kargil", "nubra", "pangong", "siachen", "drass", "zanskar", "changthang"],
+  },
+  lakshadweep: {
+    bbox: { minLat: 8.2, maxLat: 12.4, minLon: 71.8, maxLon: 74.3 },
+    aliases: ["lakshadweep", "kavaratti", "agatti", "minicoy", "andrott", "lakshadweep islands"],
+  },
+  puducherry: {
+    bbox: { minLat: 11.8, maxLat: 12.1, minLon: 79.7, maxLon: 79.9 },
+    aliases: ["puducherry", "pondicherry", "karaikal", "mahe", "yanam"],
+  },
+
+  // --- TIER 4: NATIONWIDE INDIA BOUNDING BOX ---
+  india: {
+    bbox: { minLat: 6.5, maxLat: 37.5, minLon: 68.0, maxLon: 97.5 },
+    aliases: ["india", "indian", "bharat", "hindustan", "pan india", "across india"],
+  },
+
+  // --- TIER 5: INTERNATIONAL COMPARISON SITES (Strictly Isolated) ---
   egypt: {
     bbox: { minLat: 21.9, maxLat: 31.7, minLon: 24.7, maxLon: 36.9 },
     aliases: ["egypt", "aswan", "benban", "nile"],
@@ -140,10 +217,6 @@ const REGION_REGISTRY: Record<string, { bbox: { minLat: number; maxLat: number; 
   netherlands: {
     bbox: { minLat: 50.7, maxLat: 53.7, minLon: 3.3, maxLon: 7.3 },
     aliases: ["netherlands", "holland", "rotterdam"],
-  },
-  india: {
-    bbox: { minLat: 6.5, maxLat: 37.5, minLon: 68.0, maxLon: 97.5 },
-    aliases: ["india", "indian", "bharat", "hindustan"],
   },
 };
 

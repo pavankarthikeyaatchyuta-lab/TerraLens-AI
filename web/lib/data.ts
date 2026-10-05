@@ -540,9 +540,16 @@ export function searchScenes(
       // Fallback state matching if no regionConstraint triggered
       if (!hasGeographicMatch) {
         const stateKeywords = [
-          "rajasthan", "karnataka", "assam", "delhi", "bengal", "gujarat", "andhra",
-          "kashmir", "punjab", "haryana", "maharashtra", "odisha", "manipur", "ladakh",
-          "mumbai", "hyderabad", "pune", "kochi", "chennai", "bengaluru", "kolkata"
+          // 28 States
+          "andhra", "arunachal", "assam", "bihar", "chhattisgarh", "goa", "gujarat", "haryana",
+          "himachal", "jharkhand", "karnataka", "kerala", "madhya pradesh", "maharashtra", "manipur",
+          "meghalaya", "mizoram", "nagaland", "odisha", "orissa", "punjab", "rajasthan", "sikkim",
+          "tamil nadu", "telangana", "tripura", "uttar pradesh", "uttarakhand", "west bengal", "bengal",
+          // 8 Union Territories
+          "andaman", "nicobar", "chandigarh", "dadra", "nagar haveli", "daman", "diu", "delhi",
+          "jammu", "kashmir", "ladakh", "lakshadweep", "puducherry", "pondicherry",
+          // Major Metropolitan Hubs & Pan-India
+          "india", "mumbai", "hyderabad", "pune", "bengaluru", "bangalore", "chennai", "kolkata", "kochi", "cochin"
         ];
         const queryStates = queryTokens.filter((t) => stateKeywords.some((s) => isWordMatch(t, s)));
         if (queryStates.length > 0) {
