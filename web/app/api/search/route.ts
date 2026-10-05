@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchScenes, getEoSceneEmbeddings, getSceneEmbeddings, SearchFilters } from "@/lib/data";
 import { parseUserQuery } from "@/lib/queryParser";
+import { resolveDynamicGeospatialEntities } from "@/lib/liveLocationResolver";
+import { Location } from "@/types";
 import { execFile } from "child_process";
 import path from "path";
 import fs from "fs";
@@ -219,8 +221,30 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 4. In-Process High-Speed Exact / Semantic Concept Retrieval (< 5ms)
-    const fastOutcome = searchScenes(query, topK, null, undefined, effectiveCatalog, filters, groupBy, excludeLocationId);
+    // 4. In-Process High-Speed Exact / Semantic Concept Retrieval with Live Geospatial Discovery
+    let dynamicLocations: Location[] = [];
+    if (query && query.length >= 3) {
+      try {
+        const dynResult = await resolveDynamicGeospatialEntities(query);
+        if (dynResult.locations && dynResult.locations.length > 0) {
+          dynamicLocations = dynResult.locations;
+        }
+      } catch (dynErr) {
+        console.warn("Notice: Dynamic entity resolution fallback", dynErr);
+      }
+    }
+
+    const fastOutcome = searchScenes(
+      query,
+      topK,
+      null,
+      undefined,
+      effectiveCatalog,
+      filters,
+      groupBy,
+      excludeLocationId,
+      dynamicLocations
+    );
     if (fastOutcome.supported && fastOutcome.results.length > 0) {
       const parsed = parseUserQuery(query);
       return NextResponse.json({

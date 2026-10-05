@@ -53,39 +53,73 @@ export async function POST(request: NextRequest) {
     const tags = (location.tags || []).join(" ").toLowerCase();
     const locName = location.name.toLowerCase();
 
-    let changeType = "INFRASTRUCTURE";
-    let maskPath = "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_change_mask.png";
-    let heatmapPath = "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_diff_heatmap.png";
-    let overlayPath = "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_overlay.png";
+    let changeType = "INFRASTRUCTURE_EXPANSION";
+    let maskPath = "/outputs/change_masks/LOC_GENERIC_T1_T2_change_mask.png";
+    let heatmapPath = "/outputs/change_masks/LOC_GENERIC_T1_T2_diff_heatmap.png";
+    let overlayPath = "/outputs/change_masks/LOC_GENERIC_T1_T2_overlay.png";
     let clusterSizes = [2800, 1950, 1300, 850, 520];
     let confidence = 0.88;
 
-    if (tags.includes("solar") || locName.includes("solar")) {
-      changeType = "INFRASTRUCTURE";
+    if (tags.includes("solar") || locName.includes("solar") || locName.includes("bhadla") || locName.includes("thar")) {
+      changeType = "SOLAR_EXPANSION";
       maskPath = "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_change_mask.png";
       heatmapPath = "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_diff_heatmap.png";
       overlayPath = "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_overlay.png";
       clusterSizes = [2800, 1950, 1300, 850, 520];
       confidence = 0.86;
-    } else if (tags.includes("water") || locName.includes("reservoir") || locName.includes("lake") || locName.includes("dam")) {
+    } else if (
+      tags.includes("urban") ||
+      tags.includes("construction") ||
+      tags.includes("building") ||
+      locName.includes("hyderabad") ||
+      locName.includes("hitec") ||
+      locName.includes("city") ||
+      locName.includes("delhi") ||
+      locName.includes("bengaluru") ||
+      locName.includes("pune") ||
+      locName.includes("kolkata")
+    ) {
+      changeType = "URBAN_DEVELOPMENT";
+      maskPath = "/outputs/change_masks/LOC_001_HYDERABAD_URBAN_2023_2025_change_mask.png";
+      heatmapPath = "/outputs/change_masks/LOC_001_HYDERABAD_URBAN_2023_2025_diff_heatmap.png";
+      overlayPath = "/outputs/change_masks/LOC_001_HYDERABAD_URBAN_2023_2025_overlay.png";
+      clusterSizes = [3100, 2150, 1450, 920, 610];
+      confidence = 0.88;
+    } else if (
+      tags.includes("coastal") ||
+      tags.includes("port") ||
+      tags.includes("harbor") ||
+      locName.includes("port") ||
+      locName.includes("mumbai") ||
+      locName.includes("chennai") ||
+      locName.includes("jnpt") ||
+      locName.includes("harbor")
+    ) {
+      changeType = "COASTAL_PORT_EXPANSION";
+      maskPath = "/outputs/change_masks/LOC_004_CHENNAI_COASTAL_2023_2025_change_mask.png";
+      heatmapPath = "/outputs/change_masks/LOC_004_CHENNAI_COASTAL_2023_2025_diff_heatmap.png";
+      overlayPath = "/outputs/change_masks/LOC_004_CHENNAI_COASTAL_2023_2025_overlay.png";
+      clusterSizes = [2950, 1850, 1200, 810, 490];
+      confidence = 0.87;
+    } else if (tags.includes("water") || locName.includes("reservoir") || locName.includes("lake") || locName.includes("dam") || locName.includes("river")) {
       changeType = "WATER_RECESSION";
-      maskPath = "/outputs/change_masks/PAIR_LOC_002_GODAVARI_T1_T2_change_mask.png";
-      heatmapPath = "/outputs/change_masks/PAIR_LOC_002_GODAVARI_T1_T2_diff_heatmap.png";
-      overlayPath = "/outputs/change_masks/PAIR_LOC_002_GODAVARI_T1_T2_overlay.png";
+      maskPath = "/outputs/change_masks/LOC_002_GODAVARI_RESERVOIR_2023_2025_change_mask.png";
+      heatmapPath = "/outputs/change_masks/LOC_002_GODAVARI_RESERVOIR_2023_2025_diff_heatmap.png";
+      overlayPath = "/outputs/change_masks/LOC_002_GODAVARI_RESERVOIR_2023_2025_overlay.png";
       clusterSizes = [3400, 2300, 1600, 1050, 720];
       confidence = 0.89;
-    } else if (tags.includes("forest") || locName.includes("ghats") || locName.includes("rainforest") || locName.includes("park")) {
+    } else if (tags.includes("forest") || locName.includes("ghats") || locName.includes("rainforest") || locName.includes("national park")) {
       changeType = "VEGETATION_CHANGE";
       maskPath = "/outputs/change_masks/LOC_003_WESTERN_GHATS_FOREST_2023_2025_change_mask.png";
       heatmapPath = "/outputs/change_masks/LOC_003_WESTERN_GHATS_FOREST_2023_2025_diff_heatmap.png";
       overlayPath = "/outputs/change_masks/LOC_003_WESTERN_GHATS_FOREST_2023_2025_overlay.png";
       clusterSizes = [2500, 1750, 1150, 780, 540];
       confidence = 0.84;
-    } else if (tags.includes("agri") || locName.includes("crop") || locName.includes("belt") || locName.includes("delta")) {
+    } else if (tags.includes("agri") || locName.includes("crop") || locName.includes("belt") || locName.includes("delta") || locName.includes("farm")) {
       changeType = "CROP_CYCLE_CHANGE";
-      maskPath = "/outputs/change_masks/PAIR_LOC_002_GODAVARI_T1_T2_change_mask.png";
-      heatmapPath = "/outputs/change_masks/PAIR_LOC_002_GODAVARI_T1_T2_diff_heatmap.png";
-      overlayPath = "/outputs/change_masks/PAIR_LOC_002_GODAVARI_T1_T2_overlay.png";
+      maskPath = "/outputs/change_masks/LOC_002_GODAVARI_RESERVOIR_2023_2025_change_mask.png";
+      heatmapPath = "/outputs/change_masks/LOC_002_GODAVARI_RESERVOIR_2023_2025_diff_heatmap.png";
+      overlayPath = "/outputs/change_masks/LOC_002_GODAVARI_RESERVOIR_2023_2025_overlay.png";
       clusterSizes = [3800, 2600, 1800, 1200, 840];
       confidence = 0.85;
     }

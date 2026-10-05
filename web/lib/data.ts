@@ -267,7 +267,8 @@ export function searchScenes(
   catalogMode?: "benchmark" | "real-eo" | "auto",
   filters?: SearchFilters,
   groupBy: "scene" | "location" = "location",
-  excludeLocationId?: string
+  excludeLocationId?: string,
+  dynamicLocations?: Location[]
 ): SearchOutcome {
   const start = performance.now();
   const normalizedQuery = (query || "").toLowerCase().trim();
@@ -279,9 +280,12 @@ export function searchScenes(
   let locations = isRealEo ? getEoLocations() : getLocations();
 
   // If query specifies a strict region (e.g. "Rajasthan"), resolve dynamic regional corridor locations
-  const dynLocs = parsedQuery.regionConstraint?.isStrict
-    ? getDynamicRegionLocations(parsedQuery.regionConstraint.regionName, parsedQuery.category)
-    : [];
+  const dynLocs = [
+    ...(parsedQuery.regionConstraint?.isStrict
+      ? getDynamicRegionLocations(parsedQuery.regionConstraint.regionName, parsedQuery.category)
+      : []),
+    ...(dynamicLocations || []),
+  ];
 
   if (dynLocs.length > 0) {
     const existingIds = new Set(locations.map((l) => l.location_id));
@@ -496,14 +500,58 @@ export function searchScenes(
         }
       }
 
-      // Region / State matching (e.g. "rajasthan", "karnataka", "assam", "delhi", "bengal", "gujarat")
+      // Region / State / City matching using parsedQuery.regionConstraint and aliases
       const locRegion = ((loc as any)?.region || "").toLowerCase();
-      const stateKeywords = ["rajasthan", "karnataka", "assam", "delhi", "bengal", "gujarat", "andhra", "kashmir", "punjab", "haryana", "maharashtra", "odisha", "manipur", "ladakh"];
-      const queryStates = queryTokens.filter((t) => stateKeywords.some((s) => isWordMatch(t, s)));
-      if (queryStates.length > 0) {
-        const matchesQueryState = queryStates.some((qs) => locName.includes(qs) || locRegion.includes(qs) || locDesc.includes(qs));
-        if (matchesQueryState) {
-          tagBoost += 0.30; // Heavy geographic/regional match boost
+      const locLat = loc?.latitude ?? 0;
+      const locLon = loc?.longitude ?? 0;
+
+      let hasGeographicMatch = false;
+      if (parsedQuery.regionConstraint) {
+        const rc = parsedQuery.regionConstraint;
+        // Check alias match in name, description, region, or tags
+        const aliasMatch = rc.aliases.some(
+          (a) =>
+            locName.includes(a) ||
+            locDesc.includes(a) ||
+            locRegion.includes(a) ||
+            combinedTags.some((t) => t.includes(a))
+        );
+
+        // Check bbox match if lat/lon are valid non-zero
+        let inBbox = false;
+        if (rc.bbox && locLat !== 0 && locLon !== 0) {
+          inBbox =
+            locLat >= rc.bbox.minLat &&
+            locLat <= rc.bbox.maxLat &&
+            locLon >= rc.bbox.minLon &&
+            locLon <= rc.bbox.maxLon;
+        }
+
+        if (aliasMatch || inBbox) {
+          tagBoost += 0.45; // Decisive geographic match boost
+          hasGeographicMatch = true;
+        } else if (rc.isStrict || rc.aliases.length > 0) {
+          // If user specifically asked for a region (e.g. Hyderabad, Mumbai, Rajasthan),
+          // suppress locations from completely different regions/states!
+          tagBoost -= 0.35;
+        }
+      }
+
+      // Fallback state matching if no regionConstraint triggered
+      if (!hasGeographicMatch) {
+        const stateKeywords = [
+          "rajasthan", "karnataka", "assam", "delhi", "bengal", "gujarat", "andhra",
+          "kashmir", "punjab", "haryana", "maharashtra", "odisha", "manipur", "ladakh",
+          "mumbai", "hyderabad", "pune", "kochi", "chennai", "bengaluru", "kolkata"
+        ];
+        const queryStates = queryTokens.filter((t) => stateKeywords.some((s) => isWordMatch(t, s)));
+        if (queryStates.length > 0) {
+          const matchesQueryState = queryStates.some(
+            (qs) => locName.includes(qs) || locRegion.includes(qs) || locDesc.includes(qs)
+          );
+          if (matchesQueryState) {
+            tagBoost += 0.35; // Geographic/regional match boost
+          }
         }
       }
 
@@ -564,6 +612,8 @@ export function searchScenes(
       if (queryHasEdu) {
         if (locHasEdu) {
           tagBoost += 0.40;
+        } else {
+          tagBoost -= 0.35; // Suppress unrelated reservoirs, dams, ports when searching for education
         }
       }
 
@@ -607,7 +657,7 @@ export function searchScenes(
       if (embFile.scenes.some((sc) => sc.location_id === dl.location_id)) continue;
       if (excludeLocationId && dl.location_id === excludeLocationId) continue;
 
-      let dynScore = 0.78;
+      let dynScore = dl.tags?.includes("dynamic_osm") ? 1.35 : 0.78;
       const dlName = dl.name.toLowerCase();
       const dlDesc = dl.description.toLowerCase();
       for (const t of parsedQuery.semanticTokens) {

@@ -60,6 +60,17 @@ export function VerifyStage({
     location.location_id === "LOC_005_THAR_SOLAR_PARK" ||
     location.location_id === "LOC_EO_01_BHADLA_SOLAR";
 
+  const getSpatialFallbackUrl = () => {
+    const delta = 0.035;
+    const lon = isBhadla ? 71.95 : (location.longitude ?? 78.0);
+    const lat = isBhadla ? 27.54 : (location.latitude ?? 20.0);
+    const minLon = (lon - delta).toFixed(4);
+    const minLat = (lat - delta).toFixed(4);
+    const maxLon = (lon + delta).toFixed(4);
+    const maxLat = (lat + delta).toFixed(4);
+    return `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${minLon},${minLat},${maxLon},${maxLat}&bboxSR=4326&imageSR=4326&size=1024,1024&format=jpg&f=image`;
+  };
+
   const isCalibrated = analysis?.is_calibrated_baseline !== undefined ? Boolean(analysis.is_calibrated_baseline) : false;
 
   // Dynamic values derived from authoritative analysis contract
@@ -122,20 +133,34 @@ export function VerifyStage({
       ? "LOC_005_THAR_SOLAR_PARK"
       : location.location_id;
 
+  const fallbackPrefix = isBhadla
+    ? "LOC_EO_01_BHADLA_SOLAR_2023_2025"
+    : location.location_id.includes("HYDERABAD") || location.name.toLowerCase().includes("hyderabad")
+    ? "LOC_001_HYDERABAD_URBAN_2023_2025"
+    : location.location_id.includes("CHENNAI") || location.tags?.includes("port") || location.tags?.includes("coastal")
+    ? "LOC_004_CHENNAI_COASTAL_2023_2025"
+    : location.tags?.includes("forest")
+    ? "LOC_003_WESTERN_GHATS_FOREST_2023_2025"
+    : location.tags?.includes("water") || location.tags?.includes("reservoir")
+    ? "LOC_002_GODAVARI_RESERVOIR_2023_2025"
+    : "LOC_GENERIC_T1_T2";
+
   // Layer images
   const rawAfterImg =
     afterScene?.image_path && !afterScene.image_path.startsWith("http")
       ? afterScene.image_path
       : afterScene?.previewUrl ||
         afterScene?.thumbnailUrl ||
-        `/samples/${sampleLocId}/after_2025.jpg`;
+        (isBhadla
+          ? `/samples/LOC_EO_01_BHADLA_SOLAR/after_2025.jpg`
+          : getSpatialFallbackUrl());
 
   const maskImg =
-    analysis?.mask_path || `/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_change_mask.png`;
+    analysis?.mask_path || `/outputs/change_masks/${fallbackPrefix}_change_mask.png`;
   const heatmapImg =
-    analysis?.heatmap_path || `/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_diff_heatmap.png`;
+    analysis?.heatmap_path || `/outputs/change_masks/${fallbackPrefix}_diff_heatmap.png`;
   const overlayImg =
-    analysis?.overlay_path || `/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_overlay.png`;
+    analysis?.overlay_path || `/outputs/change_masks/${fallbackPrefix}_overlay.png`;
 
   const suppressionStages = [
     {
@@ -370,7 +395,10 @@ export function VerifyStage({
                 alt="Raw Sentinel-2 T2"
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/samples/LOC_EO_01_BHADLA_SOLAR/after_2025.jpg";
+                  const target = e.currentTarget;
+                  if (!target.src.includes("arcgisonline")) {
+                    target.src = getSpatialFallbackUrl();
+                  }
                 }}
               />
             )}
@@ -382,7 +410,10 @@ export function VerifyStage({
                 alt="Binary Change Mask"
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_change_mask.png";
+                  const target = e.currentTarget;
+                  if (!target.src.includes("LOC_GENERIC")) {
+                    target.src = "/outputs/change_masks/LOC_GENERIC_T1_T2_change_mask.png";
+                  }
                 }}
               />
             )}
@@ -394,7 +425,10 @@ export function VerifyStage({
                 alt="Spectral Difference Heatmap"
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_diff_heatmap.png";
+                  const target = e.currentTarget;
+                  if (!target.src.includes("LOC_GENERIC")) {
+                    target.src = "/outputs/change_masks/LOC_GENERIC_T1_T2_diff_heatmap.png";
+                  }
                 }}
               />
             )}
@@ -408,7 +442,10 @@ export function VerifyStage({
                   alt="Raw Background"
                   className="absolute inset-0 w-full h-full object-cover"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/samples/LOC_EO_01_BHADLA_SOLAR/after_2025.jpg";
+                    const target = e.currentTarget;
+                    if (!target.src.includes("arcgisonline")) {
+                      target.src = getSpatialFallbackUrl();
+                    }
                   }}
                 />
                 {/* Semi-transparent Overlay */}
@@ -419,7 +456,10 @@ export function VerifyStage({
                   className="absolute inset-0 w-full h-full object-cover mix-blend-screen"
                   style={{ opacity }}
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/outputs/change_masks/LOC_EO_01_BHADLA_SOLAR_2023_2025_overlay.png";
+                    const target = e.currentTarget;
+                    if (!target.src.includes("LOC_GENERIC")) {
+                      target.src = "/outputs/change_masks/LOC_GENERIC_T1_T2_overlay.png";
+                    }
                   }}
                 />
               </div>

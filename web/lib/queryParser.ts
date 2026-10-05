@@ -21,21 +21,49 @@ export interface ParsedQuery {
 
 // Bounding boxes and aliases for Indian states and prominent global regions
 const REGION_REGISTRY: Record<string, { bbox: { minLat: number; maxLat: number; minLon: number; maxLon: number }; aliases: string[] }> = {
+  mumbai: {
+    bbox: { minLat: 18.8, maxLat: 19.35, minLon: 72.7, maxLon: 73.15 },
+    aliases: ["mumbai", "nhava sheva", "jnpt", "navi mumbai", "thane", "bombay"],
+  },
+  pune: {
+    bbox: { minLat: 18.35, maxLat: 18.7, minLon: 73.7, maxLon: 74.05 },
+    aliases: ["pune", "poona", "pcmc"],
+  },
+  hyderabad: {
+    bbox: { minLat: 17.2, maxLat: 17.6, minLon: 78.2, maxLon: 78.6 },
+    aliases: ["hyderabad", "hitec city", "secunderabad", "cyberabad", "gachibowli"],
+  },
+  bengaluru: {
+    bbox: { minLat: 12.75, maxLat: 13.2, minLon: 77.4, maxLon: 77.85 },
+    aliases: ["bengaluru", "bangalore", "electronic city", "whitefield"],
+  },
   rajasthan: {
     bbox: { minLat: 23.05, maxLat: 30.55, minLon: 69.45, maxLon: 78.45 },
     aliases: ["rajasthan", "rajisthan", "jodhpur", "jaisalmer", "bikaner", "phalodi", "pokhran", "thar"],
   },
-  assam: {
-    bbox: { minLat: 24.1, maxLat: 28.2, minLon: 89.7, maxLon: 96.1 },
-    aliases: ["assam", "guwahati", "brahmaputra", "kaziranga"],
+  telangana: {
+    bbox: { minLat: 15.8, maxLat: 19.9, minLon: 77.2, maxLon: 81.8 },
+    aliases: ["telangana", "warangal", "nizamabad", "karimnagar"],
+  },
+  maharashtra: {
+    bbox: { minLat: 15.6, maxLat: 22.1, minLon: 72.6, maxLon: 80.9 },
+    aliases: ["maharashtra", "nagpur", "nashik", "aurangabad", "vidarbha"],
   },
   karnataka: {
     bbox: { minLat: 11.5, maxLat: 18.5, minLon: 74.0, maxLon: 78.6 },
-    aliases: ["karnataka", "bengaluru", "bangalore", "pavagada"],
+    aliases: ["karnataka", "pavagada", "mysuru", "mangalore"],
+  },
+  tamil_nadu: {
+    bbox: { minLat: 8.0, maxLat: 13.6, minLon: 76.2, maxLon: 80.4 },
+    aliases: ["tamil nadu", "tamilnadu", "chennai", "coimbatore", "madurai"],
   },
   andhra_pradesh: {
     bbox: { minLat: 12.6, maxLat: 19.9, minLon: 76.7, maxLon: 84.8 },
-    aliases: ["andhra", "andhra pradesh", "kurnool", "visakhapatnam", "vizag"],
+    aliases: ["andhra", "andhra pradesh", "kurnool", "visakhapatnam", "vizag", "godavari"],
+  },
+  assam: {
+    bbox: { minLat: 24.1, maxLat: 28.2, minLon: 89.7, maxLon: 96.1 },
+    aliases: ["assam", "guwahati", "brahmaputra", "kaziranga"],
   },
   west_bengal: {
     bbox: { minLat: 21.5, maxLat: 27.3, minLon: 85.8, maxLon: 89.9 },
@@ -43,15 +71,27 @@ const REGION_REGISTRY: Record<string, { bbox: { minLat: number; maxLat: number; 
   },
   delhi: {
     bbox: { minLat: 28.4, maxLat: 28.9, minLon: 76.8, maxLon: 77.4 },
-    aliases: ["delhi", "new delhi", "yamuna"],
+    aliases: ["delhi", "new delhi", "yamuna", "ncr"],
+  },
+  uttar_pradesh: {
+    bbox: { minLat: 23.8, maxLat: 30.5, minLon: 77.0, maxLon: 84.7 },
+    aliases: ["uttar pradesh", "up", "varanasi", "lucknow", "noida", "kanpur", "ayodhya"],
+  },
+  kerala: {
+    bbox: { minLat: 8.2, maxLat: 12.8, minLon: 74.8, maxLon: 77.5 },
+    aliases: ["kerala", "kochi", "cochin", "thiruvananthapuram", "trivandrum"],
+  },
+  odisha: {
+    bbox: { minLat: 17.8, maxLat: 22.6, minLon: 81.4, maxLon: 87.5 },
+    aliases: ["odisha", "orissa", "bhubaneswar", "puri", "cuttack", "paradeep"],
   },
   gujarat: {
     bbox: { minLat: 20.1, maxLat: 24.7, minLon: 68.1, maxLon: 74.5 },
-    aliases: ["gujarat", "kutch", "mundra", "narmada"],
+    aliases: ["gujarat", "kutch", "mundra", "narmada", "ahmedabad", "surat"],
   },
   punjab: {
     bbox: { minLat: 29.5, maxLat: 32.5, minLon: 73.8, maxLon: 76.9 },
-    aliases: ["punjab", "ludhiana", "amritsar"],
+    aliases: ["punjab", "ludhiana", "amritsar", "sangrur"],
   },
   haryana: {
     bbox: { minLat: 27.6, maxLat: 30.9, minLon: 74.4, maxLon: 77.6 },
