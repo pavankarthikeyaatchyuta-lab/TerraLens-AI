@@ -235,6 +235,24 @@ export interface SearchOutcome {
 }
 
 /**
+ * Strict word-level matching helper to prevent substring false positives
+ * (e.g. "new" matching "renewable", "farm" matching "solar_farm").
+ */
+export const isWordMatch = (token: string, keyword: string): boolean => {
+  if (!token || !keyword) return false;
+  const t = token.toLowerCase();
+  const k = keyword.toLowerCase();
+  if (t === k) return true;
+  if (k.length >= 4 && t.startsWith(k)) return true;
+  if (t.length >= 4 && k.startsWith(t)) return true;
+  return false;
+};
+
+export const STOP_WORDS = new Set([
+  "and", "the", "for", "with", "near", "from", "into", "over", "under", "all", "are", "there", "in", "to", "of"
+]);
+
+/**
  * Executes semantic search over indexed scenes using exact cosine similarity
  * of precomputed 512d CLIP vectors.
  * If query is in the supported benchmark query set or an explicit 512d queryVector is provided,
@@ -293,15 +311,15 @@ export function searchScenes(
     activeMode = isRealEo ? "real-eo-catalog" : "controlled-benchmark";
   } else if (normalizedQuery) {
     // Fast in-process semantic concept token match across precomputed embeddings
-    const queryTokens = normalizedQuery.split(/\s+/).filter((t) => t.length > 2);
+    const queryTokens = normalizedQuery.split(/\s+/).filter((t) => t.length > 2 && !STOP_WORDS.has(t));
     let bestScore = 0;
     let bestVector: number[] | null = null;
 
     for (const [storedQuery, storedVector] of Object.entries(queryMap)) {
-      const storedTokens = storedQuery.split(/\s+/).filter((t) => t.length > 2);
+      const storedTokens = storedQuery.split(/\s+/).filter((t) => t.length > 2 && !STOP_WORDS.has(t));
       let matchCount = 0;
       for (const qToken of queryTokens) {
-        if (storedTokens.some((st) => st.includes(qToken) || qToken.includes(st))) {
+        if (storedTokens.some((st) => isWordMatch(qToken, st))) {
           matchCount++;
         }
       }
@@ -311,7 +329,8 @@ export function searchScenes(
       }
     }
 
-    if (bestVector && bestScore > 0) {
+    // Require at least 2 strong token matches or high overlap to use a stored benchmark query vector
+    if (bestVector && bestScore >= 2 && (bestScore / queryTokens.length) >= 0.4) {
       activeVector = bestVector;
       activeMode = isRealEo ? "real-eo-catalog" : "semantic-concept-match";
     } else if (embFile.scenes.length > 0) {
@@ -324,34 +343,47 @@ export function searchScenes(
         const locTags = (loc?.tags || []).join(" ").toLowerCase();
         const locName = (loc?.name || "").toLowerCase();
         const locDesc = (loc?.description || "").toLowerCase();
-        const locRegion = ((loc as any)?.region || "").toLowerCase();
-        const locCat = ((loc as any)?.semantic_category || "").toLowerCase();
+        const locRegion: string = String((loc as any)?.region || "").toLowerCase();
+        const locCat: string = String((loc as any)?.semantic_category || "").toLowerCase();
         const fullCorpus = `${scTags} ${locTags} ${locName} ${locDesc} ${locRegion} ${locCat}`;
 
         let currentScore = 0;
         for (const qToken of queryTokens) {
-          if (locName.includes(qToken)) currentScore += 5;
-          if (locTags.includes(qToken)) currentScore += 4;
-          if (scTags.includes(qToken)) currentScore += 3;
-          if (locCat.includes(qToken)) currentScore += 3;
-          if (locRegion.includes(qToken)) currentScore += 2;
-          if (locDesc.includes(qToken)) currentScore += 1;
+          if (locName.split(/\s+/).some((w: string) => isWordMatch(w, qToken))) currentScore += 6;
+          if (locTags.split(/\s+/).some((w: string) => isWordMatch(w, qToken))) currentScore += 5;
+          if (scTags.split(/\s+/).some((w: string) => isWordMatch(w, qToken))) currentScore += 4;
+          if (locCat.split(/\s+/).some((w: string) => isWordMatch(w, qToken))) currentScore += 4;
+          if (locRegion.split(/\s+/).some((w: string) => isWordMatch(w, qToken))) currentScore += 3;
+          if (locDesc.split(/\s+/).some((w: string) => isWordMatch(w, qToken))) currentScore += 2;
         }
 
-        // Compound education + riverfront check
+        // Education / College keywords
         const eduKeywords = ["college", "colleges", "education", "institution", "institutions", "university", "universities", "campus", "academic"];
+        // Agriculture / Farmland keywords
+        const agriKeywords = ["agriculture", "farming", "farmland", "farmlands", "farm", "farms", "cropland", "crop", "fields", "rural", "paddy", "wheat"];
+        // Water / River keywords
         const riverKeywords = ["river", "riverfront", "waterway", "canal", "stream", "delta", "water"];
-        const queryHasEdu = queryTokens.some((t) => eduKeywords.some((k) => k.includes(t) || t.includes(k)));
-        const queryHasRiver = queryTokens.some((t) => riverKeywords.some((k) => k.includes(t) || t.includes(k)));
-        const locHasEdu = eduKeywords.some((k) => fullCorpus.includes(k));
-        const locHasRiver = riverKeywords.some((k) => fullCorpus.includes(k));
 
+        const queryHasEdu = queryTokens.some((t) => eduKeywords.some((k) => isWordMatch(t, k)));
+        const queryHasAgri = queryTokens.some((t) => agriKeywords.some((k) => isWordMatch(t, k)));
+        const queryHasRiver = queryTokens.some((t) => riverKeywords.some((k) => isWordMatch(t, k)));
+
+        const cleanLocTags = (loc?.tags || []).filter((t) => t !== "solar_farm" && t !== "wind_farm");
+        const locHasEdu = cleanLocTags.some((t) => eduKeywords.some((k) => isWordMatch(t, k))) || eduKeywords.some((k) => locName.includes(k) || locDesc.includes(k));
+        const locHasAgri = cleanLocTags.some((t) => agriKeywords.some((k) => isWordMatch(t, k))) || agriKeywords.some((k) => (`${locName} ${locDesc}`).replace(/solar[_\s-]?farm/gi, "").split(/\s+/).some((w) => isWordMatch(w, k)));
+        const locHasRiver = cleanLocTags.some((t) => riverKeywords.some((k) => isWordMatch(t, k))) || riverKeywords.some((k) => locName.includes(k) || locDesc.includes(k));
+
+        if (queryHasEdu) {
+          if (locHasEdu) currentScore += 15;
+        }
+        if (queryHasAgri) {
+          if (locHasAgri) currentScore += 15;
+        }
+        if (queryHasEdu && queryHasAgri) {
+          if (locHasEdu && locHasAgri) currentScore += 35;
+        }
         if (queryHasEdu && queryHasRiver) {
-          if (locHasEdu && locHasRiver) {
-            currentScore += 25; // Exact compound intersection!
-          } else if (locHasEdu) {
-            currentScore += 6;
-          }
+          if (locHasEdu && locHasRiver) currentScore += 30;
         }
 
         if (currentScore > bestMatchScore) {
@@ -441,7 +473,7 @@ export function searchScenes(
     // locations rank higher in the results (e.g. "river" query → river-tagged locations)
     let tagBoost = 0;
     if (normalizedQuery && normalizedQuery.length > 2) {
-      const queryTokens = normalizedQuery.split(/\s+/).filter((t) => t.length > 2);
+      const queryTokens = normalizedQuery.split(/\s+/).filter((t) => t.length > 2 && !STOP_WORDS.has(t));
       const combinedTags = [
         ...(sceneRec.tags || []),
         ...(loc?.tags || []),
@@ -451,15 +483,15 @@ export function searchScenes(
 
       for (const qToken of queryTokens) {
         // Direct tag match (strongest signal)
-        if (combinedTags.some((tag) => tag.includes(qToken) || qToken.includes(tag))) {
+        if (combinedTags.some((tag) => isWordMatch(tag, qToken))) {
           tagBoost += 0.08;
         }
         // Location name match
-        if (locName.includes(qToken)) {
+        if (locName.split(/\s+/).some((w: string) => isWordMatch(w, qToken))) {
           tagBoost += 0.06;
         }
         // Description match
-        if (locDesc.includes(qToken)) {
+        if (locDesc.split(/\s+/).some((w: string) => isWordMatch(w, qToken))) {
           tagBoost += 0.03;
         }
       }
@@ -467,7 +499,7 @@ export function searchScenes(
       // Region / State matching (e.g. "rajasthan", "karnataka", "assam", "delhi", "bengal", "gujarat")
       const locRegion = ((loc as any)?.region || "").toLowerCase();
       const stateKeywords = ["rajasthan", "karnataka", "assam", "delhi", "bengal", "gujarat", "andhra", "kashmir", "punjab", "haryana", "maharashtra", "odisha", "manipur", "ladakh"];
-      const queryStates = queryTokens.filter((t) => stateKeywords.some((s) => s.includes(t) || t.includes(s)));
+      const queryStates = queryTokens.filter((t) => stateKeywords.some((s) => isWordMatch(t, s)));
       if (queryStates.length > 0) {
         const matchesQueryState = queryStates.some((qs) => locName.includes(qs) || locRegion.includes(qs) || locDesc.includes(qs));
         if (matchesQueryState) {
@@ -475,19 +507,42 @@ export function searchScenes(
         }
       }
 
-      // Bhadla anchor hub priority for solar in Rajasthan
-      if (locName.includes("bhadla") || loc?.location_id?.includes("BHADLA")) {
+      // Domain keywords definition
+      const solarKeywords = ["solar", "photovoltaic", "pv", "sun", "megawatt", "gw", "clean energy", "renewable"];
+      const eduKeywords = ["college", "colleges", "education", "institution", "institutions", "university", "universities", "campus", "academic", "school"];
+      const agriKeywords = ["agriculture", "farming", "farmland", "farmlands", "farm", "farms", "cropland", "crop", "fields", "rural", "paddy", "wheat", "cultivation"];
+      const urbanKeywords = ["urban", "city", "built", "building", "buildings", "construction", "expansion", "development", "infrastructure"];
+      const riverKeywords = ["river", "riverfront", "waterway", "canal", "stream", "delta"];
+
+      const queryHasSolar = queryTokens.some((t) => solarKeywords.some((k) => isWordMatch(t, k)));
+      const queryHasEdu = queryTokens.some((t) => eduKeywords.some((k) => isWordMatch(t, k)));
+      const queryHasAgri = queryTokens.some((t) => agriKeywords.some((k) => isWordMatch(t, k)));
+      const queryHasUrban = queryTokens.some((t) => urbanKeywords.some((k) => isWordMatch(t, k)));
+      const queryHasRiver = queryTokens.some((t) => riverKeywords.some((k) => isWordMatch(t, k)));
+
+      const cleanCombinedTags = combinedTags.filter((t) => t !== "solar_farm" && t !== "wind_farm");
+      const locHasSolar =
+        combinedTags.some((t) => solarKeywords.some((k) => isWordMatch(t, k))) ||
+        solarKeywords.some((k) => locName.includes(k) || locDesc.includes(k));
+      const locHasEdu =
+        cleanCombinedTags.some((t) => eduKeywords.some((k) => isWordMatch(t, k))) ||
+        eduKeywords.some((k) => locName.includes(k) || locDesc.includes(k));
+      const locHasAgri =
+        cleanCombinedTags.some((t) => agriKeywords.some((k) => isWordMatch(t, k))) ||
+        agriKeywords.some((k) => (`${locName} ${locDesc}`).replace(/solar[_\s-]?farm/gi, "").split(/\s+/).some((w: string) => isWordMatch(w, k)));
+      const locHasUrban =
+        cleanCombinedTags.some((t) => urbanKeywords.some((k) => isWordMatch(t, k))) ||
+        urbanKeywords.some((k) => locName.includes(k) || locDesc.includes(k));
+      const locHasRiver =
+        cleanCombinedTags.some((t) => riverKeywords.some((k) => isWordMatch(t, k))) ||
+        riverKeywords.some((k) => locName.includes(k) || locDesc.includes(k));
+
+      // Bhadla anchor hub priority ONLY for solar or explicit Rajasthan / Bhadla queries
+      if ((queryHasSolar || normalizedQuery.includes("rajasthan") || normalizedQuery.includes("rajisthan") || normalizedQuery.includes("bhadla")) && (locName.includes("bhadla") || loc?.location_id?.includes("BHADLA"))) {
         tagBoost += 0.20;
       }
 
-
       // Domain-specific affinity & negative penalties
-      const solarKeywords = ["solar", "photovoltaic", "pv", "sun", "megawatt", "gw", "clean energy", "renewable"];
-      const queryHasSolar = queryTokens.some((t) => solarKeywords.some((k) => k.includes(t) || t.includes(k)));
-      const locHasSolar =
-        combinedTags.some((t) => solarKeywords.some((k) => k.includes(t) || t.includes(k))) ||
-        solarKeywords.some((k) => locName.includes(k) || locDesc.includes(k));
-
       if (queryHasSolar) {
         if (locHasSolar) {
           tagBoost += 0.35; // Major solar park affinity
@@ -498,25 +553,47 @@ export function searchScenes(
         }
       }
 
-      // Compound semantic intersection detection (e.g., educational institution + river/waterway)
-      const eduKeywords = ["college", "colleges", "education", "institution", "institutions", "university", "universities", "campus", "academic", "school"];
-      const riverKeywords = ["river", "riverfront", "waterway", "canal", "stream", "delta"];
+      // Agriculture / Farmland boost
+      if (queryHasAgri) {
+        if (locHasAgri) {
+          tagBoost += 0.35;
+        }
+      }
 
-      const queryHasEdu = queryTokens.some((t) => eduKeywords.some((k) => k.includes(t) || t.includes(k)));
-      const queryHasRiver = queryTokens.some((t) => riverKeywords.some((k) => k.includes(t) || t.includes(k)));
+      // Education boost
+      if (queryHasEdu) {
+        if (locHasEdu) {
+          tagBoost += 0.40;
+        }
+      }
 
-      const locHasEdu =
-        combinedTags.some((t) => eduKeywords.some((k) => k.includes(t) || t.includes(k))) ||
-        eduKeywords.some((k) => locName.includes(k) || locDesc.includes(k));
-      const locHasRiver =
-        combinedTags.some((t) => riverKeywords.some((k) => k.includes(t) || t.includes(k))) ||
-        riverKeywords.some((k) => locName.includes(k) || locDesc.includes(k));
+      // Urban / Construction boost
+      if (queryHasUrban && locHasUrban) {
+        tagBoost += 0.15;
+      }
 
+      // Cross-domain suppression: When query is about education, agriculture, or urban, but NOT solar:
+      // Heavily penalize solar parks and deserts so they NEVER leak into unrelated queries!
+      if (!queryHasSolar && (queryHasEdu || queryHasAgri || queryHasUrban)) {
+        if (locHasSolar || locName.includes("solar") || locName.includes("desert") || locDesc.includes("desert")) {
+          tagBoost -= 0.60; // Heavy negative penalty!
+        }
+      }
+
+      // Compound semantic intersections
       if (queryHasEdu && queryHasRiver) {
         if (locHasEdu && locHasRiver) {
           tagBoost += 0.40; // Strong compound intersection boost
         } else if (!locHasEdu) {
-          tagBoost -= 0.20; // Query specifically requested educational institutions
+          tagBoost -= 0.20;
+        }
+      }
+
+      if (queryHasEdu && queryHasAgri) {
+        if (locHasEdu && locHasAgri) {
+          tagBoost += 0.50; // Exact compound intersection: College in Farmland!
+        } else if (locHasEdu || locHasAgri) {
+          tagBoost += 0.25;
         }
       }
     }
