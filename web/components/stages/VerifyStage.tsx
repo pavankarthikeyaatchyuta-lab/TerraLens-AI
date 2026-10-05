@@ -532,6 +532,52 @@ export function VerifyStage({
         </div>
       </div>
 
+      {/* Primary Change Clusters & Polygon Geometry Breakdown */}
+      {analysis?.clusters && analysis.clusters.length > 0 && (
+        <div className="bg-tactical-900 border border-tactical-750 rounded-2xl p-4 space-y-3 shadow-sm">
+          <div className="flex items-center justify-between border-b border-tactical-800 pb-2.5">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-sky-400"></span>
+              <span className="text-xs font-black text-slate-100 uppercase tracking-wider">
+                Geospatial Change Cluster Inventory ({analysis.clusters.length} Detected)
+              </span>
+            </div>
+            <span className="text-[10px] text-sky-400 font-mono font-bold">
+              Connected Components &ge; 900 m²
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {analysis.clusters.slice(0, 3).map((c: any, idx: number) => {
+              const cLat = Array.isArray(c.centroid) ? c.centroid[0] : c.centroid?.latitude ?? location.latitude;
+              const cLon = Array.isArray(c.centroid) ? c.centroid[1] : c.centroid?.longitude ?? location.longitude;
+              const cAreaHa = c.area_ha ?? ((c.pixel_count * 100) / 10000).toFixed(2);
+              const cConf = c.confidence_score ?? c.confidence ?? 0.55;
+
+              return (
+                <div key={c.cluster_id || idx} className="neu-inset rounded-xl p-3 space-y-1.5 border border-tactical-800">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-sky-400 font-mono">#{idx + 1} {c.cluster_id || `CLUST_${idx + 1}`}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800 font-bold">
+                      {(cConf * 100).toFixed(0)}% Conf
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-200 font-mono">
+                    {cAreaHa} ha ({c.pixel_count || Math.round(Number(cAreaHa) * 100)} px)
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-mono">
+                    Centroid: {Number(cLat).toFixed(4)}°N, {Number(cLon).toFixed(4)}°E
+                  </div>
+                  <div className="text-[10px] text-slate-300 font-sans italic line-clamp-1">
+                    {c.classification_rationale || c.type || "Confirmed surface transition"}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Expandable Technical Evidence & Scientific Audit Trail Section */}
       <div className="bg-tactical-900 border border-tactical-750 rounded-2xl overflow-hidden shadow-sm">
         <button

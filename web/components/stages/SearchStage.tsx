@@ -36,6 +36,7 @@ export interface SearchStageProps {
 }
 
 const PRESET_QUERIES = [
+  { label: "Rajasthan Solar", query: "solar park development in Rajasthan" },
   { label: "Urban Expansion", query: "urban expansion and new construction near river" },
   { label: "Reservoir Drying", query: "water reservoir shoreline drying and lake shrinkage" },
   { label: "Forest Clearance", query: "forest road clearing corridor and tree removal" },

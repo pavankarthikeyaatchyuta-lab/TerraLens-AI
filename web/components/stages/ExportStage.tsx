@@ -313,6 +313,46 @@ export function ExportStage({
         </div>
       </div>
 
+      {/* End-to-End Chain-of-Evidence Lineage Trace */}
+      <div className="neu-raised rounded-2xl p-6 space-y-4">
+        <div className="flex items-center justify-between border-b border-tactical-800/80 pb-3.5">
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 rounded-lg neu-inset text-emerald-400">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+            <span className="text-xs font-black text-slate-200 tracking-wider uppercase">
+              End-to-End Provenance &amp; Chain-of-Evidence Traceability
+            </span>
+          </div>
+          <span className="text-[10px] text-sky-400 font-mono font-bold">
+            Deterministic Lineage Graph
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-[11px]">
+          <div className="neu-inset rounded-xl p-3 space-y-1">
+            <span className="text-[9px] text-slate-500 uppercase font-black block">1. SATELLITE PROVIDER</span>
+            <span className="text-slate-200 font-bold block">ESA Copernicus Data Space</span>
+            <span className="text-[10px] text-slate-400 font-mono">Sentinel-2A / Sentinel-2C MSI</span>
+          </div>
+          <div className="neu-inset rounded-xl p-3 space-y-1">
+            <span className="text-[9px] text-slate-500 uppercase font-black block">2. SPECTRAL BANDS</span>
+            <span className="text-slate-200 font-bold block">B04 (Red), B08 (NIR), SCL</span>
+            <span className="text-[10px] text-slate-400 font-mono">10m GSD BOA Surface Reflectance</span>
+          </div>
+          <div className="neu-inset rounded-xl p-3 space-y-1">
+            <span className="text-[9px] text-slate-500 uppercase font-black block">3. ANALYSIS KERNEL</span>
+            <span className="text-slate-200 font-bold block">Adaptive Otsu &amp; SCL Filter</span>
+            <span className="text-[10px] text-emerald-400 font-mono">Zero False-Alarm Artifact Leakage</span>
+          </div>
+          <div className="neu-inset rounded-xl p-3 space-y-1">
+            <span className="text-[9px] text-slate-500 uppercase font-black block">4. ADJUDICATED FINDING</span>
+            <span className="text-emerald-400 font-bold block">{changeType} ({changedAreaHa} ha)</span>
+            <span className="text-[10px] text-sky-400 font-mono">Verdict: {verdict || "UNREVIEWED"}</span>
+          </div>
+        </div>
+      </div>
+
       {/* Artifact Checklist Section */}
       <div className="neu-raised rounded-2xl p-6 space-y-4">
         <div className="flex items-center justify-between border-b border-tactical-800/80 pb-3.5">

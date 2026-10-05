@@ -1040,6 +1040,30 @@ export function CompareStage({
         </div>
       </div>
 
+      {/* Sentinel-2 Multi-Spectral Physical Band Tray */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+        <div className="neu-inset p-3 rounded-xl border border-tactical-800">
+          <span className="text-[10px] text-slate-500 uppercase font-bold block">BAND 04 (RED):</span>
+          <span className="text-slate-200 font-black">665 nm • 10m GSD</span>
+          <span className="text-[9px] text-slate-400 block font-sans">Bottom-of-Atmosphere Reflectance</span>
+        </div>
+        <div className="neu-inset p-3 rounded-xl border border-tactical-800">
+          <span className="text-[10px] text-slate-500 uppercase font-bold block">BAND 08 (NIR):</span>
+          <span className="text-slate-200 font-black">842 nm • 10m GSD</span>
+          <span className="text-[9px] text-slate-400 block font-sans">Biophysical & Vegetation Structure</span>
+        </div>
+        <div className="neu-inset p-3 rounded-xl border border-tactical-800">
+          <span className="text-[10px] text-slate-500 uppercase font-bold block">SCL (SCENE CLASS):</span>
+          <span className="text-emerald-400 font-black">20m &rarr; 10m Nearest</span>
+          <span className="text-[9px] text-slate-400 block font-sans">12 Categorical Quality Classes</span>
+        </div>
+        <div className="neu-inset p-3 rounded-xl border border-tactical-800">
+          <span className="text-[10px] text-slate-500 uppercase font-bold block">SCIENTIFIC DELTA:</span>
+          <span className="text-sky-400 font-black">Calibrated Difference</span>
+          <span className="text-[9px] text-slate-400 block font-sans">Conservative Radiometric Threshold</span>
+        </div>
+      </div>
+
       {/* Collapsible Technical Metadata Drawer */}
       <div className="bg-tactical-900/70 border border-tactical-800 rounded-xl overflow-hidden">
         <button
