@@ -1009,7 +1009,7 @@
     },
     {
       "location_id": "LOC_EO_29_THAR_DUNES",
-      "name": "Thar Desert Longitudinal Dunes, Jaisalmer",
+      "name": "Thar Desert Longitudinal Dunes, Jaisalmer, Rajasthan",
       "description": "Active longitudinal sand dunes and shifting arid bedforms in western Rajasthan.",
       "latitude": 26.95,
       "longitude": 70.925,
@@ -1040,7 +1040,8 @@
         "2025-03-15",
         "2026-10-01"
       ],
-      "source": "copernicus_sentinel2_stac"
+      "source": "copernicus_sentinel2_stac",
+      "region": "Rajasthan"
     },
     {
       "location_id": "LOC_EO_30_RANN_OF_KUTCH",

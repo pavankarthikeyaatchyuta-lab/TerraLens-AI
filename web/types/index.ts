@@ -18,8 +18,11 @@ export interface Location {
   available_dates: string[];
   tags: string[];
   source?: string;
+  region?: string;
+  category?: string;
   extra_metadata?: Record<string, any>;
 }
+
 
 export interface Scene {
   scene_id: string;

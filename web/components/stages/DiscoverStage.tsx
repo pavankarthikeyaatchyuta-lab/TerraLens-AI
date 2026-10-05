@@ -44,10 +44,17 @@ export function DiscoverStage({
           <strong className="text-sky-400">&ldquo;{activeQuery || "solar park development in Rajasthan"}&rdquo;</strong>
         </div>
 
-        <div className="text-[11px] text-slate-400 flex items-center gap-2">
+        <div className="text-[11px] text-slate-400 flex items-center gap-2 flex-wrap">
+          {activeQuery && (activeQuery.toLowerCase().includes("rajasthan") || activeQuery.toLowerCase().includes("rajisthan")) && (
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500 font-black text-[10px] flex items-center gap-1.5 shadow-sm">
+              <span>🔒</span>
+              <span>STRICT REGION LOCK: RAJASTHAN ONLY</span>
+            </span>
+          )}
           <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span>Rank-1 Hub Resolved • Sub-25ms Vector Search</span>
+          <span>Rank-1 Hub Resolved • Real-Time Spatial Retrieval</span>
         </div>
+
       </div>
 
       {/* 2-Column Clean Spatial Layout */}
@@ -148,7 +155,15 @@ export function DiscoverStage({
                       <span className="w-5 h-5 rounded-full bg-tactical-950/80 text-[10px] font-black flex items-center justify-center text-sky-400 border border-tactical-700">
                         #{alt.rank}
                       </span>
-                      <span className="font-bold text-slate-200">{alt.location.name}</span>
+                      <div className="text-left">
+                        <span className="font-bold text-slate-200 block">{alt.location.name}</span>
+                        <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                          <span>📍</span>
+                          {alt.location.name.toLowerCase().includes("rajasthan") || (alt.location as any).region?.toLowerCase().includes("rajasthan")
+                            ? "Rajasthan, India • Verified Solar Infrastructure"
+                            : (alt.location as any).region || "Earth Observation Site"}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-3">

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchScenes, getEoSceneEmbeddings, getSceneEmbeddings, SearchFilters } from "@/lib/data";
+import { parseUserQuery } from "@/lib/queryParser";
 import { execFile } from "child_process";
 import path from "path";
 import fs from "fs";
@@ -221,6 +222,7 @@ export async function POST(request: NextRequest) {
     // 4. In-Process High-Speed Exact / Semantic Concept Retrieval (< 5ms)
     const fastOutcome = searchScenes(query, topK, null, undefined, effectiveCatalog, filters, groupBy, excludeLocationId);
     if (fastOutcome.supported && fastOutcome.results.length > 0) {
+      const parsed = parseUserQuery(query);
       return NextResponse.json({
         mode: effectiveCatalog === "real-eo" ? "real-eo-catalog" : "semantic-concept-match",
         catalog: effectiveCatalog,
@@ -237,8 +239,10 @@ export async function POST(request: NextRequest) {
         similarity_metric: "cosine",
         filters_applied: filters || null,
         group_by: groupBy,
+        parsed_query: parsed,
         results: fastOutcome.results,
       });
+
     }
 
     // 5. Fallback Tier: Server-side Local Python/ONNX CLIP text encoder

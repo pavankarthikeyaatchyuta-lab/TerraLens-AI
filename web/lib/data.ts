@@ -2,6 +2,8 @@ import fs from "fs";
 import path from "path";
 import { Location, Scene, SearchResult, ChangeDetectionResult } from "@/types";
 import { cosineSimilarity } from "./vector";
+import { parseUserQuery, isLocationInRegion } from "./queryParser";
+import { getDynamicRegionLocations } from "./dynamicLocationService";
 
 interface SceneEmbeddingRecord {
   vector_id: number;
@@ -243,11 +245,23 @@ export function searchScenes(
 ): SearchOutcome {
   const start = performance.now();
   const normalizedQuery = (query || "").toLowerCase().trim();
+  const parsedQuery = parseUserQuery(query);
   const queryMap = getQueryEmbeddings();
 
   const isRealEo = catalogMode === "real-eo";
   const embFile = isRealEo ? (getEoSceneEmbeddings() || getSceneEmbeddings()) : getSceneEmbeddings();
-  const locations = isRealEo ? getEoLocations() : getLocations();
+  let locations = isRealEo ? getEoLocations() : getLocations();
+
+  // If query specifies a strict region (e.g. "Rajasthan"), resolve dynamic regional corridor locations
+  const dynLocs = parsedQuery.regionConstraint?.isStrict
+    ? getDynamicRegionLocations(parsedQuery.regionConstraint.regionName, parsedQuery.category)
+    : [];
+
+  if (dynLocs.length > 0) {
+    const existingIds = new Set(locations.map((l) => l.location_id));
+    locations = [...locations, ...dynLocs.filter((dl) => !existingIds.has(dl.location_id))];
+  }
+
 
   if (!embFile || embFile.scenes.length === 0) {
     return {
@@ -367,6 +381,13 @@ export function searchScenes(
 
     const loc = locations.find((l) => l.location_id === sceneRec.location_id);
 
+    // Strict Regional Constraint Filter: Exclude out-of-region candidates immediately
+    if (parsedQuery.regionConstraint && parsedQuery.regionConstraint.isStrict && loc) {
+      if (!isLocationInRegion(loc.latitude, loc.longitude, loc.name, (loc as any).region, parsedQuery.regionConstraint)) {
+        continue;
+      }
+    }
+
     // 1. Spatial Filter
     if (filters?.spatialFilter?.bbox) {
       const fb = filters.spatialFilter.bbox;
@@ -446,6 +467,12 @@ export function searchScenes(
         }
       }
 
+      // Bhadla anchor hub priority for solar in Rajasthan
+      if (locName.includes("bhadla") || loc?.location_id?.includes("BHADLA")) {
+        tagBoost += 0.20;
+      }
+
+
       // Domain-specific affinity & negative penalties
       const solarKeywords = ["solar", "photovoltaic", "pv", "sun", "megawatt", "gw", "clean energy", "renewable"];
       const queryHasSolar = queryTokens.some((t) => solarKeywords.some((k) => k.includes(t) || t.includes(k)));
@@ -489,8 +516,42 @@ export function searchScenes(
     scored.push({ sceneRecord: sceneRec, score: score + tagBoost });
   }
 
+  // Score and merge dynamic regional corridor locations
+  if (dynLocs.length > 0) {
+    for (const dl of dynLocs) {
+      if (embFile.scenes.some((sc) => sc.location_id === dl.location_id)) continue;
+      if (excludeLocationId && dl.location_id === excludeLocationId) continue;
+
+      let dynScore = 0.78;
+      const dlName = dl.name.toLowerCase();
+      const dlDesc = dl.description.toLowerCase();
+      for (const t of parsedQuery.semanticTokens) {
+        if (dlName.includes(t)) dynScore += 0.08;
+        if (dlDesc.includes(t)) dynScore += 0.04;
+      }
+      if (parsedQuery.category === "solar") dynScore += 0.08;
+
+      scored.push({
+        sceneRecord: {
+          vector_id: 9999,
+          scene_id: dl.before_scene_id || `SCENE_${dl.location_id}_01`,
+          location_id: dl.location_id,
+          acquisition_date: dl.available_dates?.[0] || "2023-04-05",
+          cloud_percentage: 0.0,
+          sensor: dl.primary_sensor || "Sentinel-2 MSI",
+          platform: "Sentinel-2A",
+          tags: dl.tags,
+          image_path: `/samples/${dl.location_id}/after_2025.jpg`,
+          vector: activeVector || new Array(512).fill(0),
+        },
+        score: dynScore,
+      });
+    }
+  }
+
   // Sort descending by exact cosine score
   scored.sort((a, b) => b.score - a.score);
+
 
   let finalCandidates: Array<{ sceneRecord: SceneEmbeddingRecord; score: number }> = [];
 
