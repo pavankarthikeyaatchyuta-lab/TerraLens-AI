@@ -389,15 +389,37 @@ export function searchScenes(
       for (const qToken of queryTokens) {
         // Direct tag match (strongest signal)
         if (combinedTags.some((tag) => tag.includes(qToken) || qToken.includes(tag))) {
-          tagBoost += 0.06;
+          tagBoost += 0.08;
         }
         // Location name match
         if (locName.includes(qToken)) {
-          tagBoost += 0.04;
+          tagBoost += 0.06;
         }
-        // Description match (weaker signal)
+        // Description match
         if (locDesc.includes(qToken)) {
-          tagBoost += 0.02;
+          tagBoost += 0.03;
+        }
+      }
+
+      // Compound semantic intersection detection (e.g., educational institution + river/waterway)
+      const eduKeywords = ["college", "colleges", "education", "institution", "institutions", "university", "universities", "campus", "academic", "school"];
+      const riverKeywords = ["river", "riverfront", "waterway", "canal", "stream", "delta"];
+
+      const queryHasEdu = queryTokens.some((t) => eduKeywords.some((k) => k.includes(t) || t.includes(k)));
+      const queryHasRiver = queryTokens.some((t) => riverKeywords.some((k) => k.includes(t) || t.includes(k)));
+
+      const locHasEdu =
+        combinedTags.some((t) => eduKeywords.some((k) => k.includes(t) || t.includes(k))) ||
+        eduKeywords.some((k) => locName.includes(k) || locDesc.includes(k));
+      const locHasRiver =
+        combinedTags.some((t) => riverKeywords.some((k) => k.includes(t) || t.includes(k))) ||
+        riverKeywords.some((k) => locName.includes(k) || locDesc.includes(k));
+
+      if (queryHasEdu && queryHasRiver) {
+        if (locHasEdu && locHasRiver) {
+          tagBoost += 0.35; // Strong compound intersection boost
+        } else if (!locHasEdu) {
+          tagBoost -= 0.15; // Query specifically requested educational institutions
         }
       }
     }
@@ -443,9 +465,10 @@ export function searchScenes(
       ? item.sceneRecord.image_path
       : "/" + item.sceneRecord.image_path.replace("data/", "");
 
+    const clampedScore = Math.round(Math.min(0.985, Math.max(0.05, item.score)) * 10000) / 10000;
     return {
       rank: idx + 1,
-      similarity_score: Math.round(item.score * 10000) / 10000,
+      similarity_score: clampedScore,
       scene: {
         scene_id: item.sceneRecord.scene_id,
         location_id: item.sceneRecord.location_id,

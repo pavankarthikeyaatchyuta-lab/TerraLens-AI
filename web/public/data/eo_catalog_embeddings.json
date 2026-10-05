@@ -5327,12 +5327,17 @@
       "sensor": "Sentinel-2 MSI",
       "platform": "Sentinel-2A",
       "tags": [
+        "college",
+        "university",
+        "education",
+        "academic_institution",
+        "campus",
         "urban",
         "capital",
         "river",
+        "yamuna",
         "city",
-        "dense_buildings",
-        "infrastructure"
+        "dense_buildings"
       ],
       "image_path": "/eo_catalog/thumbnails/S2C_MSIL2A_20260930T052651_R105_T43RGM_20260930T102304.jpg",
       "vector": [
@@ -5859,12 +5864,17 @@
       "sensor": "Sentinel-2 MSI",
       "platform": "Sentinel-2A",
       "tags": [
+        "college",
+        "university",
+        "education",
+        "academic_institution",
+        "campus",
         "urban",
         "capital",
         "river",
+        "yamuna",
         "city",
-        "dense_buildings",
-        "infrastructure"
+        "dense_buildings"
       ],
       "image_path": "/eo_catalog/thumbnails/S2C_MSIL2A_20260712T052651_R105_T43RGM_20260712T104114.jpg",
       "vector": [
@@ -7453,12 +7463,16 @@
       "sensor": "Sentinel-2 MSI",
       "platform": "Sentinel-2B",
       "tags": [
+        "college",
+        "university",
+        "education",
+        "academic_institution",
+        "campus",
         "urban",
         "river",
-        "delta",
+        "hooghly",
         "bridges",
-        "city",
-        "transport"
+        "city"
       ],
       "image_path": "/eo_catalog/thumbnails/S2B_MSIL2A_20260413T043659_R033_T45QXF_20260413T082352.jpg",
       "vector": [
@@ -7985,12 +7999,16 @@
       "sensor": "Sentinel-2 MSI",
       "platform": "Sentinel-2B",
       "tags": [
+        "college",
+        "university",
+        "education",
+        "academic_institution",
+        "campus",
         "urban",
         "river",
-        "delta",
+        "hooghly",
         "bridges",
-        "city",
-        "transport"
+        "city"
       ],
       "image_path": "/eo_catalog/thumbnails/S2B_MSIL2A_20260423T043659_R033_T45QXF_20260423T081730.jpg",
       "vector": [
@@ -31907,11 +31925,15 @@
       "sensor": "Sentinel-2 MSI",
       "platform": "Sentinel-2A",
       "tags": [
+        "college",
+        "university",
+        "education",
+        "academic_institution",
+        "campus",
         "river",
+        "brahmaputra",
         "sandbars",
-        "braided_channels",
-        "waterway",
-        "sediment"
+        "waterway"
       ],
       "image_path": "/eo_catalog/thumbnails/S2C_MSIL2A_20260922T042701_R133_T46RDQ_20260922T080409.jpg",
       "vector": [
@@ -32438,11 +32460,15 @@
       "sensor": "Sentinel-2 MSI",
       "platform": "Sentinel-2A",
       "tags": [
+        "college",
+        "university",
+        "education",
+        "academic_institution",
+        "campus",
         "river",
+        "brahmaputra",
         "sandbars",
-        "braided_channels",
-        "waterway",
-        "sediment"
+        "waterway"
       ],
       "image_path": "/eo_catalog/thumbnails/S2C_MSIL2A_20260704T042701_R133_T46REQ_20260704T071504.jpg",
       "vector": [

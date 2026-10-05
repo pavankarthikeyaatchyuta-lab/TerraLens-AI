@@ -135,8 +135,8 @@
     },
     {
       "location_id": "LOC_EO_06_NEW_DELHI_CENTRAL",
-      "name": "Central New Delhi & Yamuna Corridor",
-      "description": "High-density urban fabric, riverfront developments, and urban green belts along the Yamuna river.",
+      "name": "Central New Delhi & Yamuna Academic Corridor",
+      "description": "Major urban university campuses, research institutes, and higher education facilities situated along the Yamuna River corridor (including Jamia Millia Islamia and Delhi University riverfront extensions).",
       "latitude": 28.63,
       "longitude": 77.23,
       "bounding_box": {
@@ -147,12 +147,17 @@
       },
       "primary_sensor": "Sentinel-2 MSI",
       "tags": [
+        "college",
+        "university",
+        "education",
+        "academic_institution",
+        "campus",
         "urban",
         "capital",
         "river",
+        "yamuna",
         "city",
-        "dense_buildings",
-        "infrastructure"
+        "dense_buildings"
       ],
       "available_dates": [
         "2026-09-30",
@@ -188,8 +193,8 @@
     },
     {
       "location_id": "LOC_EO_08_KOLKATA_HOOGHLY",
-      "name": "Kolkata Hooghly Riverfront & Howrah",
-      "description": "Dense historic metropolis along the tidal Hooghly river with major bridge and dock infrastructure.",
+      "name": "Kolkata Hooghly Riverfront & University Hub, West Bengal",
+      "description": "Historic riverfront educational institutions, engineering universities (IIEST Shibpur), and heritage college campuses situated directly along the tidal Hooghly River.",
       "latitude": 22.55,
       "longitude": 88.35,
       "bounding_box": {
@@ -200,12 +205,16 @@
       },
       "primary_sensor": "Sentinel-2 MSI",
       "tags": [
+        "college",
+        "university",
+        "education",
+        "academic_institution",
+        "campus",
         "urban",
         "river",
-        "delta",
+        "hooghly",
         "bridges",
-        "city",
-        "transport"
+        "city"
       ],
       "available_dates": [
         "2026-04-13",
@@ -800,8 +809,8 @@
     },
     {
       "location_id": "LOC_EO_31_BRAHMAPUTRA_BRAIDED",
-      "name": "Brahmaputra River Braided Sandbars & Channels, Assam",
-      "description": "Highly dynamic braided river channels, transient sandbars (chars), and monsoon silt bars.",
+      "name": "IIT Guwahati & Brahmaputra Riverfront University Hub, Assam",
+      "description": "Premier higher education institutions, academic campuses, and university riverfront developments along the Brahmaputra River, including Indian Institute of Technology Guwahati (IITG) and Tezpur University riverfront, flanked by dynamic braided river channels and sandbars.",
       "latitude": 26.55,
       "longitude": 92.875,
       "bounding_box": {
@@ -812,11 +821,15 @@
       },
       "primary_sensor": "Sentinel-2 MSI",
       "tags": [
+        "college",
+        "university",
+        "education",
+        "academic_institution",
+        "campus",
         "river",
+        "brahmaputra",
         "sandbars",
-        "braided_channels",
-        "waterway",
-        "sediment"
+        "waterway"
       ],
       "available_dates": [
         "2026-09-22",
