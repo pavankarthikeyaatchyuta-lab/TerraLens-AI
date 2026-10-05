@@ -435,6 +435,34 @@ export function searchScenes(
         }
       }
 
+      // Region / State matching (e.g. "rajasthan", "karnataka", "assam", "delhi", "bengal", "gujarat")
+      const locRegion = ((loc as any)?.region || "").toLowerCase();
+      const stateKeywords = ["rajasthan", "karnataka", "assam", "delhi", "bengal", "gujarat", "andhra", "kashmir", "punjab", "haryana", "maharashtra", "odisha", "manipur", "ladakh"];
+      const queryStates = queryTokens.filter((t) => stateKeywords.some((s) => s.includes(t) || t.includes(s)));
+      if (queryStates.length > 0) {
+        const matchesQueryState = queryStates.some((qs) => locName.includes(qs) || locRegion.includes(qs) || locDesc.includes(qs));
+        if (matchesQueryState) {
+          tagBoost += 0.30; // Heavy geographic/regional match boost
+        }
+      }
+
+      // Domain-specific affinity & negative penalties
+      const solarKeywords = ["solar", "photovoltaic", "pv", "sun", "megawatt", "gw", "clean energy", "renewable"];
+      const queryHasSolar = queryTokens.some((t) => solarKeywords.some((k) => k.includes(t) || t.includes(k)));
+      const locHasSolar =
+        combinedTags.some((t) => solarKeywords.some((k) => k.includes(t) || t.includes(k))) ||
+        solarKeywords.some((k) => locName.includes(k) || locDesc.includes(k));
+
+      if (queryHasSolar) {
+        if (locHasSolar) {
+          tagBoost += 0.35; // Major solar park affinity
+        } else if (locName.includes("thar") || locDesc.includes("desert") || locDesc.includes("arid")) {
+          tagBoost += 0.15; // Desert renewable corridor affinity
+        } else {
+          tagBoost -= 0.30; // Suppress unrelated urban highways/ports/wetlands for solar queries
+        }
+      }
+
       // Compound semantic intersection detection (e.g., educational institution + river/waterway)
       const eduKeywords = ["college", "colleges", "education", "institution", "institutions", "university", "universities", "campus", "academic", "school"];
       const riverKeywords = ["river", "riverfront", "waterway", "canal", "stream", "delta"];
@@ -451,9 +479,9 @@ export function searchScenes(
 
       if (queryHasEdu && queryHasRiver) {
         if (locHasEdu && locHasRiver) {
-          tagBoost += 0.35; // Strong compound intersection boost
+          tagBoost += 0.40; // Strong compound intersection boost
         } else if (!locHasEdu) {
-          tagBoost -= 0.15; // Query specifically requested educational institutions
+          tagBoost -= 0.20; // Query specifically requested educational institutions
         }
       }
     }

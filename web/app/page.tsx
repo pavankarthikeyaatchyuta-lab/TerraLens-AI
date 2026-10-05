@@ -283,7 +283,7 @@ export default function HomePage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         imageSceneId: targetSceneId,
-        query: activeQuery || undefined,
+        query: activeQuery || selectedLocation?.name || undefined,
         top_k: 5,
         catalog: "real-eo",
         groupBy: "location",
